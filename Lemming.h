@@ -32,9 +32,8 @@ private:
 	int count;
 
 	bool digged, bashed, climbed;
-	bool right;
-
 	bool show = false;
+	bool right;
 	bool collision();
 	bool win();
 
@@ -43,7 +42,8 @@ private:
 private:
 	enum LemmingState
 	{
-		WALKING_LEFT_STATE, WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DEAD, BLOCKER_STATE, BASHER, DIGGER_STATE, CLIMBER_STATE
+		WALKING_LEFT_STATE, WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DEAD, BLOCKER_STATE, 
+		BASHER, DIGGER_STATE, CLIMBER_STATE, EXPLOSION_STATE, WIN_STATE, RESPAWN
 	};
 
 	LemmingState state;

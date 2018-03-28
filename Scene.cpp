@@ -11,7 +11,8 @@
 
 enum LemmingState
 {
-	WALKING_LEFT_STATE, WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DEAD, BLOCKER_STATE, BASHER, DIGGER_STATE, CLIMBER_STATE
+	WALKING_LEFT_STATE, WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DEAD, BLOCKER_STATE,
+	BASHER, DIGGER_STATE, CLIMBER_STATE, EXPLOSION_STATE, WIN_STATE, RESPAWN
 };
 
 Scene::Scene()
@@ -144,7 +145,7 @@ void Scene::update(int deltaTime)
 				glm::ivec2 pos = lemmings[i].getSprite()->position();
 				pos += glm::vec2(120, 0);
 
-				if (pos.x <= posX && posX <= (pos.x + 16) && pos.y <= posY && posY <= (pos.y + 16)) {
+				if (pos.x <= posX && posX <= (pos.x + 16) && pos.y <= posY && posY <= (pos.y + 16) && lemmings[i].getState() != DEAD && lemmings[i].getState() != RESPAWN) {
 					id = i;
 					found = true;
 				}
@@ -256,12 +257,12 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 					//BLOCKER_STATE, BASHER, DIGGER_STATE, CLIMBER_STATE (Descomentar uno para probarlo).
 					
 					//lemmings[id].setState(BLOCKER_STATE);
-					lemmings[id].setState(BASHER);
+					lemmings[id].setState(EXPLOSION_STATE);
 					//lemmings[id].setState(DIGGER_STATE);
 					//lemmings[id].setState(CLIMBER_STATE);
 
 				}
-				eraseMask(mouseX, mouseY);
+				//eraseMask(mouseX, mouseY);
 			}
 			else if (bRightButton) {
 				if (id != -1) {

@@ -13,7 +13,7 @@
 
 enum LemmingAnims
 {
-	WALKING_LEFT, WALKING_RIGHT, BLOCKER_ANIM, WIN, DIG, BASH_RIGHT, BASH_LEFT
+	WALKING_LEFT, WALKING_RIGHT, BLOCKER_ANIM, WIN, DIG, BASH_RIGHT, BASH_LEFT, EXPLODE, FALL_RIGHT, FALL_LEFT
 };
 
 
@@ -26,12 +26,12 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 	bashed = digged = climbed = false;
 	right = true;
 
-	state = FALLING_RIGHT_STATE;
+	state = RESPAWN;
 	spritesheet.loadFromFile("images/lemming.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	spritesheet.setMinFilter(GL_NEAREST);
 	spritesheet.setMagFilter(GL_NEAREST);
-	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(1.0f/16.0f, 1.0f/7.0f), &spritesheet, &shaderProgram);
-	sprite->setNumberAnimations(7);
+	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(1.0f/16.0f, 1.0f/9.0f), &spritesheet, &shaderProgram);
+	sprite->setNumberAnimations(10);
 		sprite->setAnimationSpeed(WALKING_RIGHT, 12);
 		for(int i=0; i<8; i++)
 			sprite->addKeyframe(WALKING_RIGHT, glm::vec2(float(i) / 16, 0.0f));
@@ -42,29 +42,41 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 
 		sprite->setAnimationSpeed(BLOCKER_ANIM, 12);
 		for (int i = 0; i<16; i++)
-			sprite->addKeyframe(BLOCKER_ANIM, glm::vec2(float(i) / 16, 1.0f / 7.0f));
+			sprite->addKeyframe(BLOCKER_ANIM, glm::vec2(float(i) / 16, 1.0f / 9.0f));
 
 		sprite->setAnimationSpeed(WIN, 12);
 		for (int i = 0; i<8; i++)
-			sprite->addKeyframe(WIN, glm::vec2(float(i) / 16, 2.0f / 7.0f));
+			sprite->addKeyframe(WIN, glm::vec2(float(i) / 16, 2.0f / 9.0f));
 
 		sprite->setAnimationSpeed(DIG, 9);
 		for (int i = 0; i<8; i++)
-			sprite->addKeyframe(DIG, glm::vec2(0.5f +float(i) / 16, 2.0f / 7.0f));
+			sprite->addKeyframe(DIG, glm::vec2(0.5f +float(i) / 16, 2.0f / 9.0f));
 
 		sprite->setAnimationSpeed(BASH_RIGHT, 9);
 		for (int i = 0; i<16; i++)
-			sprite->addKeyframe(BASH_RIGHT, glm::vec2(float(i) / 16, 3.0f / 7.0f));
+			sprite->addKeyframe(BASH_RIGHT, glm::vec2(float(i) / 16, 3.0f / 9.0f));
 		for (int i = 0; i<16; i++)
-			sprite->addKeyframe(BASH_RIGHT, glm::vec2(float(i) / 16, 4.0f / 7.0f));
+			sprite->addKeyframe(BASH_RIGHT, glm::vec2(float(i) / 16, 4.0f / 9.0f));
 
 		sprite->setAnimationSpeed(BASH_LEFT, 9);
 		for (int i = 0; i<16; i++)
-			sprite->addKeyframe(BASH_LEFT, glm::vec2(float(i) / 16, 5.0f / 7.0f));
+			sprite->addKeyframe(BASH_LEFT, glm::vec2(float(i) / 16, 5.0f / 9.0f));
 		for (int i = 0; i<16; i++)
-			sprite->addKeyframe(BASH_LEFT, glm::vec2(float(i) / 16, 6.0f / 7.0f));
+			sprite->addKeyframe(BASH_LEFT, glm::vec2(float(i) / 16, 6.0f / 9.0f));
 		
-	sprite->changeAnimation(WALKING_RIGHT);
+		sprite->setAnimationSpeed(EXPLODE, 9);
+		for (int i = 0; i<15; i++)
+			sprite->addKeyframe(EXPLODE, glm::vec2(float(i) / 16, 7.0f / 9.0f));
+
+		sprite->setAnimationSpeed(FALL_RIGHT, 12);
+		for (int i = 0; i<4; i++)
+			sprite->addKeyframe(FALL_RIGHT, glm::vec2(float(i) / 16, 8.0f / 9.0f));
+
+		sprite->setAnimationSpeed(FALL_LEFT, 12);
+		for (int i = 0; i<4; i++)
+			sprite->addKeyframe(FALL_LEFT, glm::vec2(0.25f + (float(i)) / 16, 8.0f / 9.0f));
+
+	sprite->changeAnimation(FALL_RIGHT);
 	sprite->setPosition(initialPosition);
 }
 
@@ -73,7 +85,7 @@ int Lemming::keepWalking(int dir) {
 	int fall;
 	sprite->position() += glm::vec2(dir, -1);
 	if (win()) {
-		state = DEAD;
+		state = WIN_STATE;
 		sprite->changeAnimation(WIN);
 		return 1;
 	}
@@ -97,8 +109,16 @@ int Lemming::keepWalking(int dir) {
 		fall = collisionFloor(3);
 		if (fall < 3)
 			sprite->position() += glm::vec2(0, fall);
-		else
-			state = FALLING_RIGHT_STATE;
+		else {
+			if (dir == 1) {
+				state = FALLING_RIGHT_STATE;
+				sprite->changeAnimation(FALL_RIGHT);
+			}
+			else {
+				state = FALLING_LEFT_STATE;
+				sprite->changeAnimation(FALL_LEFT);
+			}
+		}
 	}
 	return 0;
 }
@@ -110,9 +130,13 @@ int Lemming::update(int deltaTime, int seconds)
 	if (right) dir = 1;
 
 	if (cooldown > seconds) return 0;
-	else show = true;
+	else if(!show){
+		show = true;
+		state = FALLING_RIGHT_STATE;
+		sprite->changeAnimation(FALL_RIGHT);
+	};
 
-	if (state == DEAD && sprite->getKeyframe() == 7) return 0;
+	if (state == DEAD) return 0;
 
 	if(sprite->update(deltaTime) == 0)
 		return 0;
@@ -120,8 +144,27 @@ int Lemming::update(int deltaTime, int seconds)
 	++count;
 	if (count >= 4) count = 0;
 
+	int radius = 14;
+	glm::ivec2 pos = sprite->position();
+	pos += glm::vec2(120, 0);
+
 	switch(state)
 	{
+		case EXPLOSION_STATE:
+			if (sprite->getKeyframe() == 14) {
+				pos += glm::vec2(8, 8);
+				for (int y = -radius; y <= radius; y++)
+					for (int x = -radius; x <= radius; x++)
+						if (x*x + y * y <= radius * radius)
+							mask->setPixel(pos.x + x, pos.y + y, 0);
+				state = DEAD;
+			}
+			break;
+		case WIN_STATE:
+			if (sprite->getKeyframe() == 7)
+				state = DEAD;
+			break;
+
 		case BLOCKER_STATE:
 			fall = collisionFloor(2);
 			if (fall > 0)
@@ -132,10 +175,7 @@ int Lemming::update(int deltaTime, int seconds)
 
 		case CLIMBER_STATE:
 			if (collision()) {
-				cout << "Hola" << endl;
 				climbed = true;
-				glm::ivec2 pos = sprite->position();
-				pos += glm::vec2(120, 0);
 				sprite->position() += glm::vec2(0, -1);
 			}
 			else {
@@ -160,8 +200,6 @@ int Lemming::update(int deltaTime, int seconds)
 			if (collision()) {
 				if (count % 4 == 0) {
 					count = 0;
-					glm::ivec2 pos = sprite->position();
-					pos += glm::vec2(120, 0);
 
 					if (right) {
 						if (!bashed) {
@@ -221,11 +259,11 @@ int Lemming::update(int deltaTime, int seconds)
 				if (digged) {
 					if (right) {
 						state = FALLING_RIGHT_STATE;
-						sprite->changeAnimation(WALKING_RIGHT);
+						sprite->changeAnimation(FALL_RIGHT);
 					}
 					else {
 						state = FALLING_LEFT_STATE;
-						sprite->changeAnimation(WALKING_LEFT);
+						sprite->changeAnimation(FALL_LEFT);
 					}
 					digged = false;
 				}
@@ -240,6 +278,7 @@ int Lemming::update(int deltaTime, int seconds)
 				sprite->position() += glm::vec2(0, fall);
 			else {
 				state = WALKING_LEFT_STATE;
+				sprite->changeAnimation(WALKING_LEFT);
 				right = false;
 			}
 			break;
@@ -249,6 +288,7 @@ int Lemming::update(int deltaTime, int seconds)
 				sprite->position() += glm::vec2(0, fall);
 			else {
 				state = WALKING_RIGHT_STATE;
+				sprite->changeAnimation(WALKING_RIGHT);
 				right = true;
 			}
 			break;
@@ -258,13 +298,15 @@ int Lemming::update(int deltaTime, int seconds)
 		case WALKING_RIGHT_STATE:
 			return keepWalking(dir);
 			break;
+		case RESPAWN:
+			break;
 	}
 	return 0;
 }
 
 void Lemming::render()
 {
-	if(show && (state != DEAD || sprite->getKeyframe() != 7)) sprite->render();
+	if(state != DEAD && state != RESPAWN) sprite->render();
 }
 
 void Lemming::setMapMask(VariableTexture *mapMask)
@@ -314,7 +356,8 @@ bool Lemming::win()
 
 
 void Lemming::setState(int stateId) {
-
+	glm::ivec2 pos = sprite->position();
+	pos += glm::vec2(120, 0);
 	switch (stateId) {
 	case BLOCKER_STATE:
 		if (state != FALLING_LEFT_STATE && state != FALLING_RIGHT_STATE){
@@ -337,6 +380,10 @@ void Lemming::setState(int stateId) {
 
 		case BASHER:
 			state = BASHER;
+			break;
+		case EXPLOSION_STATE:
+			state = EXPLOSION_STATE;
+			sprite->changeAnimation(EXPLODE);
 			break;
 		default:
 			break;
