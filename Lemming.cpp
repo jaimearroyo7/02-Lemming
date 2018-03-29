@@ -198,7 +198,7 @@ int Lemming::update(int deltaTime, int seconds)
 			break;
 		case BASHER:
 			if (collision()) {
-				if (count % 4 == 0) {
+				if (count % 3 == 0) {
 					count = 0;
 
 					if (right) {
