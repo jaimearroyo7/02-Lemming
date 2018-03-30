@@ -161,6 +161,11 @@ void VariableTexture::setPixel(unsigned int x, unsigned int y, const glm::ivec3 
 		image[3*(y * widthTex + x) + 1] = value.g;
 		image[3*(y * widthTex + x) + 2] = value.b;
 	}
+
+}
+
+unsigned char VariableTexture::getImage() {
+	return *image;
 }
 
 void VariableTexture::setPixel(unsigned int x, unsigned int y, const glm::ivec4 & value)

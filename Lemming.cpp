@@ -13,7 +13,7 @@
 
 enum LemmingAnims
 {
-	WALKING_LEFT, WALKING_RIGHT, BLOCKER_ANIM, WIN, DIG, BASH_RIGHT, BASH_LEFT, EXPLODE, FALL_RIGHT, FALL_LEFT
+	WALKING_LEFT, WALKING_RIGHT, BLOCKER_ANIM, WIN, DIG, BASH_RIGHT, BASH_LEFT, EXPLODE, FALL_RIGHT, FALL_LEFT, BUILDING
 };
 
 
@@ -23,15 +23,17 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 
 	this->cooldown = cooldown;
 	count = 0;
+	builderCount = 0;
 	bashed = digged = climbed = false;
 	right = true;
+	firstStair = true;
 
 	state = RESPAWN;
 	spritesheet.loadFromFile("images/lemming.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	spritesheet.setMinFilter(GL_NEAREST);
 	spritesheet.setMagFilter(GL_NEAREST);
-	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(1.0f/16.0f, 1.0f/9.0f), &spritesheet, &shaderProgram);
-	sprite->setNumberAnimations(10);
+	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(1.0f/16.0f, 1.0f/10.0f), &spritesheet, &shaderProgram);
+	sprite->setNumberAnimations(11);
 		sprite->setAnimationSpeed(WALKING_RIGHT, 12);
 		for(int i=0; i<8; i++)
 			sprite->addKeyframe(WALKING_RIGHT, glm::vec2(float(i) / 16, 0.0f));
@@ -42,39 +44,43 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 
 		sprite->setAnimationSpeed(BLOCKER_ANIM, 12);
 		for (int i = 0; i<16; i++)
-			sprite->addKeyframe(BLOCKER_ANIM, glm::vec2(float(i) / 16, 1.0f / 9.0f));
+			sprite->addKeyframe(BLOCKER_ANIM, glm::vec2(float(i) / 16, 1.0f / 10.0f));
 
 		sprite->setAnimationSpeed(WIN, 12);
 		for (int i = 0; i<8; i++)
-			sprite->addKeyframe(WIN, glm::vec2(float(i) / 16, 2.0f / 9.0f));
+			sprite->addKeyframe(WIN, glm::vec2(float(i) / 16, 2.0f / 10.0f));
 
 		sprite->setAnimationSpeed(DIG, 9);
 		for (int i = 0; i<8; i++)
-			sprite->addKeyframe(DIG, glm::vec2(0.5f +float(i) / 16, 2.0f / 9.0f));
+			sprite->addKeyframe(DIG, glm::vec2(0.5f +float(i) / 16, 2.0f / 10.0f));
 
 		sprite->setAnimationSpeed(BASH_RIGHT, 9);
 		for (int i = 0; i<16; i++)
-			sprite->addKeyframe(BASH_RIGHT, glm::vec2(float(i) / 16, 3.0f / 9.0f));
+			sprite->addKeyframe(BASH_RIGHT, glm::vec2(float(i) / 16, 3.0f / 10.0f));
 		for (int i = 0; i<16; i++)
-			sprite->addKeyframe(BASH_RIGHT, glm::vec2(float(i) / 16, 4.0f / 9.0f));
+			sprite->addKeyframe(BASH_RIGHT, glm::vec2(float(i) / 16, 4.0f / 10.0f));
 
 		sprite->setAnimationSpeed(BASH_LEFT, 9);
 		for (int i = 0; i<16; i++)
-			sprite->addKeyframe(BASH_LEFT, glm::vec2(float(i) / 16, 5.0f / 9.0f));
+			sprite->addKeyframe(BASH_LEFT, glm::vec2(float(i) / 16, 5.0f / 10.0f));
 		for (int i = 0; i<16; i++)
-			sprite->addKeyframe(BASH_LEFT, glm::vec2(float(i) / 16, 6.0f / 9.0f));
+			sprite->addKeyframe(BASH_LEFT, glm::vec2(float(i) / 16, 6.0f / 10.0f));
 		
 		sprite->setAnimationSpeed(EXPLODE, 9);
 		for (int i = 0; i<15; i++)
-			sprite->addKeyframe(EXPLODE, glm::vec2(float(i) / 16, 7.0f / 9.0f));
+			sprite->addKeyframe(EXPLODE, glm::vec2(float(i) / 16, 7.0f / 10.0f));
 
 		sprite->setAnimationSpeed(FALL_RIGHT, 12);
 		for (int i = 0; i<4; i++)
-			sprite->addKeyframe(FALL_RIGHT, glm::vec2(float(i) / 16, 8.0f / 9.0f));
+			sprite->addKeyframe(FALL_RIGHT, glm::vec2(float(i) / 16, 8.0f / 10.0f));
 
 		sprite->setAnimationSpeed(FALL_LEFT, 12);
 		for (int i = 0; i<4; i++)
-			sprite->addKeyframe(FALL_LEFT, glm::vec2(0.25f + (float(i)) / 16, 8.0f / 9.0f));
+			sprite->addKeyframe(FALL_LEFT, glm::vec2(0.25f + (float(i)) / 16, 8.0f / 10.0f));
+
+		sprite->setAnimationSpeed(BUILDING, 12);
+		for (int i = 0; i<16; i++)
+			sprite->addKeyframe(BUILDING, glm::vec2(float(i) / 16, 9.0f / 10.0f));
 
 	sprite->changeAnimation(FALL_RIGHT);
 	sprite->setPosition(initialPosition);
@@ -150,6 +156,23 @@ int Lemming::update(int deltaTime, int seconds)
 
 	switch(state)
 	{
+		case BUILDER_STATE:
+			if (builderCount >= 13) {
+				keepWalking(dir);
+			}
+			else if (sprite->getKeyframe() == 0 && !firstStair) {
+				sprite->position() += glm::vec2(2, -1);
+				++builderCount;				
+			}
+			else if (sprite->getKeyframe() == 10) {
+				pos += glm::vec2(9, 15);
+				for (int i = 0; i < 4; ++i) {
+					mask->setPixel(pos.x + i, pos.y, 255);
+					color->setPixel(pos.x + i, pos.y, glm::ivec4(119, 77, 0, 255));
+				}
+				firstStair = false;
+			}
+			break;
 		case EXPLOSION_STATE:
 			if (sprite->getKeyframe() == 14) {
 				pos += glm::vec2(8, 8);
@@ -309,9 +332,10 @@ void Lemming::render()
 	if(state != DEAD && state != RESPAWN) sprite->render();
 }
 
-void Lemming::setMapMask(VariableTexture *mapMask)
+void Lemming::setMapMask(VariableTexture *mapMask, VariableTexture *mapColor)
 {
 	mask = mapMask;
+	color = mapColor;
 }
 
 int Lemming::collisionFloor(int maxFall)
@@ -343,6 +367,17 @@ bool Lemming::collision()
 	return true;
 }
 
+bool Lemming::collisionHead()
+{
+	glm::ivec2 posBase = sprite->position() + glm::vec2(120, 0); // Add the map displacement
+
+	posBase += glm::ivec2(7, 6);
+	//cout << int(mask->pixel(posBase.x+1, posBase.y)) << endl;
+	if ((mask->pixel(posBase.x, posBase.y) == 0) && (mask->pixel(posBase.x + 1, posBase.y) == 0))
+		return false;
+	return true;
+}
+
 bool Lemming::win()
 {
 	glm::ivec2 posBase = sprite->position() + glm::vec2(120, 0); // Add the map displacement
@@ -359,17 +394,21 @@ void Lemming::setState(int stateId) {
 	glm::ivec2 pos = sprite->position();
 	pos += glm::vec2(120, 0);
 	switch (stateId) {
-	case BLOCKER_STATE:
-		if (state != FALLING_LEFT_STATE && state != FALLING_RIGHT_STATE){
-			glm::ivec2 pos = sprite->position();
-			pos += glm::vec2(120, 0);
-			for (int y = max(0, pos.y + 6); y <= min(mask->height() - 1, pos.y + 17); y++)
-				for (int x = max(0, pos.x + 3); x <= min(mask->width() - 1, pos.x + 13); x++)
-					mask->setPixel(x, y, 255);
-			state = BLOCKER_STATE;
-			sprite->changeAnimation(BLOCKER_ANIM);
-		}
-		break;
+		case BUILDER_STATE:
+			state = BUILDER_STATE;
+			sprite->changeAnimation(BUILDING);
+			break;
+		case BLOCKER_STATE:
+			if (state != FALLING_LEFT_STATE && state != FALLING_RIGHT_STATE){
+				glm::ivec2 pos = sprite->position();
+				pos += glm::vec2(120, 0);
+				for (int y = max(0, pos.y + 6); y <= min(mask->height() - 1, pos.y + 17); y++)
+					for (int x = max(0, pos.x + 3); x <= min(mask->width() - 1, pos.x + 13); x++)
+						mask->setPixel(x, y, 255);
+				state = BLOCKER_STATE;
+				sprite->changeAnimation(BUILDING);
+			}
+			break;
 		case DIGGER_STATE:
 			state = DIGGER_STATE;
 			break;

@@ -7,6 +7,7 @@
 #include "MaskedTexturedQuad.h"
 #include "Lemming.h"
 #include "TexturedQuad.h"
+#include "Text.h"
 
 
 // Scene contains all the entities of our game.
@@ -46,10 +47,10 @@ private:
 
 	GameState gamestate;
 
-	Texture colorTexture;
+	VariableTexture colorTexture;
 	VariableTexture maskTexture;
 	MaskedTexturedQuad *map;
-	ShaderProgram simpleTexProgram, maskedTexProgram, imagesProgram;
+	ShaderProgram simpleTexProgram, maskedTexProgram, imagesProgram, textProgram;
 	float currentTime;
 	glm::mat4 projection;
 	
@@ -75,6 +76,9 @@ private:
 
 	Sprite *cursor;
 	Texture spritesheetCursor;
+
+
+	Text text;
 };
 
 

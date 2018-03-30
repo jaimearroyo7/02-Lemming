@@ -45,6 +45,8 @@ public:
 	void setPixel(unsigned int x, unsigned int y, const glm::ivec4 & value);
 	void saveBMP(const string &filename);
 
+	unsigned char getImage();
+
 private:
 	PixelFormat format;
 	int widthTex, heightTex;

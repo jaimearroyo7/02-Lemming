@@ -12,7 +12,7 @@
 enum LemmingState
 {
 	WALKING_LEFT_STATE, WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DEAD, BLOCKER_STATE,
-	BASHER, DIGGER_STATE, CLIMBER_STATE, EXPLOSION_STATE, WIN_STATE, RESPAWN
+	BASHER, DIGGER_STATE, CLIMBER_STATE, EXPLOSION_STATE, WIN_STATE, RESPAWN, BUILDER_STATE
 };
 
 Scene::Scene()
@@ -79,7 +79,13 @@ void Scene::initFinishDoor() {
 
 void Scene::init()
 {
-	
+	// Select which font you want to use
+	if (!text.init("fonts/OpenSans-Regular.ttf"))
+		//if(!text.init("fonts/OpenSans-Bold.ttf"))
+		//if(!text.init("fonts/DroidSerif.ttf"))
+		cout << "Could not load font!!!" << endl;
+
+
 	glm::vec2 geom[2] = { glm::vec2(0.f, 0.f), glm::vec2(float(CAMERA_WIDTH), float(CAMERA_HEIGHT)) };
 
 	glm::vec2 texCoords[2] = { glm::vec2(120.f / 512.0, 0.f), glm::vec2((120.f + 320.f) / 512.0f, 160.f / 256.0f) };
@@ -108,13 +114,20 @@ void Scene::init()
 
 			for (int i = 0; i < 5; ++i) {
 				lemmings[i].init(glm::vec2(90, 30), simpleTexProgram, 2 + i * 5);
-				lemmings[i].setMapMask(&maskTexture);
+				lemmings[i].setMapMask(&maskTexture, &colorTexture);
 			}
 			//openDoor	
 			initOpenDoor();
 
 			//finishDoor
 			initFinishDoor();
+
+
+			//glBegin(GL_POINTS);
+			//glColor4f(1, 1, 1, 1);
+			
+			//glEnd();
+
 			break;
 
 		case MENU:
@@ -223,8 +236,15 @@ void Scene::render()
 			imagesProgram.setUniformMatrix4f("projection", projection);
 			imagesProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			imagesProgram.setUniformMatrix4f("modelview", modelview);
-
 			menu->render(menuTexture);
+
+
+			textProgram.use();
+			textProgram.setUniformMatrix4f("projection", projection);
+			textProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			textProgram.setUniformMatrix4f("modelview", modelview);
+			text.render("Videogames!!!_", glm::vec2(10, CAMERA_HEIGHT - 20), 32, glm::vec4(0,0,0,1));
+
 
 			simpleTexProgram.use();
 			simpleTexProgram.setUniformMatrix4f("projection", projection);
@@ -257,12 +277,12 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 					//BLOCKER_STATE, BASHER, DIGGER_STATE, CLIMBER_STATE (Descomentar uno para probarlo).
 					
 					//lemmings[id].setState(BLOCKER_STATE);
-					lemmings[id].setState(EXPLOSION_STATE);
+					lemmings[id].setState(BUILDER_STATE);
 					//lemmings[id].setState(DIGGER_STATE);
 					//lemmings[id].setState(CLIMBER_STATE);
 
 				}
-				//eraseMask(mouseX, mouseY);
+				eraseMask(mouseX, mouseY);
 			}
 			else if (bRightButton) {
 				if (id != -1) {
@@ -272,7 +292,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 					//lemmings[id].setState(DIGGER_STATE);
 					//lemmings[id].setState(CLIMBER_STATE);
 				}
-				//applyMask(mouseX, mouseY);
+				applyMask(mouseX, mouseY);
 			}
 			
 			break;
@@ -308,10 +328,12 @@ void Scene::applyMask(int mouseX, int mouseY)
 	//   The map is enlarged 3 times and displaced 120 pixels
 	posX = mouseX/3 + 120;
 	posY = mouseY/3;
-
-	for(int y=max(0, posY-3); y<=min(maskTexture.height()-1, posY+3); y++)
-		for(int x=max(0, posX-3); x<=min(maskTexture.width()-1, posX+3); x++)
+	cout << int(colorTexture.pixel(posX, posY)) << endl;
+	cout << int(maskTexture.pixel(posX, posY)) << endl;
+	for (int y = max(0, posY - 3); y <= min(colorTexture.height() - 1, posY + 3); y++)
+		for (int x = max(0, posX - 3); x <= min(colorTexture.width() - 1, posX + 3); x++)
 			maskTexture.setPixel(x, y, 255);
+			//colorTexture.setPixel(x, y, glm::ivec4(150, 150, 150, 255));
 }
 
 
@@ -392,6 +414,33 @@ void Scene::initShaders()
 		cout << "" << imagesProgram.log() << endl << endl;
 	}
 	imagesProgram.bindFragmentOutput("outColor");
+	vShader.free();
+	fShader.free();
+
+
+
+	vShader.initFromFile(VERTEX_SHADER, "shaders/text.vert");
+	if (!vShader.isCompiled())
+	{
+		cout << "Vertex Shader Error" << endl;
+		cout << "" << vShader.log() << endl << endl;
+	}
+	fShader.initFromFile(FRAGMENT_SHADER, "shaders/text.frag");
+	if (!fShader.isCompiled())
+	{
+		cout << "Fragment Shader Error" << endl;
+		cout << "" << fShader.log() << endl << endl;
+	}
+	textProgram.init();
+	textProgram.addShader(vShader);
+	textProgram.addShader(fShader);
+	textProgram.link();
+	if (!textProgram.isLinked())
+	{
+		cout << "Shader Linking Error" << endl;
+		cout << "" << textProgram.log() << endl << endl;
+	}
+	textProgram.bindFragmentOutput("outColor");
 	vShader.free();
 	fShader.free();
 }

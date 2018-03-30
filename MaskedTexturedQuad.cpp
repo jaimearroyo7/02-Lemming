@@ -29,7 +29,7 @@ MaskedTexturedQuad::MaskedTexturedQuad(glm::vec2 geom[2], glm::vec2 texCoords[2]
 	texCoordLocation = program.bindVertexAttribute("texCoord", 2, 4*sizeof(float), (void *)(2*sizeof(float)));
 }
 
-void MaskedTexturedQuad::render(ShaderProgram &program, const Texture &tex, const VariableTexture &mask) const
+void MaskedTexturedQuad::render(ShaderProgram &program, const VariableTexture &tex, const VariableTexture &mask) const
 {
 	glEnable(GL_TEXTURE_2D);
 	program.setTextureUnit("tex", 0);
