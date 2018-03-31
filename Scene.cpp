@@ -270,12 +270,14 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 	switch (gamestate) {
 		case PLAYING:
 			if (bLeftButton) {
+				
 				cout << id << endl;
 				//convertir un Lemming a Blocker
 
 				if (id != -1) {
 					//BLOCKER_STATE, BASHER, DIGGER_STATE, CLIMBER_STATE (Descomentar uno para probarlo).
-					
+					cout << posX << " " << posY << endl;
+					cout << lemmings[id].getSprite()->position().x << " " << lemmings[id].getSprite()->position().y << endl;
 					//lemmings[id].setState(BLOCKER_STATE);
 					lemmings[id].setState(BUILDER_STATE);
 					//lemmings[id].setState(DIGGER_STATE);
@@ -328,8 +330,6 @@ void Scene::applyMask(int mouseX, int mouseY)
 	//   The map is enlarged 3 times and displaced 120 pixels
 	posX = mouseX/3 + 120;
 	posY = mouseY/3;
-	cout << int(colorTexture.pixel(posX, posY)) << endl;
-	cout << int(maskTexture.pixel(posX, posY)) << endl;
 	for (int y = max(0, posY - 3); y <= min(colorTexture.height() - 1, posY + 3); y++)
 		for (int x = max(0, posX - 3); x <= min(colorTexture.width() - 1, posX + 3); x++)
 			maskTexture.setPixel(x, y, 255);

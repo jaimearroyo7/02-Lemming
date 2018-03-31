@@ -36,7 +36,7 @@ private:
 
 	bool show = false;
 	bool right;
-	bool collision();
+	bool collision(int offset);
 	bool collisionHead();
 	bool win();
 
