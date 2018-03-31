@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Game.h"
+#include <iostream>
 
 
 void Game::init()
@@ -8,6 +9,7 @@ void Game::init()
 	
 	bPlay = true;
 	bLeftMouse = bRightMouse = false;
+	lemingAction = -1;
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	scene.init();
 }
@@ -29,9 +31,31 @@ void Game::render()
 
 void Game::keyPressed(int key)
 {
-	if(key == 27) // Escape code
+	switch (key)
+	{
+	case 27: // Escape code
 		bPlay = false;
+		break;
+	case 49: // 1 code
+		lemingAction = 1;
+		break;
+	case 50: // 2 code
+		lemingAction = 2;
+		break;
+	case 51: // 3 code
+		lemingAction = 3;
+		break;
+	case 52: // 4 code
+		lemingAction = 4;
+		break;
+	case 114: // R code
+		scene.init();
+		break;
+	default: 
+		lemingAction = -1;
+	}
 	keys[key] = true;
+	cout << key;
 }
 
 void Game::keyReleased(int key)
@@ -53,7 +77,7 @@ void Game::mouseMove(int x, int y)
 {
 	mouseX = x;
 	mouseY = y;
-	scene.mouseMoved(mouseX, mouseY, bLeftMouse, bRightMouse);
+	scene.mouseMoved(mouseX, mouseY, bLeftMouse, bRightMouse, 0);
 }
 
 void Game::mousePress(int button)
@@ -61,12 +85,12 @@ void Game::mousePress(int button)
 	if(button == GLUT_LEFT_BUTTON)
 	{
 		bLeftMouse = true;
-		scene.mouseMoved(mouseX, mouseY, bLeftMouse, bRightMouse);
+		scene.mouseMoved(mouseX, mouseY, bLeftMouse, bRightMouse, lemingAction);
 	}
 	else if(button == GLUT_RIGHT_BUTTON)
 	{
 		bRightMouse = true;
-		scene.mouseMoved(mouseX, mouseY, bLeftMouse, bRightMouse);
+		scene.mouseMoved(mouseX, mouseY, bLeftMouse, bRightMouse, lemingAction);
 	}
 }
 

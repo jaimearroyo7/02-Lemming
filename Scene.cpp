@@ -239,7 +239,7 @@ void Scene::render()
 }
 
 
-void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButton)
+void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButton, int lemingAction)
 {
 
 	// Transform from mouse coordinates to map coordinates
@@ -255,11 +255,23 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 
 				if (id != -1) {
 					//BLOCKER_STATE, BASHER, DIGGER_STATE, CLIMBER_STATE (Descomentar uno para probarlo).
-					
-					//lemmings[id].setState(BLOCKER_STATE);
-					lemmings[id].setState(EXPLOSION_STATE);
-					//lemmings[id].setState(DIGGER_STATE);
-					//lemmings[id].setState(CLIMBER_STATE);
+					switch (lemingAction)
+					{
+					case 1:
+						lemmings[id].setState(BLOCKER_STATE);
+						break;
+					case 2:
+						lemmings[id].setState(EXPLOSION_STATE);
+						break;
+					case 3:
+						lemmings[id].setState(DIGGER_STATE);
+						break;
+					case 4:
+						lemmings[id].setState(CLIMBER_STATE);
+						break;
+					default:
+						break;
+					}
 
 				}
 				//eraseMask(mouseX, mouseY);
@@ -267,8 +279,8 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 			else if (bRightButton) {
 				if (id != -1) {
 
-					lemmings[id].setState(BLOCKER_STATE);
-					//lemmings[id].setState(BASHER);
+					//lemmings[id].setState(BLOCKER_STATE);
+					lemmings[id].setState(BASHER);
 					//lemmings[id].setState(DIGGER_STATE);
 					//lemmings[id].setState(CLIMBER_STATE);
 				}

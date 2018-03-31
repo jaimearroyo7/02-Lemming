@@ -24,7 +24,7 @@ public:
 	void update(int deltaTime);
 	void render();
 	
-	void mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButton);
+	void mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButton, int lemingAction);
 
 	int getgameState();
 
