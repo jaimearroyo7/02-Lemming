@@ -6,6 +6,8 @@
 #include "Game.h"
 #include <GL/glew.h>
 #include <GL/glut.h>
+#include <string>
+using namespace std;
 
 
 Scene::Scene()
@@ -92,7 +94,12 @@ void Scene::init()
 	if (!text.init("fonts/OpenSans-Regular.ttf"))
 		//if(!text.init("fonts/OpenSans-Bold.ttf"))
 		//if(!text.init("fonts/DroidSerif.ttf"))
-		cout << "Could not load font!!!" << endl;
+		std::cout << "Could not load font!!!" << endl;
+
+	if (!numLemmingsText.init("fonts/OpenSans-Regular.ttf"))
+		//if(!text.init("fonts/OpenSans-Bold.ttf"))
+		//if(!text.init("fonts/DroidSerif.ttf"))
+		std::cout << "Could not load font!!!" << endl;
 
 	//factor
 	float scale = 0.827586f;
@@ -116,6 +123,10 @@ void Scene::init()
 			finish = false;
 			stateSelected = false;
 			pause = x2speed = exploding = false;
+
+			for (int i = 0; i < 6; ++i) {
+				numLemmings[i] = 10;
+			}
 
 			geom[1] = glm::vec2(float(CAMERA_WIDTH), float(CAMERA_HEIGHT)*scale);
 		
@@ -217,7 +228,7 @@ void Scene::update(int deltaTime)
 
 			if (finish) {
 				//Si has ganado, hacer lo que quieras.
-				cout << score << endl;
+				std::cout << score << endl;
 				gamestate = MENU;
 				init();
 			}
@@ -241,6 +252,43 @@ void Scene::render()
 			imagesProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			imagesProgram.setUniformMatrix4f("modelview", modelview);
 			UI->render(UITexture);
+
+			textProgram.use();
+			textProgram.setUniformMatrix4f("projection", projection);
+			textProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			textProgram.setUniformMatrix4f("modelview", modelview);
+
+			if (numLemmings[BUILDER_STATE] != 0) {
+				string num = to_string(numLemmings[BUILDER_STATE]);
+				if (numLemmings[BUILDER_STATE] < 10) num = "0" + num;
+				numLemmingsText.render(num, glm::vec2(200, 172 * 3), 32, glm::vec4(1));
+			}
+			if (numLemmings[BLOCKER_STATE] != 0) {
+				string num = to_string(numLemmings[BLOCKER_STATE]);
+				if (numLemmings[BLOCKER_STATE] < 10) num = "0" + num;
+				numLemmingsText.render(num, glm::vec2(138, 172 * 3), 32, glm::vec4(1));
+			}
+			if (numLemmings[EXPLOSION_STATE] != 0) {
+				string num = to_string(numLemmings[EXPLOSION_STATE]);
+				if (numLemmings[EXPLOSION_STATE] < 10) num = "0" + num;
+				numLemmingsText.render(num, glm::vec2(79, 172 * 3), 32, glm::vec4(1));
+			}
+			if (numLemmings[BASHER] != 0) {
+				string num = to_string(numLemmings[BASHER]);
+				if (numLemmings[BASHER] < 10) num = "0" + num;
+				numLemmingsText.render(num, glm::vec2(17, 172 * 3), 32, glm::vec4(1));
+			}
+
+			if (numLemmings[CLIMBER_STATE] != 0) {
+				string num = to_string(numLemmings[CLIMBER_STATE]);
+				if (numLemmings[CLIMBER_STATE] < 10) num = "0" + num;
+				numLemmingsText.render(num, glm::vec2(17, 172 * 3), 32, glm::vec4(1));
+			}
+			if (numLemmings[DIGGER_STATE] != 0) {
+				string num = to_string(numLemmings[DIGGER_STATE]);
+				if (numLemmings[DIGGER_STATE] < 10) num = "0" + num;
+				numLemmingsText.render(num, glm::vec2(17, 172 * 3), 32, glm::vec4(1));
+			}
 
 			maskedTexProgram.use();
 			maskedTexProgram.setUniformMatrix4f("projection", projection);
@@ -289,14 +337,6 @@ void Scene::render()
 			imagesProgram.setUniformMatrix4f("modelview", modelview);
 			menu->render(menuTexture);
 
-
-			textProgram.use();
-			textProgram.setUniformMatrix4f("projection", projection);
-			textProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-			textProgram.setUniformMatrix4f("modelview", modelview);
-			text.render("Videogames!!!_", glm::vec2(10, CAMERA_HEIGHT - 20), 32, glm::vec4(0,0,0,1));
-
-
 			simpleTexProgram.use();
 			simpleTexProgram.setUniformMatrix4f("projection", projection);
 			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
@@ -321,16 +361,15 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 	switch (gamestate) {
 		case PLAYING:
 			if (bLeftButton && posY < 160) {				
-				cout << id << endl;
+				std::cout << id << endl;
 				//convertir un Lemming a Blocker
-				cout << mouseX << " " << mouseY << endl;
-				cout << posX << " " << posY << endl;
+				std::cout << mouseX << " " << mouseY << endl;
+				std::cout << posX << " " << posY << endl;
 				if (id != -1 && stateSelected) {
-					//BLOCKER_STATE, BASHER, DIGGER_STATE, CLIMBER_STATE (Descomentar uno para probarlo).
-					
-					cout << lemmings[id].getSprite()->position().x << " " << lemmings[id].getSprite()->position().y << endl;
-					lemmings[id].setState(lemmingsState);
-
+					if (numLemmings[lemmingsState] > 0) {
+						--numLemmings[lemmingsState];
+						lemmings[id].setState(lemmingsState);
+					}
 				}
 				eraseMask(mouseX, mouseY);
 			}
@@ -342,7 +381,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 				applyMask(mouseX, mouseY);
 			}
 			else if (bLeftButton && posY >= 160) {
-				cout << posX << " " << posY << endl;
+				std::cout << posX << " " << posY << endl;
 				int num = (posX - 4 - 120) / 20;
 				switch (num) {
 					case 0:
@@ -351,7 +390,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						lemmingSelected = glm::vec2(2, 160);
 						seleccionLemming->setPosition(lemmingSelected);
 						
-						cout << "climber" << endl;
+						std::cout << "climber" << endl;
 						stateSelected = true;
 						break;
 					case 1:
@@ -359,7 +398,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						renderSeleccionLemming = true;
 						lemmingSelected = glm::vec2(22, 160);
 						seleccionLemming->setPosition(lemmingSelected);
-						cout << "Explosion " << endl;
+						std::cout << "Explosion " << endl;
 						stateSelected = true;
 						break;
 					case 2:
@@ -367,7 +406,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						renderSeleccionLemming = true;
 						lemmingSelected = glm::vec2(43, 160);
 						seleccionLemming->setPosition(lemmingSelected);
-						cout << "blocker" << endl;
+						std::cout << "blocker" << endl;
 						stateSelected = true;
 						break;
 					case 3:
@@ -375,7 +414,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						renderSeleccionLemming = true;
 						lemmingSelected = glm::vec2(63, 160);
 						seleccionLemming->setPosition(lemmingSelected);
-						cout << "Builder" << endl;
+						std::cout << "Builder" << endl;
 						stateSelected = true;
 						break;
 					case 4:
@@ -383,7 +422,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						renderSeleccionLemming = true;
 						lemmingSelected = glm::vec2(83, 160);
 						seleccionLemming->setPosition(lemmingSelected);
-						cout << "basher" << endl;
+						std::cout << "basher" << endl;
 						stateSelected = true;
 						break;
 					case 5:
@@ -391,13 +430,13 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						renderSeleccionLemming = true;
 						lemmingSelected = glm::vec2(104, 160);
 						seleccionLemming->setPosition(lemmingSelected);
-						cout << "digger" << endl;
+						std::cout << "digger" << endl;
 						stateSelected = true;
 						break;
 					case 6:
 						//PAUSE
 						renderSeleccionPause = !renderSeleccionPause;
-						cout << "pasue" << endl;
+						std::cout << "pasue" << endl;
 						break;
 					case 7:
 						//FULL EXPLOSION
@@ -408,12 +447,12 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 								lemmings[i].setState(EXPLOSION_STATE);
 							}
 						}
-						cout << "Full Explosion" << endl;
+						std::cout << "Full Explosion" << endl;
 						break;
 					case 8:
 						//x2 Speed
 						x2speed = !x2speed;
-						cout << "x2Speed" << endl;
+						std::cout << "x2Speed" << endl;
 						break;
 
 				}
@@ -437,7 +476,7 @@ void Scene::eraseMask(int mouseX, int mouseY)
 	posX = mouseX/3 + 120;
 	posY = mouseY/3;
 
-	cout << posX << " " << posY << endl;
+	std::cout << posX << " " << posY << endl;
 
 	for(int y=max(0, posY-3); y<=min(maskTexture.height()-1, posY+3); y++)
 		for(int x=max(0, posX-3); x<=min(maskTexture.width()-1, posX+3); x++)
@@ -465,14 +504,14 @@ void Scene::initShaders()
 	vShader.initFromFile(VERTEX_SHADER, "shaders/texture.vert");
 	if(!vShader.isCompiled())
 	{
-		cout << "Vertex Shader Error" << endl;
-		cout << "" << vShader.log() << endl << endl;
+		std::cout << "Vertex Shader Error" << endl;
+		std::cout << "" << vShader.log() << endl << endl;
 	}
 	fShader.initFromFile(FRAGMENT_SHADER, "shaders/texture.frag");
 	if(!fShader.isCompiled())
 	{
-		cout << "Fragment Shader Error" << endl;
-		cout << "" << fShader.log() << endl << endl;
+		std::cout << "Fragment Shader Error" << endl;
+		std::cout << "" << fShader.log() << endl << endl;
 	}
 	simpleTexProgram.init();
 	simpleTexProgram.addShader(vShader);
@@ -480,8 +519,8 @@ void Scene::initShaders()
 	simpleTexProgram.link();
 	if(!simpleTexProgram.isLinked())
 	{
-		cout << "Shader Linking Error" << endl;
-		cout << "" << simpleTexProgram.log() << endl << endl;
+		std::cout << "Shader Linking Error" << endl;
+		std::cout << "" << simpleTexProgram.log() << endl << endl;
 	}
 	simpleTexProgram.bindFragmentOutput("outColor");
 	vShader.free();
@@ -490,14 +529,14 @@ void Scene::initShaders()
 	vShader.initFromFile(VERTEX_SHADER, "shaders/maskedTexture.vert");
 	if(!vShader.isCompiled())
 	{
-		cout << "Vertex Shader Error" << endl;
-		cout << "" << vShader.log() << endl << endl;
+		std::cout << "Vertex Shader Error" << endl;
+		std::cout << "" << vShader.log() << endl << endl;
 	}
 	fShader.initFromFile(FRAGMENT_SHADER, "shaders/maskedTexture.frag");
 	if(!fShader.isCompiled())
 	{
-		cout << "Fragment Shader Error" << endl;
-		cout << "" << fShader.log() << endl << endl;
+		std::cout << "Fragment Shader Error" << endl;
+		std::cout << "" << fShader.log() << endl << endl;
 	}
 	maskedTexProgram.init();
 	maskedTexProgram.addShader(vShader);
@@ -505,8 +544,8 @@ void Scene::initShaders()
 	maskedTexProgram.link();
 	if(!maskedTexProgram.isLinked())
 	{
-		cout << "Shader Linking Error" << endl;
-		cout << "" << maskedTexProgram.log() << endl << endl;
+		std::cout << "Shader Linking Error" << endl;
+		std::cout << "" << maskedTexProgram.log() << endl << endl;
 	}
 	maskedTexProgram.bindFragmentOutput("outColor");
 	vShader.free();
@@ -516,14 +555,14 @@ void Scene::initShaders()
 	vShader.initFromFile(VERTEX_SHADER, "shaders/images.vert");
 	if (!vShader.isCompiled())
 	{
-		cout << "Vertex Shader Error" << endl;
-		cout << "" << vShader.log() << endl << endl;
+		std::cout << "Vertex Shader Error" << endl;
+		std::cout << "" << vShader.log() << endl << endl;
 	}
 	fShader.initFromFile(FRAGMENT_SHADER, "shaders/images.frag");
 	if (!fShader.isCompiled())
 	{
-		cout << "Fragment Shader Error" << endl;
-		cout << "" << fShader.log() << endl << endl;
+		std::cout << "Fragment Shader Error" << endl;
+		std::cout << "" << fShader.log() << endl << endl;
 	}
 	imagesProgram.init();
 	imagesProgram.addShader(vShader);
@@ -531,8 +570,8 @@ void Scene::initShaders()
 	imagesProgram.link();
 	if (!imagesProgram.isLinked())
 	{
-		cout << "Shader Linking Error" << endl;
-		cout << "" << imagesProgram.log() << endl << endl;
+		std::cout << "Shader Linking Error" << endl;
+		std::cout << "" << imagesProgram.log() << endl << endl;
 	}
 	imagesProgram.bindFragmentOutput("outColor");
 	vShader.free();
@@ -543,14 +582,14 @@ void Scene::initShaders()
 	vShader.initFromFile(VERTEX_SHADER, "shaders/text.vert");
 	if (!vShader.isCompiled())
 	{
-		cout << "Vertex Shader Error" << endl;
-		cout << "" << vShader.log() << endl << endl;
+		std::cout << "Vertex Shader Error" << endl;
+		std::cout << "" << vShader.log() << endl << endl;
 	}
 	fShader.initFromFile(FRAGMENT_SHADER, "shaders/text.frag");
 	if (!fShader.isCompiled())
 	{
-		cout << "Fragment Shader Error" << endl;
-		cout << "" << fShader.log() << endl << endl;
+		std::cout << "Fragment Shader Error" << endl;
+		std::cout << "" << fShader.log() << endl << endl;
 	}
 	textProgram.init();
 	textProgram.addShader(vShader);
@@ -558,8 +597,8 @@ void Scene::initShaders()
 	textProgram.link();
 	if (!textProgram.isLinked())
 	{
-		cout << "Shader Linking Error" << endl;
-		cout << "" << textProgram.log() << endl << endl;
+		std::cout << "Shader Linking Error" << endl;
+		std::cout << "" << textProgram.log() << endl << endl;
 	}
 	textProgram.bindFragmentOutput("outColor");
 	vShader.free();
