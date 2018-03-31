@@ -8,13 +8,6 @@
 #include <GL/glut.h>
 
 
-
-enum LemmingState
-{
-	WALKING_LEFT_STATE, WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DEAD, BLOCKER_STATE,
-	BASHER, DIGGER_STATE, CLIMBER_STATE, EXPLOSION_STATE, WIN_STATE, RESPAWN, BUILDER_STATE
-};
-
 Scene::Scene()
 {
 	gamestate = MENU;
@@ -85,23 +78,33 @@ void Scene::init()
 		//if(!text.init("fonts/DroidSerif.ttf"))
 		cout << "Could not load font!!!" << endl;
 
+	//factor
+	float scale = 0.827586f;
 
+	//scale = 1.0f;
 	glm::vec2 geom[2] = { glm::vec2(0.f, 0.f), glm::vec2(float(CAMERA_WIDTH), float(CAMERA_HEIGHT)) };
 
-	glm::vec2 texCoords[2] = { glm::vec2(120.f / 512.0, 0.f), glm::vec2((120.f + 320.f) / 512.0f, 160.f / 256.0f) };
+	glm::vec2 texCoords[2] = { glm::vec2(120.f / 512.0, 0.f), glm::vec2((120.f + 320.f) / 512.0f, (160.f / 256.0f)) };
 	projection = glm::ortho(0.f, float(CAMERA_WIDTH - 1), float(CAMERA_HEIGHT - 1), 0.f);
 	initShaders();
 	initCursor();
 	switch (gamestate) {
 		case PLAYING:
+			//init some vars
+			currentTime = 0.0f;
 			id = -1;
 			score = 0;
 			lemmings.clear();
 			lemmings.resize(5);
 			posX = posY = 100;
 			finish = false;
+			stateSelected = false;
+			pause = x2speed = false;
 
+			geom[1] = glm::vec2(float(CAMERA_WIDTH), float(CAMERA_HEIGHT)*scale);
 		
+
+			//create Mao
 			map = MaskedTexturedQuad::createTexturedQuad(geom, texCoords, maskedTexProgram);
 			colorTexture.loadFromFile("images/fun1.png", TEXTURE_PIXEL_FORMAT_RGBA);
 			colorTexture.setMinFilter(GL_NEAREST);
@@ -110,23 +113,26 @@ void Scene::init()
 			maskTexture.setMinFilter(GL_NEAREST);
 			maskTexture.setMagFilter(GL_NEAREST);
 
-			currentTime = 0.0f;
 
+			//create UI
+			geom[0] = glm::vec2(0.0f, (float(CAMERA_HEIGHT)*scale)-1);
+			geom[1] = glm::vec2(float(CAMERA_WIDTH), float(CAMERA_HEIGHT));
+			texCoords[0] = glm::vec2(0.f, 0.f); texCoords[1] = glm::vec2(1.0f, 1.0f);
+			UI = TexturedQuad::createTexturedQuad(geom, texCoords, imagesProgram);
+			UITexture.loadFromFile("images/interface.png", TEXTURE_PIXEL_FORMAT_RGBA);
+
+			//create Lemmings
 			for (int i = 0; i < 5; ++i) {
 				lemmings[i].init(glm::vec2(90, 30), simpleTexProgram, 2 + i * 5);
 				lemmings[i].setMapMask(&maskTexture, &colorTexture);
 			}
+
+
 			//openDoor	
 			initOpenDoor();
 
 			//finishDoor
 			initFinishDoor();
-
-
-			//glBegin(GL_POINTS);
-			//glColor4f(1, 1, 1, 1);
-			
-			//glEnd();
 
 			break;
 
@@ -146,7 +152,7 @@ unsigned int x = 0;
 
 void Scene::update(int deltaTime)
 {
-	deltaTime *= 1;
+	if(x2speed) deltaTime *= 2;
 	currentTime += deltaTime;
 	bool found = false;
 	switch (gamestate) {
@@ -210,6 +216,13 @@ void Scene::render()
 
 	switch (gamestate) {
 		case PLAYING:
+
+			imagesProgram.use();
+			imagesProgram.setUniformMatrix4f("projection", projection);
+			imagesProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			imagesProgram.setUniformMatrix4f("modelview", modelview);
+			UI->render(UITexture);
+
 			maskedTexProgram.use();
 			maskedTexProgram.setUniformMatrix4f("projection", projection);
 			maskedTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
@@ -223,6 +236,8 @@ void Scene::render()
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
 			finishDoor->render();
 			openDoor->render();
+
+
 
 			for (int i = 0; i < 5; ++i) {
 				lemmings[i].render();
@@ -269,34 +284,77 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 
 	switch (gamestate) {
 		case PLAYING:
-			if (bLeftButton) {
-				
+			if (bLeftButton && posY < 160) {				
 				cout << id << endl;
 				//convertir un Lemming a Blocker
-
-				if (id != -1) {
+				cout << mouseX << " " << mouseY << endl;
+				cout << posX << " " << posY << endl;
+				if (id != -1 && stateSelected) {
 					//BLOCKER_STATE, BASHER, DIGGER_STATE, CLIMBER_STATE (Descomentar uno para probarlo).
-					cout << posX << " " << posY << endl;
+					
 					cout << lemmings[id].getSprite()->position().x << " " << lemmings[id].getSprite()->position().y << endl;
-					//lemmings[id].setState(BLOCKER_STATE);
-					lemmings[id].setState(BUILDER_STATE);
-					//lemmings[id].setState(DIGGER_STATE);
-					//lemmings[id].setState(CLIMBER_STATE);
+					lemmings[id].setState(lemmingsState);
 
 				}
 				eraseMask(mouseX, mouseY);
 			}
-			else if (bRightButton) {
+			else if (bRightButton && posY < 160) {
 				if (id != -1) {
 
 					lemmings[id].setState(BLOCKER_STATE);
-					//lemmings[id].setState(BASHER);
-					//lemmings[id].setState(DIGGER_STATE);
-					//lemmings[id].setState(CLIMBER_STATE);
 				}
 				applyMask(mouseX, mouseY);
 			}
-			
+			else if (bLeftButton && posY >= 160) {
+				cout << posX << " " << posY << endl;
+				int num = (posX - 2 - 120) / 20;
+				switch (num) {
+					case 0:
+						lemmingsState = CLIMBER_STATE;
+						cout << "climber" << endl;
+						stateSelected = true;
+						break;
+					case 1:
+						lemmingsState = EXPLOSION_STATE;
+						cout << "Explosion " << endl;
+						stateSelected = true;
+						break;
+					case 2:
+						lemmingsState = BLOCKER_STATE;
+						cout << "blocker" << endl;
+						stateSelected = true;
+						break;
+					case 3:
+						lemmingsState = BUILDER_STATE;
+						cout << "Builder" << endl;
+						stateSelected = true;
+						break;
+					case 4:
+						lemmingsState = BASHER;
+						cout << "basher" << endl;
+						stateSelected = true;
+						break;
+					case 5:
+						lemmingsState = DIGGER_STATE;
+						cout << "digger" << endl;
+						stateSelected = true;
+						break;
+					case 6:
+						//PAUSE
+						cout << "pasue" << endl;
+						break;
+					case 7:
+						//FULL EXPLOSION
+						cout << "Full Explosion" << endl;
+						break;
+					case 8:
+						//x2 Speed
+						x2speed = !x2speed;
+						cout << "x2Speed" << endl;
+						break;
+
+				}
+			}
 			break;
 
 		case MENU:

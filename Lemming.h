@@ -21,7 +21,7 @@ public:
 	
 	void setMapMask(VariableTexture *mapMask, VariableTexture *mapColor);
 
-	void setState(int animId);
+	void setState(int stateID);
 	int getState();
 
 	Sprite *getSprite();

@@ -57,11 +57,26 @@ private:
 	TexturedQuad *menu;
 	Texture menuTexture;
 
+	TexturedQuad *UI;
+	Texture UITexture;
+
 	int score;
 
 	int posX, posY;
 
+	enum LemmingState
+	{
+		WALKING_LEFT_STATE, WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DEAD, BLOCKER_STATE,
+		BASHER, DIGGER_STATE, CLIMBER_STATE, EXPLOSION_STATE, WIN_STATE, RESPAWN, BUILDER_STATE
+	};
+
 	int id;
+	LemmingState lemmingsState;
+	bool stateSelected;
+
+
+	bool pause, x2speed;
+
 	bool finish;
 
 	vector < Lemming > lemmings;

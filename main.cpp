@@ -87,8 +87,8 @@ int main(int argc, char **argv)
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowPosition(100, 100);
 
-	//960x480 para el game y 200 más para UI
-	glutInitWindowSize(960, 480);
+	//960x480 para el game y 100 más para UI
+	glutInitWindowSize(960, 580);
 
 	glutCreateWindow(argv[0]);
 	glutDisplayFunc(drawCallback);
