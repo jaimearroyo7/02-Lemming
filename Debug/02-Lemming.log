@@ -1,7 +1,4 @@
-﻿  Game.cpp
-  Lemming.cpp
-  Scene.cpp
-c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(195): warning C4018: '<': no coinciden signed/unsigned
-  main.cpp
-  Generando código...
+﻿  Scene.cpp
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(214): warning C4018: '<': no coinciden signed/unsigned
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(407): warning C4018: '<': no coinciden signed/unsigned
   02-Lemming.vcxproj -> C:\Users\jaime\Desktop\VJ-FIB\ExLemmings\Lemmings\02-Lemming\Debug\02-Lemming.exe

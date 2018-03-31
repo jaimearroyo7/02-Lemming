@@ -38,6 +38,7 @@ private:
 	void initOpenDoor();
 	void initFinishDoor();
 	void initCursor();
+	void initSeleccion();
 
 private:
 	enum GameState
@@ -92,6 +93,15 @@ private:
 	Sprite *cursor;
 	Texture spritesheetCursor;
 
+	glm::vec2 lemmingSelected;
+	Sprite *seleccionLemming;
+	Texture spritesheetSeleccionLemming;
+	bool renderSeleccionLemming;
+
+	bool renderSeleccionPause;
+
+	bool renderSeleccionExplosion;
+	bool exploding;
 
 	Text text;
 };

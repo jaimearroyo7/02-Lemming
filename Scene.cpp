@@ -41,6 +41,22 @@ void Scene::initCursor() {
 	cursor->setPosition(glm::vec2(posX, posY));
 }
 
+void Scene::initSeleccion() {
+	renderSeleccionLemming = false;
+	spritesheetSeleccionLemming.loadFromFile("images/seleccion.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	spritesheetSeleccionLemming.setMinFilter(GL_NEAREST);
+	spritesheetSeleccionLemming.setMagFilter(GL_NEAREST);
+	seleccionLemming = Sprite::createSprite(glm::ivec2(20, 32), glm::vec2(1.0f, 1.0f), &spritesheetSeleccionLemming, &simpleTexProgram);
+
+
+	seleccionLemming->setNumberAnimations(1);
+	seleccionLemming->setAnimationSpeed(0, 1);
+
+	seleccionLemming->addKeyframe(0, glm::vec2(0.0f, 0.0f));
+
+	seleccionLemming->changeAnimation(0);
+}
+
 void Scene::initOpenDoor() {
 	spritesheetDoor.loadFromFile("images/openDoor.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	spritesheetDoor.setMinFilter(GL_NEAREST);
@@ -99,7 +115,7 @@ void Scene::init()
 			posX = posY = 100;
 			finish = false;
 			stateSelected = false;
-			pause = x2speed = false;
+			pause = x2speed = exploding = false;
 
 			geom[1] = glm::vec2(float(CAMERA_WIDTH), float(CAMERA_HEIGHT)*scale);
 		
@@ -133,6 +149,9 @@ void Scene::init()
 
 			//finishDoor
 			initFinishDoor();
+
+			//initRejillas de boton seleccionado
+			initSeleccion();
 
 			break;
 
@@ -236,14 +255,31 @@ void Scene::render()
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
 			finishDoor->render();
 			openDoor->render();
+			seleccionLemming->setPosition(lemmingSelected);
+			if (renderSeleccionLemming)
+				seleccionLemming->render();
 
+			if (renderSeleccionPause) {
+				seleccionLemming->setPosition(glm::vec2(124, 160));
+				seleccionLemming->render();
+			}
 
+			if (renderSeleccionExplosion) {
+				seleccionLemming->setPosition(glm::vec2(145, 160));
+				seleccionLemming->render();
+			}
+
+			if (x2speed) {
+				seleccionLemming->setPosition(glm::vec2(165, 160));
+				seleccionLemming->render();
+			}
 
 			for (int i = 0; i < 5; ++i) {
 				lemmings[i].render();
 			}
 
 			cursor->render();
+
 			break;
 
 		case MENU:
@@ -307,44 +343,71 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 			}
 			else if (bLeftButton && posY >= 160) {
 				cout << posX << " " << posY << endl;
-				int num = (posX - 2 - 120) / 20;
+				int num = (posX - 4 - 120) / 20;
 				switch (num) {
 					case 0:
 						lemmingsState = CLIMBER_STATE;
+						renderSeleccionLemming = true;
+						lemmingSelected = glm::vec2(2, 160);
+						seleccionLemming->setPosition(lemmingSelected);
+						
 						cout << "climber" << endl;
 						stateSelected = true;
 						break;
 					case 1:
 						lemmingsState = EXPLOSION_STATE;
+						renderSeleccionLemming = true;
+						lemmingSelected = glm::vec2(22, 160);
+						seleccionLemming->setPosition(lemmingSelected);
 						cout << "Explosion " << endl;
 						stateSelected = true;
 						break;
 					case 2:
 						lemmingsState = BLOCKER_STATE;
+						renderSeleccionLemming = true;
+						lemmingSelected = glm::vec2(43, 160);
+						seleccionLemming->setPosition(lemmingSelected);
 						cout << "blocker" << endl;
 						stateSelected = true;
 						break;
 					case 3:
 						lemmingsState = BUILDER_STATE;
+						renderSeleccionLemming = true;
+						lemmingSelected = glm::vec2(63, 160);
+						seleccionLemming->setPosition(lemmingSelected);
 						cout << "Builder" << endl;
 						stateSelected = true;
 						break;
 					case 4:
 						lemmingsState = BASHER;
+						renderSeleccionLemming = true;
+						lemmingSelected = glm::vec2(83, 160);
+						seleccionLemming->setPosition(lemmingSelected);
 						cout << "basher" << endl;
 						stateSelected = true;
 						break;
 					case 5:
 						lemmingsState = DIGGER_STATE;
+						renderSeleccionLemming = true;
+						lemmingSelected = glm::vec2(104, 160);
+						seleccionLemming->setPosition(lemmingSelected);
 						cout << "digger" << endl;
 						stateSelected = true;
 						break;
 					case 6:
 						//PAUSE
+						renderSeleccionPause = !renderSeleccionPause;
 						cout << "pasue" << endl;
 						break;
 					case 7:
 						//FULL EXPLOSION
+						renderSeleccionExplosion = true;
+						if (!exploding) {
+							exploding = true;
+							for (int i = 0; i < lemmings.size(); ++i) {
+								lemmings[i].setState(EXPLOSION_STATE);
+							}
+						}
 						cout << "Full Explosion" << endl;
 						break;
 					case 8:
