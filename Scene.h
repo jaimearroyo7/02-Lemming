@@ -96,12 +96,14 @@ private:
 	glm::vec2 lemmingSelected;
 	Sprite *seleccionLemming;
 	Texture spritesheetSeleccionLemming;
-	bool renderSeleccionLemming;
+	bool renderSeleccionLemming = false;
 
-	bool renderSeleccionPause;
+	bool renderSeleccionPause = false;
 
-	bool renderSeleccionExplosion;
-	bool exploding;
+	bool renderSeleccionExplosion = false;
+	bool exploding = false;
+
+	int num
 
 	Text text;
 };

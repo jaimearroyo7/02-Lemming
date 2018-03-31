@@ -1,4 +1,21 @@
-﻿  Scene.cpp
+﻿  Game.cpp
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.h(108): error C3646: 'Text': especificador de invalidación desconocido
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.h(108): error C3646: 'text': especificador de invalidación desconocido
+  Lemming.cpp
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.h(108): error C3646: 'Text': especificador de invalidación desconocido
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.h(108): error C3646: 'text': especificador de invalidación desconocido
+  Scene.cpp
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.h(108): error C3646: 'Text': especificador de invalidación desconocido
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.h(108): error C3646: 'text': especificador de invalidación desconocido
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(92): error C2065: 'text': identificador no declarado
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(92): error C2228: el operando izquierdo de '.init' debe tener class/struct/union
+  c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(92): note: el tipo es 'unknown-type'
 c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(214): warning C4018: '<': no coinciden signed/unsigned
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(297): error C2065: 'text': identificador no declarado
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(297): error C2228: el operando izquierdo de '.render' debe tener class/struct/union
+  c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(297): note: el tipo es 'unknown-type'
 c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(407): warning C4018: '<': no coinciden signed/unsigned
-  02-Lemming.vcxproj -> C:\Users\jaime\Desktop\VJ-FIB\ExLemmings\Lemmings\02-Lemming\Debug\02-Lemming.exe
+  main.cpp
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.h(108): error C3646: 'Text': especificador de invalidación desconocido
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.h(108): error C3646: 'text': especificador de invalidación desconocido
+  Generando código...

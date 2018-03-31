@@ -175,6 +175,11 @@ int Lemming::update(int deltaTime, int seconds)
 			else if (sprite->getKeyframe() == 0 && !firstStair) {
 
 				sprite->position() += glm::vec2(2*dir, -1);
+				if (win()) {
+					state = WIN_STATE;
+					sprite->changeAnimation(WIN);
+					return 1;
+				}
 				if (right) {					
 					if (collision(3)) {
 						state = WALKING_RIGHT_STATE;
@@ -214,8 +219,10 @@ int Lemming::update(int deltaTime, int seconds)
 				pos += glm::vec2(8, 8);
 				for (int y = -radius; y <= radius; y++)
 					for (int x = -radius; x <= radius; x++)
-						if (x*x + y * y <= radius * radius)
+						if (x*x + y * y <= radius * radius) {
 							mask->setPixel(pos.x + x, pos.y + y, 0);
+							color->setPixel(pos.x +x , pos.y + y, glm::ivec4(0, 0, 0, 0));
+						}
 				state = DEAD;
 			}
 			break;
@@ -233,6 +240,11 @@ int Lemming::update(int deltaTime, int seconds)
 			break;
 
 		case CLIMBER_STATE:
+			if (win()) {
+				state = WIN_STATE;
+				sprite->changeAnimation(WIN);
+				return 1;
+			}
 			if (collision(0)) {
 				climbed = true;
 				sprite->position() += glm::vec2(0, -1);
@@ -256,6 +268,11 @@ int Lemming::update(int deltaTime, int seconds)
 
 			break;
 		case BASHER:
+			if (win()) {
+				state = WIN_STATE;
+				sprite->changeAnimation(WIN);
+				return 1;
+			}
 			if (collision(0)) {
 				if (count % 3 == 0) {
 					count = 0;
@@ -301,7 +318,11 @@ int Lemming::update(int deltaTime, int seconds)
 			break;
 
 		case DIGGER_STATE:
-		
+			if (win()) {
+				state = WIN_STATE;
+				sprite->changeAnimation(WIN);
+				return 1;
+			}
 			fall = collisionFloor(2);
 			if (fall == 0 && count % 3 == 0) {
 				count = 0;
@@ -309,9 +330,10 @@ int Lemming::update(int deltaTime, int seconds)
 				digged = true;
 				glm::ivec2 pos = sprite->position();
 				pos += glm::vec2(120, 0);
-				for(int i = 0; i < 10; ++i)
+				for (int i = 0; i < 10; ++i) {
 					mask->setPixel(pos.x + i + 4, pos.y + 16, 0);
-
+					color->setPixel(pos.x + i + 4, pos.y + 16, glm::ivec4(0, 0, 0, 0));
+				}
 				sprite->position() += glm::vec2(0, 1);
 			}
 			if (fall > 0) {
@@ -453,9 +475,15 @@ void Lemming::setState(int stateId) {
 			if (state != FALLING_LEFT_STATE && state != FALLING_RIGHT_STATE){
 				glm::ivec2 pos = sprite->position();
 				pos += glm::vec2(120, 0);
+				for (int y = max(0, pos.y + 6); y <= min(mask->height() - 1, pos.y + 6); y++)
+					for (int x = max(0, pos.x); x <= min(mask->width() - 1, pos.x + 3); x++)
+						color->setPixel(x, y, glm::ivec4(0, 0, 0, 0));
+
 				for (int y = max(0, pos.y + 6); y <= min(mask->height() - 1, pos.y + 17); y++)
-					for (int x = max(0, pos.x + 3); x <= min(mask->width() - 1, pos.x + 13); x++)
+					for (int x = max(0, pos.x + 3); x <= min(mask->width() - 1, pos.x + 13); x++) {
 						mask->setPixel(x, y, 255);
+						color->setPixel(x, y, glm::ivec4(0, 0, 0, 0));
+					}
 				state = BLOCKER_STATE;
 				sprite->changeAnimation(BLOCKER_ANIM);
 			}
