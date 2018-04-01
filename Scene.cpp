@@ -261,13 +261,16 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						lemmings[id].setState(BLOCKER_STATE);
 						break;
 					case 2:
-						lemmings[id].setState(EXPLOSION_STATE);
+						lemmings[id].setState(BASHER);
 						break;
 					case 3:
 						lemmings[id].setState(DIGGER_STATE);
 						break;
 					case 4:
 						lemmings[id].setState(CLIMBER_STATE);
+						break;
+					case 5:
+						lemmings[id].setState(EXPLOSION_STATE);
 						break;
 					default:
 						break;

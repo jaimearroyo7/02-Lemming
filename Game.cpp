@@ -48,8 +48,15 @@ void Game::keyPressed(int key)
 	case 52: // 4 code
 		lemingAction = 4;
 		break;
+	case 53: // 5 code
+		lemingAction = 5;
+		break;
 	case 114: // R code
 		scene.init();
+		break;
+	case 43: // + code
+		break;
+	case 45: // - code
 		break;
 	default: 
 		lemingAction = -1;
