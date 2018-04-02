@@ -15,7 +15,7 @@ class Lemming
 {
 
 public:
-	void init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, int cooldown);
+	void init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, Texture &spritesheet, int cooldown);
 	int update(int deltaTime, int seconds);
 	void render();
 	
@@ -28,6 +28,8 @@ public:
 	Sprite *getSprite();
 	
 private:
+	void createSprite(ShaderProgram &shaderProgram, Texture &spritesheet);
+
 	int collisionFloor(int maxFall);
 	int cooldown; 
 	int count;
@@ -53,7 +55,6 @@ private:
 
 	LemmingState state;
 	LemmingState prevState;
-	Texture spritesheet;
 	Sprite *sprite;
 	VariableTexture *mask;
 	VariableTexture *color;

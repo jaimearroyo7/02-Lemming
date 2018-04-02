@@ -82,6 +82,7 @@ private:
 	bool finish, allOut;
 
 	vector < Lemming > lemmings;
+	Texture spritesheetLemmings;
 
 	//start Door
 	Sprite *openDoor;

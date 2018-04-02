@@ -151,8 +151,11 @@ void Scene::init()
 			UITexture.loadFromFile("images/interface.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
 			//create Lemmings
+			spritesheetLemmings.loadFromFile("images/lemming.png", TEXTURE_PIXEL_FORMAT_RGBA);
+			spritesheetLemmings.setMinFilter(GL_NEAREST);
+			spritesheetLemmings.setMagFilter(GL_NEAREST);
 			for (int i = 0; i < totalLemmings; ++i) {
-				lemmings[i].init(glm::vec2(90, 30), simpleTexProgram, 2 + i * 1);
+				lemmings[i].init(glm::vec2(90, 30), simpleTexProgram, spritesheetLemmings, 2 + i * 1);
 				lemmings[i].setMapMask(&maskTexture, &colorTexture);
 			}
 
@@ -214,6 +217,9 @@ void Scene::update(int deltaTime)
 			else {
 				//hover lemmings
 				switch (lemmings[id].getState()) {
+					case VOLTERETA:
+						lemmingHover = "Climber";
+						break;
 					case BASHER:
 						lemmingHover = "Basher";
 						break;
@@ -296,6 +302,45 @@ void Scene::render()
 	switch (gamestate) {
 		case PLAYING:
 
+			simpleTexProgram.use();
+			simpleTexProgram.setUniformMatrix4f("projection", projection);
+			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
+			finishDoor->render();
+			openDoor->render();
+
+			//se renderiza el mapa encima de esos dos sprites para poder ver la escalera del builder si pasa sobre alguna puerta
+			maskedTexProgram.use();
+			maskedTexProgram.setUniformMatrix4f("projection", projection);
+			maskedTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+
+			maskedTexProgram.setUniformMatrix4f("modelview", modelview);
+			map->render(maskedTexProgram, colorTexture, maskTexture);
+
+
+			simpleTexProgram.use();
+			simpleTexProgram.setUniformMatrix4f("projection", projection);
+			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
+			for (int i = 0; i < totalLemmings; ++i) {
+				lemmings[i].render();
+			}
+			cursor->render();
+
+			textProgram.use();
+			textProgram.setUniformMatrix4f("projection", projection);
+			textProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			textProgram.setUniformMatrix4f("modelview", modelview);
+			for (int i = 0; i < totalLemmings; ++i) {
+				if (lemmings[i].getCountdown() != -1 && lemmings[i].getState() != EXPLOSION_STATE) {
+					int time = 5100 - lemmings[i].getCountdown();
+					glm::vec2 position = lemmings[i].getSprite()->position();
+					position *= glm::vec2(3, 3);
+					position += glm::vec2(18, 15);
+					levelInfo.render(to_string(1 + (time / 1000)), position, 21, glm::vec4(1));
+				}
+			}
+
 			imagesProgram.use();
 			imagesProgram.setUniformMatrix4f("projection", projection);
 			imagesProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
@@ -306,6 +351,23 @@ void Scene::render()
 			textProgram.setUniformMatrix4f("projection", projection);
 			textProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			textProgram.setUniformMatrix4f("modelview", modelview);
+
+			if (true) {
+				int timeLeft = (300000 - currentTime) / 1000;
+				string aux = to_string(timeLeft % 60);
+				if (timeLeft % 60 < 10) aux = "0" + aux;
+				string timeleft = "Time  " + to_string(timeLeft / 60) + "-" + aux;
+				levelInfo.render(timeleft, glm::vec2(780, 172 * 3), 32, glm::vec4(0, 1, 0, 1));
+
+				string lemmingsout = "Out: " + to_string(out);
+				levelInfo.render(lemmingsout, glm::vec2(600, 185 * 3), 32, glm::vec4(0, 1, 0, 1));
+				out = 0;
+
+				string lemmingsin = "In: " + to_string((score * 100) / totalLemmings) + "%";
+				levelInfo.render(lemmingsin, glm::vec2(780, 185 * 3), 32, glm::vec4(0, 1, 0, 1));
+
+				levelInfo.render(lemmingHover, glm::vec2(600, 172 * 3), 32, glm::vec4(0, 1, 0, 1));
+			}
 
 			if (numLemmings[BUILDER_STATE] != 0) {
 				string num = to_string(numLemmings[BUILDER_STATE]);
@@ -338,39 +400,7 @@ void Scene::render()
 				if (numLemmings[DIGGER_STATE] < 10) num = "0" + num;
 				levelInfo.render(num, glm::vec2(322, 172 * 3), 32, glm::vec4(1));
 			}
-
-			if (true) {
-				int timeLeft = (levelTime - currentTime) / 1000;
-				string aux = to_string(timeLeft % 60);
-				if (timeLeft % 60 < 10) aux = "0" + aux;
-				string timeleft = "Time  " + to_string(timeLeft / 60) + "-" + aux;
-				levelInfo.render(timeleft, glm::vec2(780, 172 * 3), 32, glm::vec4(0,1,0,1));
-
-				string lemmingsout = "Out: " + to_string(out);
-				levelInfo.render(lemmingsout, glm::vec2(600, 185 * 3), 32, glm::vec4(0, 1, 0, 1));
-				out = 0;
-
-				string lemmingsin = "In: " + to_string((score*100)/totalLemmings) + "%";
-				levelInfo.render(lemmingsin, glm::vec2(780, 185 * 3), 32, glm::vec4(0, 1, 0, 1));
-
-				levelInfo.render(lemmingHover, glm::vec2(600, 172 * 3), 32, glm::vec4(0, 1, 0, 1));
-
-			}
-
-			simpleTexProgram.use();
-			simpleTexProgram.setUniformMatrix4f("projection", projection);
-			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
-			finishDoor->render();
-			openDoor->render();
-
-			//se renderiza el mapa encima de esos dos sprites para poder ver la escalera del builder si pasa sobre alguna puerta
-			maskedTexProgram.use();
-			maskedTexProgram.setUniformMatrix4f("projection", projection);
-			maskedTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			
-			maskedTexProgram.setUniformMatrix4f("modelview", modelview);
-			map->render(maskedTexProgram, colorTexture, maskTexture);
 
 			simpleTexProgram.use();
 			simpleTexProgram.setUniformMatrix4f("projection", projection);
@@ -394,24 +424,6 @@ void Scene::render()
 			if (x2speed) {
 				seleccionLemming->setPosition(glm::vec2(165, 160));
 				seleccionLemming->render();
-			}
-
-			for (int i = 0; i < totalLemmings; ++i) {
-				lemmings[i].render();
-			}
-
-			textProgram.use();
-			textProgram.setUniformMatrix4f("projection", projection);
-			textProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-			textProgram.setUniformMatrix4f("modelview", modelview);
-			for (int i = 0; i < totalLemmings; ++i) {
-				if (lemmings[i].getCountdown() != -1 && lemmings[i].getState() != EXPLOSION_STATE) {
-					int time = 5100 - lemmings[i].getCountdown();
-					glm::vec2 position = lemmings[i].getSprite()->position();
-					position *= glm::vec2(3, 3);
-					position += glm::vec2(18, 15);
-					levelInfo.render(to_string(1+(time / 1000)), position, 21, glm::vec4(1));
-				}
 			}
 
 			simpleTexProgram.use();
