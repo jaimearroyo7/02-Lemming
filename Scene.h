@@ -39,6 +39,7 @@ private:
 	void initFinishDoor();
 	void initCursor();
 	void initSeleccion();
+	void initShaderPrograms();
 
 private:
 	enum GameState
@@ -62,6 +63,7 @@ private:
 	Texture UITexture;
 
 	int score;
+	int levelTime;
 
 	int posX, posY;
 
@@ -107,9 +109,9 @@ private:
 	int totalLemmings;
 	int out, in;
 	int numLemmings[6];
-	Text numLemmingsText;
-
+	
 	Text levelInfo;
+	Text countdownText;
 };
 
 

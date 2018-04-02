@@ -96,9 +96,7 @@ void Scene::init()
 		//if(!text.init("fonts/DroidSerif.ttf"))
 		std::cout << "Could not load font!!!" << endl;
 
-	//if (!numLemmingsText.init("fonts/OpenSans-Regular.ttf"))
-		if(!numLemmingsText.init("fonts/OpenSans-Bold.ttf"))
-		//if(!numLemmingsText.init("fonts/DroidSerif.ttf"))
+	if(!countdownText.init("fonts/OpenSans-Regular.ttf"))
 		std::cout << "Could not load font!!!" << endl;
 
 	//factor
@@ -117,10 +115,11 @@ void Scene::init()
 			currentTime = 0.0f;
 			id = -1;
 			score = in = out = 0;
-			totalLemmings = 5;
+			totalLemmings = 1;
 			lemmings.clear();
 			lemmings.resize(totalLemmings);
 			posX = posY = 100;
+			levelTime = 300000;
 			finish = allOut = false;
 			stateSelected = false;
 			pause = x2speed = exploding = false;
@@ -276,7 +275,7 @@ void Scene::update(int deltaTime)
 				if (lemmings[i].getState() != DEAD && lemmings[i].getState() != RESPAWN) ++out;
 			}
 
-			if (finish) {
+			if (finish || currentTime > levelTime) {
 				//Si has ganado, hacer lo que quieras.
 				std::cout << score << endl;
 				gamestate = MENU;
@@ -311,37 +310,37 @@ void Scene::render()
 			if (numLemmings[BUILDER_STATE] != 0) {
 				string num = to_string(numLemmings[BUILDER_STATE]);
 				if (numLemmings[BUILDER_STATE] < 10) num = "0" + num;
-				numLemmingsText.render(num, glm::vec2(200, 172 * 3), 32, glm::vec4(1));
+				levelInfo.render(num, glm::vec2(200, 172 * 3), 32, glm::vec4(1));
 			}
 			if (numLemmings[BLOCKER_STATE] != 0) {
 				string num = to_string(numLemmings[BLOCKER_STATE]);
 				if (numLemmings[BLOCKER_STATE] < 10) num = "0" + num;
-				numLemmingsText.render(num, glm::vec2(138, 172 * 3), 32, glm::vec4(1));
+				levelInfo.render(num, glm::vec2(138, 172 * 3), 32, glm::vec4(1));
 			}
 			if (numLemmings[EXPLOSION_STATE] != 0) {
 				string num = to_string(numLemmings[EXPLOSION_STATE]);
 				if (numLemmings[EXPLOSION_STATE] < 10) num = "0" + num;
-				numLemmingsText.render(num, glm::vec2(78, 172 * 3), 32, glm::vec4(1));
+				levelInfo.render(num, glm::vec2(78, 172 * 3), 32, glm::vec4(1));
 			}
 			if (numLemmings[BASHER] != 0) {
 				string num = to_string(numLemmings[BASHER]);
 				if (numLemmings[BASHER] < 10) num = "0" + num;
-				numLemmingsText.render(num, glm::vec2(261, 172 * 3), 32, glm::vec4(1));
+				levelInfo.render(num, glm::vec2(261, 172 * 3), 32, glm::vec4(1));
 			}
 
 			if (numLemmings[CLIMBER_STATE] != 0) {
 				string num = to_string(numLemmings[CLIMBER_STATE]);
 				if (numLemmings[CLIMBER_STATE] < 10) num = "0" + num;
-				numLemmingsText.render(num, glm::vec2(17, 172 * 3), 32, glm::vec4(1));
+				levelInfo.render(num, glm::vec2(17, 172 * 3), 32, glm::vec4(1));
 			}
 			if (numLemmings[DIGGER_STATE] != 0) {
 				string num = to_string(numLemmings[DIGGER_STATE]);
 				if (numLemmings[DIGGER_STATE] < 10) num = "0" + num;
-				numLemmingsText.render(num, glm::vec2(322, 172 * 3), 32, glm::vec4(1));
+				levelInfo.render(num, glm::vec2(322, 172 * 3), 32, glm::vec4(1));
 			}
 
 			if (true) {
-				int timeLeft = (300000 - currentTime) / 1000;
+				int timeLeft = (levelTime - currentTime) / 1000;
 				string aux = to_string(timeLeft % 60);
 				if (timeLeft % 60 < 10) aux = "0" + aux;
 				string timeleft = "Time  " + to_string(timeLeft / 60) + "-" + aux;
@@ -365,6 +364,7 @@ void Scene::render()
 			finishDoor->render();
 			openDoor->render();
 
+			//se renderiza el mapa encima de esos dos sprites para poder ver la escalera del builder si pasa sobre alguna puerta
 			maskedTexProgram.use();
 			maskedTexProgram.setUniformMatrix4f("projection", projection);
 			maskedTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
@@ -400,6 +400,24 @@ void Scene::render()
 				lemmings[i].render();
 			}
 
+			textProgram.use();
+			textProgram.setUniformMatrix4f("projection", projection);
+			textProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			textProgram.setUniformMatrix4f("modelview", modelview);
+			for (int i = 0; i < totalLemmings; ++i) {
+				if (lemmings[i].getCountdown() != -1 && lemmings[i].getState() != EXPLOSION_STATE) {
+					int time = 5100 - lemmings[i].getCountdown();
+					glm::vec2 position = lemmings[i].getSprite()->position();
+					position *= glm::vec2(3, 3);
+					position += glm::vec2(18, 15);
+					levelInfo.render(to_string(1+(time / 1000)), position, 21, glm::vec4(1));
+				}
+			}
+
+			simpleTexProgram.use();
+			simpleTexProgram.setUniformMatrix4f("projection", projection);
+			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
 			cursor->render();
 
 			break;
@@ -454,6 +472,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 				}
 				applyMask(mouseX, mouseY);
 			}
+			//interfaz seleccionable
 			else if (bLeftButton && posY >= 160) {
 				std::cout << posX << " " << posY << endl;
 				int num = (posX - 4 - 120) / 20;

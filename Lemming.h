@@ -23,6 +23,7 @@ public:
 
 	void setState(int stateID);
 	int getState();
+	int getCountdown();
 
 	Sprite *getSprite();
 	
@@ -33,6 +34,7 @@ private:
 
 	bool digged, bashed, climbed, firstStair;
 	int builderCount;
+	float explosionCountdown;
 
 	bool show = false;
 	bool right;
@@ -50,6 +52,7 @@ private:
 	};
 
 	LemmingState state;
+	LemmingState prevState;
 	Texture spritesheet;
 	Sprite *sprite;
 	VariableTexture *mask;
