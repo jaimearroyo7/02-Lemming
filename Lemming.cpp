@@ -88,15 +88,15 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 		for (int i = 0; i<16; i++)
 			sprite->addKeyframe(BUILDING_LEFT, glm::vec2(float(i) / 16, 10.0f / 14.0f));
 
-		sprite->setAnimationSpeed(CLIMBING_RIGHT, 10);
+		sprite->setAnimationSpeed(CLIMBING_RIGHT, 13);
 		for (int i = 0; i<9; i++)
 			sprite->addKeyframe(CLIMBING_RIGHT, glm::vec2(float(i) / 16, 11.0f / 14.0f));
 
-		sprite->setAnimationSpeed(VOLTERETA_RIGHT, 10);
+		sprite->setAnimationSpeed(VOLTERETA_RIGHT, 12);
 		for (int i = 0; i<7; i++)
 			sprite->addKeyframe(VOLTERETA_RIGHT, glm::vec2(9.0f/16.0f + (float(i) / 16), 11.0f / 14.0f));
 
-		sprite->setAnimationSpeed(CLIMBING_LEFT,  12);
+		sprite->setAnimationSpeed(CLIMBING_LEFT, 13);
 		for (int i = 0; i<9; i++)
 			sprite->addKeyframe(CLIMBING_LEFT, glm::vec2(float(i) / 16, 12.0f / 14.0f));
 
@@ -271,6 +271,20 @@ int Lemming::update(int deltaTime, int seconds)
 				sprite->position() += glm::vec2(0, 1);
 			break;
 
+		case VOLTERETA:
+			sprite->position() += glm::vec2(0, -1);
+			if (sprite->getKeyframe() % 3 == 0)
+				sprite->position() += glm::vec2(dir, 0);
+
+			if (sprite->getKeyframe() % 4 == 0)
+				sprite->position() += glm::vec2(0, -1);
+
+			if (sprite->getKeyframe() == 6) {
+				state = CLIMBER_STATE;
+				sprite->position() += glm::vec2(0, -1);
+			}
+			break;
+
 		case CLIMBER_STATE:
 			if (win()) {
 				state = WIN_STATE;
@@ -279,14 +293,23 @@ int Lemming::update(int deltaTime, int seconds)
 			}
 
 			if (collision(0)) {
-				cout << "collision" << endl;
-				if (!climbed) {
-					if (right) sprite->changeAnimation(CLIMBING_RIGHT);
-					else sprite->changeAnimation(CLIMBING_LEFT);
+				right = !right;
+				if (collisionHead()) {
+					cout << "collision" << endl;
+					if (!climbed) {
+						if (right) sprite->changeAnimation(CLIMBING_LEFT);
+						else sprite->changeAnimation(CLIMBING_RIGHT);
+					}
+					climbed = true;
+					if (sprite->getKeyframe() <= 4)
+						sprite->position() += glm::vec2(0, -1);
 				}
-				climbed = true;
-				if(sprite->getKeyframe() <= 4)
-				sprite->position() += glm::vec2(0, -1);
+				else {
+					state = VOLTERETA;
+					if (right) sprite->changeAnimation(VOLTERETA_LEFT);
+					else sprite->changeAnimation(VOLTERETA_RIGHT);
+				}
+				right = !right;
 			}
 			else {
 				if (sprite->animation() != WALKING_RIGHT && sprite->animation() != WALKING_LEFT) {

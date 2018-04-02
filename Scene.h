@@ -39,7 +39,6 @@ private:
 	void initFinishDoor();
 	void initCursor();
 	void initSeleccion();
-	void initShaderPrograms();
 
 private:
 	enum GameState
@@ -70,7 +69,7 @@ private:
 	enum LemmingState
 	{
 		BASHER, DIGGER_STATE, CLIMBER_STATE, EXPLOSION_STATE, BLOCKER_STATE, BUILDER_STATE, WALKING_LEFT_STATE,
-		WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DEAD, WIN_STATE, RESPAWN
+		WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DEAD, WIN_STATE, RESPAWN, VOLTERETA
 	};
 
 	int id;
