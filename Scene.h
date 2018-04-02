@@ -78,7 +78,7 @@ private:
 
 	bool pause, x2speed;
 
-	bool finish;
+	bool finish, allOut;
 
 	vector < Lemming > lemmings;
 
@@ -96,17 +96,20 @@ private:
 	glm::vec2 lemmingSelected;
 	Sprite *seleccionLemming;
 	Texture spritesheetSeleccionLemming;
-	bool renderSeleccionLemming = false;
+	bool renderSeleccionLemming;
 
-	bool renderSeleccionPause = false;
+	bool renderSeleccionPause;
 
-	bool renderSeleccionExplosion = false;
+	bool renderSeleccionExplosion;
 	bool exploding = false;
 
+	string lemmingHover;
+	int totalLemmings;
+	int out, in;
 	int numLemmings[6];
 	Text numLemmingsText;
 
-	Text text;
+	Text levelInfo;
 };
 
 

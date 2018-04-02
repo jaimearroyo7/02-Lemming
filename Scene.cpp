@@ -91,14 +91,14 @@ void Scene::initFinishDoor() {
 void Scene::init()
 {
 	// Select which font you want to use
-	if (!text.init("fonts/OpenSans-Regular.ttf"))
-		//if(!text.init("fonts/OpenSans-Bold.ttf"))
+	//if (!levelInfo.init("fonts/OpenSans-Regular.ttf"))
+		if(!levelInfo.init("fonts/OpenSans-Bold.ttf"))
 		//if(!text.init("fonts/DroidSerif.ttf"))
 		std::cout << "Could not load font!!!" << endl;
 
-	if (!numLemmingsText.init("fonts/OpenSans-Regular.ttf"))
-		//if(!text.init("fonts/OpenSans-Bold.ttf"))
-		//if(!text.init("fonts/DroidSerif.ttf"))
+	//if (!numLemmingsText.init("fonts/OpenSans-Regular.ttf"))
+		if(!numLemmingsText.init("fonts/OpenSans-Bold.ttf"))
+		//if(!numLemmingsText.init("fonts/DroidSerif.ttf"))
 		std::cout << "Could not load font!!!" << endl;
 
 	//factor
@@ -116,13 +116,16 @@ void Scene::init()
 			//init some vars
 			currentTime = 0.0f;
 			id = -1;
-			score = 0;
+			score = in = out = 0;
+			totalLemmings = 5;
 			lemmings.clear();
-			lemmings.resize(5);
+			lemmings.resize(totalLemmings);
 			posX = posY = 100;
-			finish = false;
+			finish = allOut = false;
 			stateSelected = false;
 			pause = x2speed = exploding = false;
+			renderSeleccionPause = renderSeleccionExplosion = renderSeleccionLemming = false;
+
 
 			for (int i = 0; i < 6; ++i) {
 				numLemmings[i] = 10;
@@ -149,8 +152,8 @@ void Scene::init()
 			UITexture.loadFromFile("images/interface.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
 			//create Lemmings
-			for (int i = 0; i < 5; ++i) {
-				lemmings[i].init(glm::vec2(90, 30), simpleTexProgram, 2 + i * 5);
+			for (int i = 0; i < totalLemmings; ++i) {
+				lemmings[i].init(glm::vec2(90, 30), simpleTexProgram, 2 + i * 1);
 				lemmings[i].setMapMask(&maskTexture, &colorTexture);
 			}
 
@@ -182,7 +185,13 @@ unsigned int x = 0;
 
 void Scene::update(int deltaTime)
 {
-	if(x2speed) deltaTime *= 2;
+	
+	if (x2speed)
+		deltaTime *= 2;
+		
+	if (renderSeleccionPause) 
+		deltaTime *= 0;
+
 	currentTime += deltaTime;
 	bool found = false;
 	switch (gamestate) {
@@ -194,12 +203,50 @@ void Scene::update(int deltaTime)
 				glm::ivec2 pos = lemmings[i].getSprite()->position();
 				pos += glm::vec2(120, 0);
 
-				if (pos.x <= posX && posX <= (pos.x + 16) && pos.y <= posY && posY <= (pos.y + 16) && lemmings[i].getState() != DEAD && lemmings[i].getState() != RESPAWN) {
+				if (pos.x <= posX && posX <= (pos.x + 16) && pos.y <= posY && posY <= (pos.y + 16) && lemmings[i].getState() != WIN_STATE && lemmings[i].getState() != DEAD && lemmings[i].getState() != RESPAWN) {
 					id = i;
 					found = true;
 				}
 			}
-			if (!found) id = -1;
+			if (!found) {
+				id = -1;
+				lemmingHover = "";
+			}
+			else {
+				//hover lemmings
+				switch (lemmings[id].getState()) {
+					case BASHER:
+						lemmingHover = "Basher";
+						break;
+					case DIGGER_STATE:
+						lemmingHover = "Digger";
+						break;
+					case CLIMBER_STATE:
+						lemmingHover = "Climber";
+						break;
+					case BLOCKER_STATE:
+						lemmingHover = "Blocker";
+						break;
+					case BUILDER_STATE:
+						lemmingHover = "Builder";
+						break;
+					case WALKING_LEFT_STATE:
+						lemmingHover = "Walker";
+						break;
+					case WALKING_RIGHT_STATE:
+						lemmingHover = "Walker";
+						break;
+					case FALLING_RIGHT_STATE:
+						lemmingHover = "Faller";
+						break;
+					case FALLING_LEFT_STATE:
+						lemmingHover = "Faller";
+						break;
+					default: 
+						lemmingHover = "";
+						break;
+				}
+			}
 
 			//actualizar el cursor
 			cursor->setPosition(glm::vec2(posX - 120 - 8, posY - 8));
@@ -217,13 +264,16 @@ void Scene::update(int deltaTime)
 
 			finishDoor->update(deltaTime);
 
-			for (int i = 0; i < 5; ++i) {
+			for (int i = 0; i < totalLemmings; ++i) {
 				score += lemmings[i].update(deltaTime, int(currentTime / 1000));
 			}
 
 			finish = true;
-			for (int i = 0; i < lemmings.size() && finish; ++i) {
+			allOut = true;
+			for (int i = 0; i < lemmings.size(); ++i) {
 				if (lemmings[i].getState() != DEAD) finish = false;
+				if (lemmings[i].getState() == RESPAWN) allOut = false;
+				if (lemmings[i].getState() != DEAD && lemmings[i].getState() != RESPAWN) ++out;
 			}
 
 			if (finish) {
@@ -271,12 +321,12 @@ void Scene::render()
 			if (numLemmings[EXPLOSION_STATE] != 0) {
 				string num = to_string(numLemmings[EXPLOSION_STATE]);
 				if (numLemmings[EXPLOSION_STATE] < 10) num = "0" + num;
-				numLemmingsText.render(num, glm::vec2(79, 172 * 3), 32, glm::vec4(1));
+				numLemmingsText.render(num, glm::vec2(78, 172 * 3), 32, glm::vec4(1));
 			}
 			if (numLemmings[BASHER] != 0) {
 				string num = to_string(numLemmings[BASHER]);
 				if (numLemmings[BASHER] < 10) num = "0" + num;
-				numLemmingsText.render(num, glm::vec2(17, 172 * 3), 32, glm::vec4(1));
+				numLemmingsText.render(num, glm::vec2(261, 172 * 3), 32, glm::vec4(1));
 			}
 
 			if (numLemmings[CLIMBER_STATE] != 0) {
@@ -287,8 +337,33 @@ void Scene::render()
 			if (numLemmings[DIGGER_STATE] != 0) {
 				string num = to_string(numLemmings[DIGGER_STATE]);
 				if (numLemmings[DIGGER_STATE] < 10) num = "0" + num;
-				numLemmingsText.render(num, glm::vec2(17, 172 * 3), 32, glm::vec4(1));
+				numLemmingsText.render(num, glm::vec2(322, 172 * 3), 32, glm::vec4(1));
 			}
+
+			if (true) {
+				int timeLeft = (300000 - currentTime) / 1000;
+				string aux = to_string(timeLeft % 60);
+				if (timeLeft % 60 < 10) aux = "0" + aux;
+				string timeleft = "Time  " + to_string(timeLeft / 60) + "-" + aux;
+				levelInfo.render(timeleft, glm::vec2(780, 172 * 3), 32, glm::vec4(0,1,0,1));
+
+				string lemmingsout = "Out: " + to_string(out);
+				levelInfo.render(lemmingsout, glm::vec2(600, 185 * 3), 32, glm::vec4(0, 1, 0, 1));
+				out = 0;
+
+				string lemmingsin = "In: " + to_string((score*100)/totalLemmings) + "%";
+				levelInfo.render(lemmingsin, glm::vec2(780, 185 * 3), 32, glm::vec4(0, 1, 0, 1));
+
+				levelInfo.render(lemmingHover, glm::vec2(600, 172 * 3), 32, glm::vec4(0, 1, 0, 1));
+
+			}
+
+			simpleTexProgram.use();
+			simpleTexProgram.setUniformMatrix4f("projection", projection);
+			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
+			finishDoor->render();
+			openDoor->render();
 
 			maskedTexProgram.use();
 			maskedTexProgram.setUniformMatrix4f("projection", projection);
@@ -301,8 +376,7 @@ void Scene::render()
 			simpleTexProgram.setUniformMatrix4f("projection", projection);
 			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
-			finishDoor->render();
-			openDoor->render();
+			
 			seleccionLemming->setPosition(lemmingSelected);
 			if (renderSeleccionLemming)
 				seleccionLemming->render();
@@ -322,7 +396,7 @@ void Scene::render()
 				seleccionLemming->render();
 			}
 
-			for (int i = 0; i < 5; ++i) {
+			for (int i = 0; i < totalLemmings; ++i) {
 				lemmings[i].render();
 			}
 
@@ -361,10 +435,10 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 	switch (gamestate) {
 		case PLAYING:
 			if (bLeftButton && posY < 160) {				
-				std::cout << id << endl;
+				/*std::cout << id << endl;
 				//convertir un Lemming a Blocker
 				std::cout << mouseX << " " << mouseY << endl;
-				std::cout << posX << " " << posY << endl;
+				std::cout << posX << " " << posY << endl;*/
 				if (id != -1 && stateSelected) {
 					if (numLemmings[lemmingsState] > 0) {
 						--numLemmings[lemmingsState];
@@ -436,12 +510,14 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 					case 6:
 						//PAUSE
 						renderSeleccionPause = !renderSeleccionPause;
+						if (renderSeleccionPause) x2speed = false;
 						std::cout << "pasue" << endl;
 						break;
 					case 7:
 						//FULL EXPLOSION
-						renderSeleccionExplosion = true;
-						if (!exploding) {
+						
+						if (!exploding && allOut) {
+							renderSeleccionExplosion = true;
 							exploding = true;
 							for (int i = 0; i < lemmings.size(); ++i) {
 								lemmings[i].setState(EXPLOSION_STATE);
@@ -452,6 +528,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 					case 8:
 						//x2 Speed
 						x2speed = !x2speed;
+						if (x2speed) renderSeleccionPause = false;
 						std::cout << "x2Speed" << endl;
 						break;
 
