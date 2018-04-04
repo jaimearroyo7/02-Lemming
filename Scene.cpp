@@ -106,7 +106,7 @@ void Scene::init()
 	glm::vec2 geom[2] = { glm::vec2(0.f, 0.f), glm::vec2(float(CAMERA_WIDTH), float(CAMERA_HEIGHT)) };
 
 	glm::vec2 texCoords[2] = { glm::vec2(120.f / 512.0, 0.f), glm::vec2((120.f + 320.f) / 512.0f, (160.f / 256.0f)) };
-	projection = glm::ortho(0.f, float(CAMERA_WIDTH - 1), float(CAMERA_HEIGHT - 1), 0.f);
+	projection = glm::ortho(0.0f, float(CAMERA_WIDTH - 1), float(CAMERA_HEIGHT - 1), 0.f);
 	initShaders();
 	initCursor();
 	switch (gamestate) {
@@ -115,7 +115,7 @@ void Scene::init()
 			currentTime = 0.0f;
 			id = -1;
 			score = in = out = 0;
-			totalLemmings = 1;
+			totalLemmings = 4;
 			lemmings.clear();
 			lemmings.resize(totalLemmings);
 			posX = posY = 100;
@@ -124,13 +124,14 @@ void Scene::init()
 			stateSelected = false;
 			pause = x2speed = exploding = false;
 			renderSeleccionPause = renderSeleccionExplosion = renderSeleccionLemming = false;
-
+			scroll = 0.0f;
 
 			for (int i = 0; i < 6; ++i) {
 				numLemmings[i] = 10;
 			}
-
-			geom[1] = glm::vec2(float(CAMERA_WIDTH), float(CAMERA_HEIGHT)*scale);
+			texCoords[0] = glm::vec2(0.0f, 0.0f);
+			texCoords[1] = glm::vec2(1.0f, (160.f / 256.0f));
+			geom[1] = glm::vec2(512, float(CAMERA_HEIGHT)*scale);
 		
 
 			//create Mao
@@ -205,7 +206,7 @@ void Scene::update(int deltaTime)
 				glm::ivec2 pos = lemmings[i].getSprite()->position();
 				pos += glm::vec2(120, 0);
 
-				if (pos.x <= posX && posX <= (pos.x + 16) && pos.y <= posY && posY <= (pos.y + 16) && lemmings[i].getState() != WIN_STATE && lemmings[i].getState() != DEAD && lemmings[i].getState() != RESPAWN) {
+				if (pos.x <= posX + int(scroll) && posX + int(scroll) <= (pos.x + 16) && pos.y <= posY && posY <= (pos.y + 16) && lemmings[i].getState() != WIN_STATE && lemmings[i].getState() != DEAD && lemmings[i].getState() != RESPAWN) {
 					id = i;
 					found = true;
 				}
@@ -275,6 +276,8 @@ void Scene::update(int deltaTime)
 
 			finish = true;
 			allOut = true;
+
+			out = 0;
 			for (int i = 0; i < lemmings.size(); ++i) {
 				if (lemmings[i].getState() != DEAD) finish = false;
 				if (lemmings[i].getState() == RESPAWN) allOut = false;
@@ -284,6 +287,7 @@ void Scene::update(int deltaTime)
 			if (finish || currentTime > levelTime) {
 				//Si has ganado, hacer lo que quieras.
 				std::cout << score << endl;
+				scroll = 0.0f;
 				gamestate = MENU;
 				init();
 			}
@@ -298,37 +302,38 @@ void Scene::update(int deltaTime)
 void Scene::render()
 {
 	glm::mat4 modelview = glm::mat4(1.0f);
+	glm::mat4 projection2 = glm::ortho(scroll, scroll + float(CAMERA_WIDTH - 1), float(CAMERA_HEIGHT - 1), 0.f);
 
 	switch (gamestate) {
 		case PLAYING:
-
+			
 			simpleTexProgram.use();
-			simpleTexProgram.setUniformMatrix4f("projection", projection);
+			simpleTexProgram.setUniformMatrix4f("projection", projection2);
 			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
-			finishDoor->render();
-			openDoor->render();
-
-			//se renderiza el mapa encima de esos dos sprites para poder ver la escalera del builder si pasa sobre alguna puerta
-			maskedTexProgram.use();
-			maskedTexProgram.setUniformMatrix4f("projection", projection);
-			maskedTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-
-			maskedTexProgram.setUniformMatrix4f("modelview", modelview);
-			map->render(maskedTexProgram, colorTexture, maskTexture);
-
+			finishDoor->render(0);
+			openDoor->render(0);
+			if (true) {
+				//se renderiza el mapa encima de esos dos sprites para poder ver la escalera del builder si pasa sobre alguna puerta
+				maskedTexProgram.use();
+				maskedTexProgram.setUniformMatrix4f("projection", projection2);
+				maskedTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+				glm::mat4 modelviewmap = glm::translate(modelview, glm::vec3(-120.f, 0.0f, 0.f));
+				maskedTexProgram.setUniformMatrix4f("modelview", modelviewmap);
+				map->render(maskedTexProgram, colorTexture, maskTexture);
+			}
 
 			simpleTexProgram.use();
-			simpleTexProgram.setUniformMatrix4f("projection", projection);
+			simpleTexProgram.setUniformMatrix4f("projection", projection2);
 			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
 			for (int i = 0; i < totalLemmings; ++i) {
-				lemmings[i].render();
+				lemmings[i].render(0);
 			}
-			cursor->render();
+			cursor->render(scroll);
 
 			textProgram.use();
-			textProgram.setUniformMatrix4f("projection", projection);
+			textProgram.setUniformMatrix4f("projection", projection2);
 			textProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			textProgram.setUniformMatrix4f("modelview", modelview);
 			for (int i = 0; i < totalLemmings; ++i) {
@@ -336,8 +341,8 @@ void Scene::render()
 					int time = 5100 - lemmings[i].getCountdown();
 					glm::vec2 position = lemmings[i].getSprite()->position();
 					position *= glm::vec2(3, 3);
-					position += glm::vec2(18, 15);
-					levelInfo.render(to_string(1 + (time / 1000)), position, 21, glm::vec4(1));
+					position += glm::vec2(18-2*scroll, 15);
+					levelInfo.render(to_string(1 + (time / 1000)), position, 21, glm::vec4(1), scroll);
 				}
 			}
 
@@ -357,48 +362,47 @@ void Scene::render()
 				string aux = to_string(timeLeft % 60);
 				if (timeLeft % 60 < 10) aux = "0" + aux;
 				string timeleft = "Time  " + to_string(timeLeft / 60) + "-" + aux;
-				levelInfo.render(timeleft, glm::vec2(780, 172 * 3), 32, glm::vec4(0, 1, 0, 1));
+				levelInfo.render(timeleft, glm::vec2(780, 172 * 3), 32, glm::vec4(0, 1, 0, 1), 0);
 
 				string lemmingsout = "Out: " + to_string(out);
-				levelInfo.render(lemmingsout, glm::vec2(600, 185 * 3), 32, glm::vec4(0, 1, 0, 1));
-				out = 0;
+				levelInfo.render(lemmingsout, glm::vec2(600, 185 * 3), 32, glm::vec4(0, 1, 0, 1), 0);
 
 				string lemmingsin = "In: " + to_string((score * 100) / totalLemmings) + "%";
-				levelInfo.render(lemmingsin, glm::vec2(780, 185 * 3), 32, glm::vec4(0, 1, 0, 1));
+				levelInfo.render(lemmingsin, glm::vec2(780, 185 * 3), 32, glm::vec4(0, 1, 0, 1), 0);
 
-				levelInfo.render(lemmingHover, glm::vec2(600, 172 * 3), 32, glm::vec4(0, 1, 0, 1));
+				levelInfo.render(lemmingHover, glm::vec2(600, 172 * 3), 32, glm::vec4(0, 1, 0, 1), 0);
 			}
 
 			if (numLemmings[BUILDER_STATE] != 0) {
 				string num = to_string(numLemmings[BUILDER_STATE]);
 				if (numLemmings[BUILDER_STATE] < 10) num = "0" + num;
-				levelInfo.render(num, glm::vec2(200, 172 * 3), 32, glm::vec4(1));
+				levelInfo.render(num, glm::vec2(200, 172 * 3), 32, glm::vec4(1),0);
 			}
 			if (numLemmings[BLOCKER_STATE] != 0) {
 				string num = to_string(numLemmings[BLOCKER_STATE]);
 				if (numLemmings[BLOCKER_STATE] < 10) num = "0" + num;
-				levelInfo.render(num, glm::vec2(138, 172 * 3), 32, glm::vec4(1));
+				levelInfo.render(num, glm::vec2(138, 172 * 3), 32, glm::vec4(1),0);
 			}
 			if (numLemmings[EXPLOSION_STATE] != 0) {
 				string num = to_string(numLemmings[EXPLOSION_STATE]);
 				if (numLemmings[EXPLOSION_STATE] < 10) num = "0" + num;
-				levelInfo.render(num, glm::vec2(78, 172 * 3), 32, glm::vec4(1));
+				levelInfo.render(num, glm::vec2(78, 172 * 3), 32, glm::vec4(1),0);
 			}
 			if (numLemmings[BASHER] != 0) {
 				string num = to_string(numLemmings[BASHER]);
 				if (numLemmings[BASHER] < 10) num = "0" + num;
-				levelInfo.render(num, glm::vec2(261, 172 * 3), 32, glm::vec4(1));
+				levelInfo.render(num, glm::vec2(261, 172 * 3), 32, glm::vec4(1),0);
 			}
 
 			if (numLemmings[CLIMBER_STATE] != 0) {
 				string num = to_string(numLemmings[CLIMBER_STATE]);
 				if (numLemmings[CLIMBER_STATE] < 10) num = "0" + num;
-				levelInfo.render(num, glm::vec2(17, 172 * 3), 32, glm::vec4(1));
+				levelInfo.render(num, glm::vec2(17, 172 * 3), 32, glm::vec4(1),0);
 			}
 			if (numLemmings[DIGGER_STATE] != 0) {
 				string num = to_string(numLemmings[DIGGER_STATE]);
 				if (numLemmings[DIGGER_STATE] < 10) num = "0" + num;
-				levelInfo.render(num, glm::vec2(322, 172 * 3), 32, glm::vec4(1));
+				levelInfo.render(num, glm::vec2(322, 172 * 3), 32, glm::vec4(1),0);
 			}
 			
 
@@ -409,28 +413,28 @@ void Scene::render()
 			
 			seleccionLemming->setPosition(lemmingSelected);
 			if (renderSeleccionLemming)
-				seleccionLemming->render();
+				seleccionLemming->render(0);
 
 			if (renderSeleccionPause) {
 				seleccionLemming->setPosition(glm::vec2(124, 160));
-				seleccionLemming->render();
+				seleccionLemming->render(0);
 			}
 
 			if (renderSeleccionExplosion) {
 				seleccionLemming->setPosition(glm::vec2(145, 160));
-				seleccionLemming->render();
+				seleccionLemming->render(0);
 			}
 
 			if (x2speed) {
 				seleccionLemming->setPosition(glm::vec2(165, 160));
-				seleccionLemming->render();
+				seleccionLemming->render(0);
 			}
 
 			simpleTexProgram.use();
-			simpleTexProgram.setUniformMatrix4f("projection", projection);
+			simpleTexProgram.setUniformMatrix4f("projection", projection2);
 			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
-			cursor->render();
+			cursor->render(scroll);
 
 			break;
 
@@ -446,7 +450,7 @@ void Scene::render()
 			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
 
-			cursor->render();
+			cursor->render(0);
 			
 			break;
 	}
@@ -461,14 +465,10 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 	//   The map is enlarged 3 times and displaced 120 pixels
 	posX = mouseX / 3 + 120;
 	posY = mouseY / 3;
-
+	//cout << posX << " " << posY << endl;
 	switch (gamestate) {
 		case PLAYING:
-			if (bLeftButton && posY < 160) {				
-				/*std::cout << id << endl;
-				//convertir un Lemming a Blocker
-				std::cout << mouseX << " " << mouseY << endl;
-				std::cout << posX << " " << posY << endl;*/
+			if (bLeftButton && posY < 160) {			
 				if (id != -1 && stateSelected) {
 					if (numLemmings[lemmingsState] > 0) {
 						--numLemmings[lemmingsState];
@@ -576,6 +576,18 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 	}
 }
 
+void Scene::specialKeyPressed(int key) {
+	cout << key << endl;
+	switch (key) {
+		case 100:
+			scroll -= 3;
+			break;
+		case 102:
+			scroll += 3;
+			break;
+	}
+}
+
 void Scene::eraseMask(int mouseX, int mouseY)
 {
 
@@ -587,7 +599,7 @@ void Scene::eraseMask(int mouseX, int mouseY)
 	std::cout << posX << " " << posY << endl;
 
 	for(int y=max(0, posY-3); y<=min(maskTexture.height()-1, posY+3); y++)
-		for(int x=max(0, posX-3); x<=min(maskTexture.width()-1, posX+3); x++)
+		for(int x=max(0, posX-3+int(scroll)); x<=min(maskTexture.width()-1, posX+int(scroll)+3); x++)
 			maskTexture.setPixel(x, y, 0);
 }
 

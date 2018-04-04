@@ -26,6 +26,7 @@ public:
 	void render();
 	
 	void mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButton);
+	void specialKeyPressed(int key);
 
 	int getgameState();
 
@@ -75,7 +76,7 @@ private:
 	int id;
 	LemmingState lemmingsState;
 	bool stateSelected;
-
+	float scroll;
 
 	bool pause, x2speed;
 

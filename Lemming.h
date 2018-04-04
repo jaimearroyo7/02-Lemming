@@ -17,7 +17,7 @@ class Lemming
 public:
 	void init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, Texture &spritesheet, int cooldown);
 	int update(int deltaTime, int seconds);
-	void render();
+	void render(float scroll);
 	
 	void setMapMask(VariableTexture *mapMask, VariableTexture *mapColor);
 

@@ -107,7 +107,7 @@ void Text::render(char c, const glm::vec2 &pixel, int size, const glm::vec4 &col
 	glDisable(GL_BLEND);
 }
 
-void Text::render(const string &str, const glm::vec2 &pixel, int size, const glm::vec4 &color)
+void Text::render(const string &str, const glm::vec2 &pixel, int size, const glm::vec4 &color, float scroll)
 {
 	int vp[4];
 	glm::mat4 projection, modelview;
@@ -117,7 +117,7 @@ void Text::render(const string &str, const glm::vec2 &pixel, int size, const glm
 	glEnable(GL_BLEND);
 	program.use();
 	glGetIntegerv(GL_VIEWPORT, vp);
-	projection = glm::ortho(0.f, float(vp[2] - 1), float(vp[3] - 1), 0.f);
+	projection = glm::ortho(0.f + scroll, scroll + float(vp[2] - 1), float(vp[3] - 1), 0.f);
 	program.setUniformMatrix4f("projection", projection);
 	program.setUniform4f("color", color.r, color.g, color.b, color.a);
 

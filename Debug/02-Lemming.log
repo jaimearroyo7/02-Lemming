@@ -1,5 +1,5 @@
 ﻿  Scene.cpp
-c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(278): warning C4018: '<': no coinciden signed/unsigned
-c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(356): warning C4244: 'inicializando': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(281): warning C4018: '<': no coinciden signed/unsigned
+c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(361): warning C4244: 'inicializando': conversión de 'float' a 'int'; posible pérdida de datos
 c:\users\jaime\desktop\vj-fib\exlemmings\lemmings\02-lemming\scene.cpp(553): warning C4018: '<': no coinciden signed/unsigned
   02-Lemming.vcxproj -> C:\Users\jaime\Desktop\VJ-FIB\ExLemmings\Lemmings\02-Lemming\Debug\02-Lemming.exe

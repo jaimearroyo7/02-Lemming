@@ -29,6 +29,7 @@ void Game::render()
 
 void Game::keyPressed(int key)
 {
+	
 	if(key == 27) // Escape code
 		bPlay = false;
 	keys[key] = true;
@@ -41,6 +42,7 @@ void Game::keyReleased(int key)
 
 void Game::specialKeyPressed(int key)
 {
+	scene.specialKeyPressed(key);
 	specialKeys[key] = true;
 }
 

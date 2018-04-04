@@ -166,6 +166,7 @@ int Lemming::update(int deltaTime, int seconds)
 		sprite->changeAnimation(FALL_RIGHT);
 	};
 	
+	//control bounds
 	glm::vec2 posl = sprite->position();
 	if (posl.x < -10 || posl.x > 315 || posl.y > 160 || posl.y < 2) {
 		state = DEAD;
@@ -469,9 +470,9 @@ int Lemming::update(int deltaTime, int seconds)
 	return 0;
 }
 
-void Lemming::render()
+void Lemming::render(float scroll)
 {
-	if(state != DEAD && state != RESPAWN) sprite->render();
+	if(state != DEAD && state != RESPAWN) sprite->render(scroll);
 }
 
 void Lemming::setMapMask(VariableTexture *mapMask, VariableTexture *mapColor)
@@ -572,7 +573,7 @@ void Lemming::setState(int stateId) {
 						color->setPixel(x, y, glm::ivec4(0, 0, 0, 0));
 					}
 				state = BLOCKER_STATE;
-				sprite->changeAnimation(CLIMBING_RIGHT);
+				sprite->changeAnimation(BLOCKER_ANIM);
 			}
 			break;
 		case DIGGER_STATE:
@@ -587,7 +588,7 @@ void Lemming::setState(int stateId) {
 			state = BASHER;
 			break;
 		case EXPLOSION_STATE:
-			explosionCountdown = 0.0f;
+			if(state != DEAD && state != RESPAWN) explosionCountdown = 0.0f;
 			break;
 		default:
 			break;
