@@ -8,6 +8,7 @@
 #include "Lemming.h"
 #include "TexturedQuad.h"
 #include "Text.h"
+#include "AudioEngine.h"
 
 
 // Scene contains all the entities of our game.
@@ -40,6 +41,10 @@ private:
 	void initFinishDoor();
 	void initCursor();
 	void initSeleccion();
+
+	void loopSound();
+	void playMenuLoop();
+	void playLvl1Loop();
 
 private:
 	enum GameState
@@ -113,6 +118,14 @@ private:
 	
 	Text levelInfo;
 	Text countdownText;
+
+	// Sound
+	FMOD::System *system;
+	FMOD::Sound *menuLoop;
+	FMOD::Sound *lvl1Loop;
+	FMOD::Channel *channel1 = 0;
+	FMOD::Channel *channel2 = 0;
+
 };
 
 

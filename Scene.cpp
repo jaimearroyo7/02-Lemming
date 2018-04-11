@@ -7,13 +7,16 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <string>
+#include <fmod.hpp>
+#include "AudioEngine.h"
 using namespace std;
-
 
 Scene::Scene()
 {
 	gamestate = MENU;
 	map = NULL;
+	loopSound();
+
 }
 
 Scene::~Scene()
@@ -109,9 +112,17 @@ void Scene::init()
 	projection = glm::ortho(0.0f, float(CAMERA_WIDTH - 1), float(CAMERA_HEIGHT - 1), 0.f);
 	initShaders();
 	initCursor();
+	/*AudioEngine *engine = AudioEngine::getInstance();
+	const char *filePath = "./media/lemmings.mid";
+	Music m = engine->loadMusic(filePath);
+	m.play();*/
+	/*AudioEngine aEngine;
+	aEngine.Init();
+	aEngine.PlaySounds("./media/chambea.mp3", Vector3{ 0, 0, 0 }, aEngine.VolumeTodB(1.0f));*/
 	switch (gamestate) {
 		case PLAYING:
 			//init some vars
+			playLvl1Loop();
 			currentTime = 0.0f;
 			id = -1;
 			score = in = out = 0;
@@ -173,6 +184,7 @@ void Scene::init()
 			break;
 
 		case MENU:
+			playMenuLoop();
 			texCoords[0] = glm::vec2(0.f, 0.f); texCoords[1] = glm::vec2(1.0f, 1.0f);
 			menu = TexturedQuad::createTexturedQuad(geom, texCoords, imagesProgram);
 
@@ -729,3 +741,23 @@ int Scene::getgameState() {
 	return gamestate;
 }
 
+void Scene::loopSound() {
+	FMOD::System_Create(&system);
+	system->init(2, FMOD_INIT_NORMAL, NULL);
+	system->createSound("media/chambea.mp3", FMOD_2D, 0, &menuLoop);
+	menuLoop->setMode(FMOD_LOOP_NORMAL);
+	system->createSound("media/lemmings.mid", FMOD_2D, 0, &lvl1Loop);
+	lvl1Loop->setMode(FMOD_LOOP_NORMAL);
+}
+
+void Scene::playMenuLoop() {
+	channel1->setPaused(true);
+	system->playSound(menuLoop, 0, true, &channel2);
+	channel2->setPaused(false);
+}
+
+void Scene::playLvl1Loop() {
+	channel2->setPaused(true);
+	system->playSound(lvl1Loop, 0, true, &channel1);
+	channel1->setPaused(false);
+}

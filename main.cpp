@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
+#include <fmod.hpp>
 #include "Game.h"
 #include <iostream>
 
