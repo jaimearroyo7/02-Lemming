@@ -10,10 +10,87 @@
 using namespace std;
 
 
+
 Scene::Scene()
 {
+	posX = posY = 100;
 	gamestate = MENU;
 	map = NULL;
+	loadSounds();
+
+	//Level 1
+	L1.levelLemmings = 10;
+	L1.needToWin = 1;
+	L1.mapLength = 512.0;
+	L1.colortexture = "images/fun1.png";
+	L1.masktexture = "images/fun1_mask.png";
+	L1.openDoortexture = "images/openDoor.png";
+	L1.openDoorPos = glm::vec2(77, 30);
+	L1.finishDoortexture = "images/finishDoor.png";
+	L1.finishDoorPos = glm::vec2(225, 107);
+	L1.levelTime = 300000;
+	L1.numLemmings[0] = 1;
+	L1.numLemmings[1] = 2;
+	L1.numLemmings[2] = 3;
+	L1.numLemmings[3] = 4;
+	L1.numLemmings[4] = 5;
+	L1.numLemmings[5] = 6;
+
+	//Level 2
+	L2.levelLemmings = 10;
+	L2.needToWin = 3;
+	L2.mapLength = 848.0;
+	L2.colortexture = "images/fun5.png";
+	L2.masktexture = "images/fun5_mask.png";
+	L2.openDoortexture = "images/openDoor.png";
+	L2.openDoorPos = glm::vec2(77, 3);
+	L2.finishDoortexture = "images/finishDoor.png";
+	L2.finishDoorPos = glm::vec2(710, 0);
+	L2.levelTime = 480000;
+	L2.numLemmings[0] = 10;
+	L2.numLemmings[1] = 20;
+	L2.numLemmings[2] = 30;
+	L2.numLemmings[3] = 40;
+	L2.numLemmings[4] = 50;
+	L2.numLemmings[5] = 60;
+
+
+
+	//Level 3
+	L3.levelLemmings = 10;
+	L3.needToWin = 3;
+	L3.mapLength = 360.0;
+	L3.colortexture = "images/taxing5.png";
+	L3.masktexture = "images/taxing5_mask.png";
+	L3.openDoortexture = "images/openDoor.png";
+	L3.openDoorPos = glm::vec2(77, 3);
+	L3.finishDoortexture = "images/finishDoor.png";
+	L3.finishDoorPos = glm::vec2(710, 0);
+	L3.levelTime = 480000;
+	L3.numLemmings[0] = 10;
+	L3.numLemmings[1] = 20;
+	L3.numLemmings[2] = 30;
+	L3.numLemmings[3] = 40;
+	L3.numLemmings[4] = 50;
+	L3.numLemmings[5] = 60;
+
+	//Level 4
+	L4.levelLemmings = 10;
+	L4.needToWin = 3;
+	L4.mapLength = 1100.0;
+	L4.colortexture = "images/mayhem1.png";
+	L4.masktexture = "images/mayhem1_mask.png";
+	L4.openDoortexture = "images/openDoor.png";
+	L4.openDoorPos = glm::vec2(77, 3);
+	L4.finishDoortexture = "images/finishDoor.png";
+	L4.finishDoorPos = glm::vec2(710, 0);
+	L4.levelTime = 480000;
+	L4.numLemmings[0] = 10;
+	L4.numLemmings[1] = 20;
+	L4.numLemmings[2] = 30;
+	L4.numLemmings[3] = 40;
+	L4.numLemmings[4] = 50;
+	L4.numLemmings[5] = 60;
 }
 
 Scene::~Scene()
@@ -59,8 +136,8 @@ void Scene::initSeleccion() {
 	seleccionLemming->changeAnimation(0);
 }
 
-void Scene::initOpenDoor() {
-	spritesheetDoor.loadFromFile("images/openDoor.png", TEXTURE_PIXEL_FORMAT_RGBA);
+void Scene::initOpenDoor(const Level &l) {
+	spritesheetDoor.loadFromFile(l.openDoortexture, TEXTURE_PIXEL_FORMAT_RGBA);
 	spritesheetDoor.setMinFilter(GL_NEAREST);
 	spritesheetDoor.setMagFilter(GL_NEAREST);
 	openDoor = Sprite::createSprite(glm::ivec2(41, 21), glm::vec2(1, 1.0f / 10.0f), &spritesheetDoor, &simpleTexProgram);
@@ -71,11 +148,11 @@ void Scene::initOpenDoor() {
 
 	openDoor->changeAnimation(0);
 
-	openDoor->setPosition(glm::vec2(77, 30));
+	openDoor->setPosition(l.openDoorPos);
 }
 
-void Scene::initFinishDoor() {
-	spritesheetfinishDoor.loadFromFile("images/finishDoor.png", TEXTURE_PIXEL_FORMAT_RGBA);
+void Scene::initFinishDoor(const Level &l) {
+	spritesheetfinishDoor.loadFromFile(l.finishDoortexture, TEXTURE_PIXEL_FORMAT_RGBA);
 	spritesheetfinishDoor.setMinFilter(GL_NEAREST);
 	spritesheetfinishDoor.setMagFilter(GL_NEAREST);
 	finishDoor = Sprite::createSprite(glm::ivec2(33, 26), glm::vec2(1.0f / 3.0f, 1), &spritesheetfinishDoor, &simpleTexProgram);
@@ -85,106 +162,170 @@ void Scene::initFinishDoor() {
 		finishDoor->addKeyframe(0, glm::vec2(float(i) / 3, 0.0f));
 
 	finishDoor->changeAnimation(0);
-	finishDoor->setPosition(glm::vec2(225, 107));
+	finishDoor->setPosition(l.finishDoorPos);
 }
 
-void Scene::init()
-{
-	// Select which font you want to use
-	//if (!levelInfo.init("fonts/OpenSans-Regular.ttf"))
-		if(!levelInfo.init("fonts/OpenSans-Bold.ttf"))
-		//if(!text.init("fonts/DroidSerif.ttf"))
-		std::cout << "Could not load font!!!" << endl;
-
-	if(!countdownText.init("fonts/OpenSans-Regular.ttf"))
-		std::cout << "Could not load font!!!" << endl;
-
-	//factor
+void Scene::initLevel(const Level &l) {
 	float scale = 0.827586f;
 
 	//scale = 1.0f;
 	glm::vec2 geom[2] = { glm::vec2(0.f, 0.f), glm::vec2(float(CAMERA_WIDTH), float(CAMERA_HEIGHT)) };
 
+	glm::vec2 texCoords[2] = { glm::vec2(120.f / l.mapLength, 0.f), glm::vec2((120.f + 320.f) / l.mapLength, (160.f / 256.0f)) };
+	//init some vars
+	
+	id = -1;
+	score = in = out = 0;
+	totalLemmings = l.levelLemmings;
+	lemmings.clear();
+	lemmings.resize(totalLemmings);
+	levelTime = l.levelTime;
+	needToWin = l.needToWin;
+	finish = allOut = false;
+	stateSelected = false;
+	pause = x2speed = exploding = false;
+	renderSeleccionPause = renderSeleccionExplosion = renderSeleccionLemming = false;
+	scroll = 0.0f;
+
+	for (int i = 0; i < 6; ++i) {
+		numLemmings[i] = l.numLemmings[i];
+	}
+	texCoords[0] = glm::vec2(0.0f, 0.0f);
+	texCoords[1] = glm::vec2(1.0f, (160.f / 256.0f));
+	geom[1] = glm::vec2(l.mapLength, float(CAMERA_HEIGHT)*scale);
+
+
+	//create Map
+	map = MaskedTexturedQuad::createTexturedQuad(geom, texCoords, maskedTexProgram);
+	colorTexture.loadFromFile(l.colortexture, TEXTURE_PIXEL_FORMAT_RGBA);
+	colorTexture.setMinFilter(GL_NEAREST);
+	colorTexture.setMagFilter(GL_NEAREST);
+	maskTexture.loadFromFile(l.masktexture, TEXTURE_PIXEL_FORMAT_L);
+	maskTexture.setMinFilter(GL_NEAREST);
+	maskTexture.setMagFilter(GL_NEAREST);
+
+
+	//create UI
+	geom[0] = glm::vec2(0.0f, (float(CAMERA_HEIGHT)*scale) - 1);
+	geom[1] = glm::vec2(float(CAMERA_WIDTH), float(CAMERA_HEIGHT));
+	texCoords[0] = glm::vec2(0.f, 0.f); texCoords[1] = glm::vec2(1.0f, 1.0f);
+	UI = TexturedQuad::createTexturedQuad(geom, texCoords, imagesProgram);
+	UITexture.loadFromFile("images/interface.png", TEXTURE_PIXEL_FORMAT_RGBA);
+
+	free = true;
+
+	//create Lemmings
+	spritesheetLemmings.loadFromFile("images/lemming.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	spritesheetLemmings.setMinFilter(GL_NEAREST);
+	spritesheetLemmings.setMagFilter(GL_NEAREST);
+	glm::vec2 initpos = l.openDoorPos + glm::vec2(13, 0);
+	for (int i = 0; i < totalLemmings; ++i) {
+		lemmings[i].init(initpos, simpleTexProgram, spritesheetLemmings, 2 + i * 1);
+		lemmings[i].setMapMask(&maskTexture, &colorTexture);
+	}
+
+
+	//openDoor	
+	initOpenDoor(l);
+
+	//finishDoor
+	initFinishDoor(l);
+
+	//initRejillas de boton seleccionado
+	initSeleccion();
+}
+
+void Scene::init(int level)
+{
+	// Select which font you want to use
+	//if (!levelInfo.init("fonts/OpenSans-Regular.ttf"))
+
+	//factor
+	float scale = 0.827586f;
+	currentTime = 0.0f;
+	//scale = 1.0f;
+	glm::vec2 geom[2] = { glm::vec2(0.f, 0.f), glm::vec2(float(CAMERA_WIDTH), float(CAMERA_HEIGHT)) };
+
 	glm::vec2 texCoords[2] = { glm::vec2(120.f / 512.0, 0.f), glm::vec2((120.f + 320.f) / 512.0f, (160.f / 256.0f)) };
 	projection = glm::ortho(0.0f, float(CAMERA_WIDTH - 1), float(CAMERA_HEIGHT - 1), 0.f);
-	initShaders();
-	initCursor();
+
+	winTime = 0;
+
+	levelSelectClick = false;
+
+	//load files
+	if (!load) {
+		if (!levelInfo.init("fonts/OpenSans-Bold.ttf"))
+			//if(!text.init("fonts/DroidSerif.ttf"))
+			std::cout << "Could not load font!!!" << endl;
+
+		if (!countdownText.init("fonts/OpenSans-Regular.ttf"))
+			std::cout << "Could not load font!!!" << endl;
+		initShaders();
+		initCursor();
+		load = true;
+		texCoords[0] = glm::vec2(0.f, 0.f); texCoords[1] = glm::vec2(1.0f, 1.0f);
+		menu = TexturedQuad::createTexturedQuad(geom, texCoords, imagesProgram);
+
+		menuTexture.loadFromFile("images/menuPrincipal.png", TEXTURE_PIXEL_FORMAT_RGBA);
+		selectLevel.loadFromFile("images/menuLevels.png", TEXTURE_PIXEL_FORMAT_RGBA);
+		level1Info.loadFromFile("images/infoLevel1.png", TEXTURE_PIXEL_FORMAT_RGBA);
+		background.loadFromFile("images/background.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	}
 	switch (gamestate) {
 		case PLAYING:
-			//init some vars
-			currentTime = 0.0f;
-			id = -1;
-			score = in = out = 0;
-			totalLemmings = 4;
-			lemmings.clear();
-			lemmings.resize(totalLemmings);
-			posX = posY = 100;
-			levelTime = 300000;
-			finish = allOut = false;
-			stateSelected = false;
-			pause = x2speed = exploding = false;
-			renderSeleccionPause = renderSeleccionExplosion = renderSeleccionLemming = false;
-			scroll = 0.0f;
-
-			for (int i = 0; i < 6; ++i) {
-				numLemmings[i] = 10;
+			if (level == 1) {
+				initLevel(L1);
+				numLevel = 1;
 			}
-			texCoords[0] = glm::vec2(0.0f, 0.0f);
-			texCoords[1] = glm::vec2(1.0f, (160.f / 256.0f));
-			geom[1] = glm::vec2(512, float(CAMERA_HEIGHT)*scale);
-		
-
-			//create Mao
-			map = MaskedTexturedQuad::createTexturedQuad(geom, texCoords, maskedTexProgram);
-			colorTexture.loadFromFile("images/fun1.png", TEXTURE_PIXEL_FORMAT_RGBA);
-			colorTexture.setMinFilter(GL_NEAREST);
-			colorTexture.setMagFilter(GL_NEAREST);
-			maskTexture.loadFromFile("images/fun1_mask.png", TEXTURE_PIXEL_FORMAT_L);
-			maskTexture.setMinFilter(GL_NEAREST);
-			maskTexture.setMagFilter(GL_NEAREST);
-
-
-			//create UI
-			geom[0] = glm::vec2(0.0f, (float(CAMERA_HEIGHT)*scale)-1);
-			geom[1] = glm::vec2(float(CAMERA_WIDTH), float(CAMERA_HEIGHT));
-			texCoords[0] = glm::vec2(0.f, 0.f); texCoords[1] = glm::vec2(1.0f, 1.0f);
-			UI = TexturedQuad::createTexturedQuad(geom, texCoords, imagesProgram);
-			UITexture.loadFromFile("images/interface.png", TEXTURE_PIXEL_FORMAT_RGBA);
-
-			//create Lemmings
-			spritesheetLemmings.loadFromFile("images/lemming.png", TEXTURE_PIXEL_FORMAT_RGBA);
-			spritesheetLemmings.setMinFilter(GL_NEAREST);
-			spritesheetLemmings.setMagFilter(GL_NEAREST);
-			for (int i = 0; i < totalLemmings; ++i) {
-				lemmings[i].init(glm::vec2(90, 30), simpleTexProgram, spritesheetLemmings, 2 + i * 1);
-				lemmings[i].setMapMask(&maskTexture, &colorTexture);
+			if (level == 2) {
+				initLevel(L2);
+				numLevel = 2;
 			}
-
-
-			//openDoor	
-			initOpenDoor();
-
-			//finishDoor
-			initFinishDoor();
-
-			//initRejillas de boton seleccionado
-			initSeleccion();
-
+			if (level == 3) {
+				initLevel(L3);
+				scroll = - 30;
+				numLevel = 3;
+			}
+			if (level == 4) {
+				initLevel(L4);
+				numLevel = 4;
+			}
+			setBackgroundMusic(level);
 			break;
 
 		case MENU:
-			texCoords[0] = glm::vec2(0.f, 0.f); texCoords[1] = glm::vec2(1.0f, 1.0f);
-			menu = TexturedQuad::createTexturedQuad(geom, texCoords, imagesProgram);
-
-			menuTexture.loadFromFile("images/portada.png", TEXTURE_PIXEL_FORMAT_RGB);
+			setBackgroundMusic(0);
+			alpha = 1.0f;
+			transitionTime = 0;
 			break;
+		case SELECT_LEVEL:
+			alpha = 1.0f;
+			transitionTime = 0;
+		case LEVEL_INFO:
+			alpha = 1.0f;
+			transitionTime = 0;
 		default:
+			alpha = 1.0f;
+			transitionTime = 0;
 			break;
 	}
-	
+
 }
 
 unsigned int x = 0;
+
+void Scene::freeScene(){
+	for (int i = 0; i < totalLemmings; ++i) {
+		lemmings[i].getSprite()->free();
+	}
+	levelInfo.destroy();
+	countdownText.destroy();
+	map->free();
+	UI->free();
+	openDoor->free();
+	finishDoor->free();
+}
 
 void Scene::update(int deltaTime)
 {
@@ -198,8 +339,17 @@ void Scene::update(int deltaTime)
 	currentTime += deltaTime;
 	bool found = false;
 	switch (gamestate) {
-		case PLAYING:
-			
+	case PLAYING:
+
+		if (posX < 140) 
+			scroll -= 1;
+		if (posX < 130)
+			scroll -= 1;
+		
+		if (posX > 420)
+			scroll += 1;
+		if (posX > 430)
+			scroll += 1;
 			//buscar si estamos seleccionando a algun Lemming
 			
 			for (int i = lemmings.size() - 1; i >= 0 && !found; --i) {
@@ -264,9 +414,11 @@ void Scene::update(int deltaTime)
 				cursor->changeAnimation(0);
 			}
 			cursor->update(deltaTime);
-
-
-			if (openDoor->getKeyframe() != 9) openDoor->update(deltaTime);
+			if (openDoor->getKeyframe() != 9) {
+				openDoor->update(deltaTime);
+				system->playSound(doorOpen, 0, false, &channelDoor);
+			}
+			//if (openDoor->getKeyframe() == 0)system->playSound(doorOpen, 0, false, &channelDoor);
 
 			finishDoor->update(deltaTime);
 
@@ -286,15 +438,129 @@ void Scene::update(int deltaTime)
 
 			if (finish || currentTime > levelTime) {
 				//Si has ganado, hacer lo que quieras.
-				std::cout << score << endl;
-				scroll = 0.0f;
-				gamestate = MENU;
-				init();
+				pause = false;
+				x2speed = false;
+				if (winTime == 0)
+					winTime = currentTime;
+
+				if (currentTime - winTime > 1000.0f) {
+					//Si has ganado, hacer lo que quieras.
+					gamestate = WIN;
+					scroll = 0.0f;
+					if (score >= needToWin) {
+						if (onePlayer) {
+							if (numLevel == 4)
+								onePlayer = false;
+							else 
+								++numLevel;
+						}
+						
+					}
+					freeScene();
+					init(0);
+				}
 			}
 			break;
 		case MENU:
 			cursor->setPosition(glm::vec2(posX - 120 - 8, posY - 8));
 			cursor->update(deltaTime);
+
+			//transition
+			if (onePlayer || levelSelectClick) {			
+				if (transitionTime == 0)
+					transitionTime = currentTime;
+
+				alpha = 1 - (currentTime - transitionTime) / 800.0f;
+				if (currentTime - transitionTime > 800) {
+					if (onePlayer) {
+						gamestate = LEVEL_INFO;
+						numLevel = 1;
+					}
+					else
+						gamestate = SELECT_LEVEL;
+						
+
+					transitionTime = 0;
+					if (free) {
+						freeScene();
+					}
+					init(0);
+				}
+			}
+
+			break;
+
+		case SELECT_LEVEL:
+			cursor->setPosition(glm::vec2(posX - 120 - 8, posY - 8));
+			cursor->update(deltaTime);
+
+			//transition
+			if (levelSelectClick) {			
+				if (transitionTime == 0)
+					transitionTime = currentTime;
+
+				alpha = 1 - (currentTime - transitionTime) / 800.0f;
+				if (currentTime - transitionTime > 800) {		
+					onePlayer = false;
+					gamestate = LEVEL_INFO;
+					if (free) {
+						freeScene();
+					}
+					init(0);
+					levelSelectClick = false;
+					transitionTime = 0;
+
+				}
+			}
+			break;
+		case LEVEL_INFO:
+			cursor->setPosition(glm::vec2(posX - 120 - 8, posY - 8));
+			cursor->update(deltaTime);
+			if (levelSelectClick) {
+				if (transitionTime == 0)
+					transitionTime = currentTime;
+
+				alpha = 1 - (currentTime - transitionTime) / 800.0f;
+				if (currentTime - transitionTime > 800) {
+					gamestate = PLAYING;
+					if (free) {
+						freeScene();
+					}
+					init(numLevel);
+					levelSelectClick = false;
+					transitionTime = 0;
+
+				}
+			}
+			break;
+		case WIN:
+			cursor->setPosition(glm::vec2(posX - 120 - 8, posY - 8));
+			cursor->update(deltaTime);
+			if (levelSelectClick) {
+				if (transitionTime == 0)
+					transitionTime = currentTime;
+
+				alpha = 1 - (currentTime - transitionTime) / 800.0f;
+				if (currentTime - transitionTime > 800) {
+					if (free) {
+						freeScene();
+					}
+					if (score < needToWin) {
+						gamestate = PLAYING;
+						init(numLevel);
+					}
+					else if (!onePlayer) {
+						gamestate = MENU;
+						init(0);
+					}
+					else {
+						gamestate = PLAYING;
+						init(numLevel);
+					}
+					levelSelectClick = false;
+					transitionTime = 0;
+				}
+			}
 			break;
 	}
 }
@@ -349,6 +615,7 @@ void Scene::render()
 			imagesProgram.use();
 			imagesProgram.setUniformMatrix4f("projection", projection);
 			imagesProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			imagesProgram.setTextureUnit("alpha", 1.0f);
 			imagesProgram.setUniformMatrix4f("modelview", modelview);
 			UI->render(UITexture);
 
@@ -358,7 +625,7 @@ void Scene::render()
 			textProgram.setUniformMatrix4f("modelview", modelview);
 
 			if (true) {
-				int timeLeft = (300000 - currentTime) / 1000;
+				int timeLeft = (levelTime - currentTime) / 1000;
 				string aux = to_string(timeLeft % 60);
 				if (timeLeft % 60 < 10) aux = "0" + aux;
 				string timeleft = "Time  " + to_string(timeLeft / 60) + "-" + aux;
@@ -441,7 +708,8 @@ void Scene::render()
 		case MENU:
 			imagesProgram.use();
 			imagesProgram.setUniformMatrix4f("projection", projection);
-			imagesProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			imagesProgram.setUniform4f("color", alpha, alpha, alpha, 1.0f);
+			imagesProgram.setTextureUnit("alpha", 0.1f);
 			imagesProgram.setUniformMatrix4f("modelview", modelview);
 			menu->render(menuTexture);
 
@@ -452,6 +720,82 @@ void Scene::render()
 
 			cursor->render(0);
 			
+			break;
+
+		case SELECT_LEVEL:
+			imagesProgram.use();
+			imagesProgram.setUniformMatrix4f("projection", projection);
+			imagesProgram.setUniform4f("color", alpha, alpha, alpha, 1.0f);
+			imagesProgram.setTextureUnit("alpha", 1.0f);
+			imagesProgram.setUniformMatrix4f("modelview", modelview);
+			menu->render(selectLevel);
+
+			simpleTexProgram.use();
+			simpleTexProgram.setUniformMatrix4f("projection", projection);
+			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
+
+			cursor->render(0);
+			break;
+
+		case LEVEL_INFO:
+			imagesProgram.use();
+			imagesProgram.setUniformMatrix4f("projection", projection);
+			imagesProgram.setUniform4f("color", alpha, alpha, alpha, 1.0f);
+			imagesProgram.setTextureUnit("alpha", 1.0f);
+			imagesProgram.setUniformMatrix4f("modelview", modelview);
+			if(numLevel == 1)
+				menu->render(level1Info);
+			if (numLevel == 2)
+				menu->render(level1Info);
+			if (numLevel == 3)
+				menu->render(level1Info);
+			if (numLevel == 4)
+				menu->render(level1Info);
+
+			simpleTexProgram.use();
+			simpleTexProgram.setUniformMatrix4f("projection", projection);
+			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
+
+			cursor->render(0);
+			break;
+		case WIN:
+			imagesProgram.use();
+			imagesProgram.setUniformMatrix4f("projection", projection);
+			imagesProgram.setUniform4f("color", alpha, alpha, alpha, 1.0f);
+			imagesProgram.setTextureUnit("alpha", 1.0f);
+			imagesProgram.setUniformMatrix4f("modelview", modelview);
+			menu->render(background);
+
+			textProgram.use();
+			textProgram.setUniformMatrix4f("projection", projection);
+			textProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			textProgram.setUniformMatrix4f("modelview", modelview);
+
+			string next;
+			if (needToWin < score) {
+				next = "Click to continue...";
+				levelInfo.render("YOU WIN!!!", glm::vec2(320, 80), 64, glm::vec4(0.2*alpha, 0.2*alpha, 0.7*alpha, 1), 0);
+			}
+			else {
+				next = "Click to retry level...";
+				levelInfo.render("YOU LOSE :(", glm::vec2(320, 80), 64, glm::vec4(0.2*alpha, 0.2*alpha, 0.7*alpha, 1), 0);
+			}
+			string texto = "You needed: " + to_string((100*needToWin)/totalLemmings) + "%";
+			levelInfo.render(texto, glm::vec2(295, 180), 50, glm::vec4(0.2*alpha, 0.2*alpha, 0.6*alpha, 1), 0);
+
+			texto = "You rescued: " + to_string((100 * score) / totalLemmings) + "%";
+			levelInfo.render(texto, glm::vec2(295, 245), 50, glm::vec4(0.2*alpha, 0.2*alpha, 0.7*alpha, 1), 0);
+
+			levelInfo.render(next, glm::vec2(330, 450), 32, glm::vec4(0.2*alpha, 0.2*alpha, 0.7*alpha, 1), 0);
+
+			simpleTexProgram.use();
+			simpleTexProgram.setUniformMatrix4f("projection", projection);
+			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
+
+			cursor->render(0);
 			break;
 	}
 
@@ -569,10 +913,40 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 
 		case MENU:
 			if (bLeftButton) {
-				gamestate = PLAYING;
-				init();
+				if (posX >= 120 && posX < 180 && posY > 106 && posY < 167) {
+					onePlayer = true;
+				}
+				if (posX >= 194 && posX < 254 && posY > 106 && posY < 167) {
+					levelSelectClick = true;
+				}
 			}
 			break;
+		case SELECT_LEVEL:
+			if (bLeftButton) {
+				if (posX >= 120 && posX < 180 && posY > 106 && posY < 167) {
+					numLevel = 1;
+					levelSelectClick = true;
+				}
+				if (posX >= 194 && posX < 254 && posY > 106 && posY < 167) {
+					numLevel = 2;
+					levelSelectClick = true;
+				}
+				if (posX >= 256 && posX < 316 && posY > 106 && posY < 167) {
+					numLevel = 3;
+					levelSelectClick = true;
+				}
+				if (posX >= 318 && posX < 378 && posY > 106 && posY < 167) {
+					numLevel = 4;
+					levelSelectClick = true;
+				}
+			}
+			break;
+		case LEVEL_INFO:
+			if (bLeftButton)
+				levelSelectClick = true;
+		case WIN:
+			if (bLeftButton)
+				levelSelectClick = true;
 	}
 }
 
@@ -580,6 +954,7 @@ void Scene::specialKeyPressed(int key) {
 	cout << key << endl;
 	switch (key) {
 		case 100:
+			
 			scroll -= 3;
 			break;
 		case 102:
@@ -596,7 +971,7 @@ void Scene::eraseMask(int mouseX, int mouseY)
 	posX = mouseX/3 + 120;
 	posY = mouseY/3;
 
-	std::cout << posX << " " << posY << endl;
+	//std::cout << posX << " " << posY << endl;
 
 	for(int y=max(0, posY-3); y<=min(maskTexture.height()-1, posY+3); y++)
 		for(int x=max(0, posX-3+int(scroll)); x<=min(maskTexture.width()-1, posX+int(scroll)+3); x++)
@@ -729,3 +1104,90 @@ int Scene::getgameState() {
 	return gamestate;
 }
 
+void Scene::entryfuncCallback(int state)
+{
+	if (state) {
+		//cout << posX << " " << posY << endl;
+		if(posX < 150)
+			glutWarpPointer(5, posY * 3);
+		//glutWarpPointer(posX*3 - 120, posY*3);
+		else if (posX > 400){
+			glutWarpPointer(956, posY * 3);
+		}
+	}
+}
+
+void Scene::loadSounds() {
+	cout << "loadSounds " << endl;
+	FMOD_RESULT result = FMOD::System_Create(&system);
+	currentChannel = -1;
+	cout << result << endl;
+	system->init(10, FMOD_INIT_NORMAL, NULL);
+	system->createSound("sounds/mainmenu.mp3", FMOD_2D, 0, &menuLoop);
+	menuLoop->setMode(FMOD_LOOP_NORMAL);
+	system->createSound("sounds/lemmings.mid", FMOD_2D, 0, &lvl1Loop);
+	lvl1Loop->setMode(FMOD_LOOP_NORMAL);
+	system->createSound("sounds/lvl2.mp3", FMOD_2D, 0, &lvl2Loop);
+	lvl2Loop->setMode(FMOD_LOOP_NORMAL);
+	system->createSound("sounds/lvl3.mp3", FMOD_2D, 0, &lvl3Loop);
+	lvl3Loop->setMode(FMOD_LOOP_NORMAL);
+	system->createSound("sounds/lvl4.mp3", FMOD_2D, 0, &lvl4Loop);
+	lvl4Loop->setMode(FMOD_LOOP_NORMAL);
+	system->createSound("sounds/DOOR.wav", FMOD_2D, 0, &doorOpen);
+}
+
+void Scene::setBackgroundMusic(int level) {
+	cout << "playing the channel " << currentChannel << ", goint to play channel the channel " << level << endl;
+	if (currentChannel != level/* | gamestate == PLAYING*/) {
+		currentChannel = level;
+		switch (gamestate) {
+		case PLAYING:
+			if (level == 1) {
+				channel0->setPaused(true);
+				channel2->setPaused(true);
+				channel3->setPaused(true);
+				channel4->setPaused(true);
+				system->playSound(lvl1Loop, 0, true, &channel1);
+				channel1->setPaused(false);
+			}
+			if (level == 2) {
+				channel0->setPaused(true);
+				channel1->setPaused(true);
+				channel3->setPaused(true);
+				channel4->setPaused(true);
+				system->playSound(lvl2Loop, 0, true, &channel2);
+				channel2->setPaused(false);
+			}
+			if (level == 3) {
+				channel0->setPaused(true);
+				channel1->setPaused(true);
+				channel2->setPaused(true);
+				channel4->setPaused(true);
+				system->playSound(lvl3Loop, 0, true, &channel3);
+				channel3->setPaused(false);
+			}
+			if (level == 4) {
+				channel0->setPaused(true);
+				channel1->setPaused(true);
+				channel2->setPaused(true);
+				channel3->setPaused(true);
+				system->playSound(lvl4Loop, 0, true, &channel4);
+				channel4->setPaused(false);
+			}
+			break;
+
+		case MENU:
+			channel1->setPaused(true);
+			channel2->setPaused(true);
+			channel3->setPaused(true);
+			channel4->setPaused(true);
+			system->playSound(menuLoop, 0, true, &channel0);
+			channel0->setPaused(false);
+			break;
+		}
+	}
+}
+
+FMOD::System* Scene::getSoundSystem() {
+	return system;
+}

@@ -25,8 +25,10 @@ public:
 	void init();
 	bool update(int deltaTime);
 	void render();
+	void entryfuncCallback(int state);
 	
 	// Input callback methods
+
 	void keyPressed(int key);
 	void keyReleased(int key);
 	void specialKeyPressed(int key);

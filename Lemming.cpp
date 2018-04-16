@@ -5,7 +5,6 @@
 #include "Lemming.h"
 #include "Game.h"
 
-
 #define JUMP_ANGLE_STEP 4
 #define JUMP_HEIGHT 96
 #define FALL_STEP 4
@@ -107,11 +106,19 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 
 	sprite->changeAnimation(FALL_RIGHT);
 	sprite->setPosition(initialPosition);
+
+	loadSounds();
+}
+
+void Lemming::loadSounds() {
+	system = Scene::instance().getSoundSystem();
+	system->createSound("sounds/CHINK.wav", FMOD_2D, 0, &stairSound);
+	system->createSound("sounds/YIPPEE.wav", FMOD_2D, 0, &finishSound);
 }
 
 int Lemming::keepWalking(int dir) {
 	int fall;
-	sprite->position() += glm::vec2(dir, -1);
+	sprite->position() += glm::vec2(dir, -2);
 	if (win()) {
 		state = WIN_STATE;
 		sprite->changeAnimation(WIN);
@@ -119,7 +126,7 @@ int Lemming::keepWalking(int dir) {
 	}
 	else if ((collision(0)) && state != BASHER && state != CLIMBER_STATE)
 	{
-		sprite->position() -= glm::vec2(dir, -1);
+		sprite->position() -= glm::vec2(dir, -2);
 		if (dir == 1) {
 			sprite->changeAnimation(WALKING_LEFT);
 			state = WALKING_LEFT_STATE;
@@ -134,8 +141,8 @@ int Lemming::keepWalking(int dir) {
 	}
 	else
 	{
-		fall = collisionFloor(3);
-		if (fall < 3)
+		fall = collisionFloor(5);
+		if (fall < 4)
 			sprite->position() += glm::vec2(0, fall);
 		else {
 			if (dir == 1) {
@@ -167,11 +174,12 @@ int Lemming::update(int deltaTime, int seconds)
 	};
 	
 	//control bounds
+	/*
 	glm::vec2 posl = sprite->position();
 	if (posl.x < -10 || posl.x > 315 || posl.y > 160 || posl.y < 2) {
 		state = DEAD;
 		explosionCountdown = -1;
-	}
+	}*/
 
 	if (state == DEAD) return 0;
 	if (explosionCountdown != -1) { 
@@ -207,6 +215,7 @@ int Lemming::update(int deltaTime, int seconds)
 					state = WALKING_LEFT_STATE;
 					right = false;
 				}
+				builderCount = 0;
 			}
 			else if (sprite->getKeyframe() == 0 && !firstStair) {
 
@@ -220,12 +229,14 @@ int Lemming::update(int deltaTime, int seconds)
 					if (collision(3)) {
 						state = WALKING_RIGHT_STATE;
 						sprite->changeAnimation(WALKING_RIGHT);
+						builderCount = -1;
 					}
 				}
 				else {
 					if (collision(3)) {
 						state = WALKING_LEFT_STATE;
 						sprite->changeAnimation(WALKING_LEFT);
+						builderCount = -1;
 					}
 				}
 				++builderCount;
@@ -257,7 +268,7 @@ int Lemming::update(int deltaTime, int seconds)
 					for (int y = -radius; y <= radius; y++)
 						for (int x = -radius; x <= radius; x++)
 							if (x*x + y * y <= radius * radius) {
-								mask->setPixel(pos.x + x, pos.y + y, 0);
+								if(mask->pixel(pos.x + x, pos.y + y) != 100) mask->setPixel(pos.x + x, pos.y + y, 0);
 								color->setPixel(pos.x + x, pos.y + y, glm::ivec4(0, 0, 0, 0));
 							}
 					state = DEAD;
@@ -269,6 +280,10 @@ int Lemming::update(int deltaTime, int seconds)
 		case WIN_STATE:
 			if (sprite->getKeyframe() == 7)
 				state = DEAD;
+			else if (sprite->getKeyframe() == 1) {
+				FMOD_RESULT result = system->playSound(finishSound, 0, false, 0);
+				cout << "yipieee " << result << endl;
+			}
 			break;
 
 		case BLOCKER_STATE:
@@ -348,12 +363,16 @@ int Lemming::update(int deltaTime, int seconds)
 
 			break;
 		case BASHER:
+
+			
 			if (win()) {
 				state = WIN_STATE;
 				sprite->changeAnimation(WIN);
 				return 1;
 			}
+			sprite->position() += glm::vec2(dir, -2);
 			if (collision(0)) {
+				sprite->position() -= glm::vec2(dir, -2);
 				if (count % 3 == 0) {
 					count = 0;
 
@@ -378,6 +397,7 @@ int Lemming::update(int deltaTime, int seconds)
 				}
 			}
 			else {
+				sprite->position() -= glm::vec2(dir, -2);
 				if (bashed) {
 					if (right) {
 						state = WALKING_RIGHT_STATE;
@@ -393,7 +413,8 @@ int Lemming::update(int deltaTime, int seconds)
 					return keepWalking(dir);
 				}
 			}
-		
+
+			
 		
 			break;
 

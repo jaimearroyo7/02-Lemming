@@ -6,6 +6,8 @@
 #include "VariableTexture.h"
 #include <cmath>
 #include <algorithm>
+#include <fmod.hpp>
+
 
 // Lemming is basically a Sprite that represents one lemming. As such it has
 // all properties it needs to track its movement and collisions.
@@ -29,6 +31,7 @@ public:
 	
 private:
 	void createSprite(ShaderProgram &shaderProgram, Texture &spritesheet);
+	void loadSounds();
 
 	int collisionFloor(int maxFall);
 	int cooldown; 
@@ -58,6 +61,11 @@ private:
 	Sprite *sprite;
 	VariableTexture *mask;
 	VariableTexture *color;
+
+	//Sound
+	FMOD::System *system;
+	FMOD::Sound *stairSound;
+	FMOD::Sound *finishSound;
 
 };
 

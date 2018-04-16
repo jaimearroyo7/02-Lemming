@@ -9,7 +9,7 @@ void Game::init()
 	bPlay = true;
 	bLeftMouse = bRightMouse = false;
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	scene.init();
+	scene.init(0);
 }
 
 bool Game::update(int deltaTime)
@@ -25,6 +25,11 @@ void Game::render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	scene.render();
+}
+
+void Game::entryfuncCallback(int state)
+{
+	scene.entryfuncCallback(state);
 }
 
 void Game::keyPressed(int key)
@@ -89,7 +94,6 @@ bool Game::getSpecialKey(int key) const
 {
 	return specialKeys[key];
 }
-
 
 
 

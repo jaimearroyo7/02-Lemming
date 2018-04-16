@@ -65,6 +65,12 @@ static void drawCallback()
 	glutSwapBuffers();
 }
 
+static void entryfuncCallback(int state) {
+	if(state == GLUT_LEFT)
+		Game::instance().entryfuncCallback(1);
+}
+
+
 static void idleCallback()
 {
 	int currentTime = glutGet(GLUT_ELAPSED_TIME);
@@ -100,6 +106,8 @@ int main(int argc, char **argv)
 	glutMouseFunc(mouseCallback);
 	glutMotionFunc(motionCallback);
 	glutPassiveMotionFunc(motionCallback);
+
+	glutEntryFunc(entryfuncCallback);
 
 	// GLEW will take care of OpenGL extension functions
 	glewExperimental = GL_TRUE;
