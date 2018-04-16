@@ -3,6 +3,7 @@
 
 
 #include "Scene.h"
+#include "fmod.hpp"
 
 
 // Game is a singleton (a class with a single instance) that represents our whole application
@@ -12,7 +13,7 @@ class Game
 {
 
 public:
-	Game() {}
+	Game();
 	
 	
 	static Game &instance()
@@ -37,6 +38,7 @@ public:
 	
 	bool getKey(int key) const;
 	bool getSpecialKey(int key) const;
+	FMOD::System* getFMODSystem();
 
 private:
 	bool bPlay;                       // Continue to play game?
@@ -45,6 +47,8 @@ private:
 	                                  // we can have access at any time
 	int mouseX, mouseY;               // Mouse position
 	bool bLeftMouse, bRightMouse;     // Mouse button states
+
+	FMOD::System *system;			  // FMOD System
 
 };
 

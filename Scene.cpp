@@ -15,7 +15,7 @@ Scene::Scene()
 {
 	gamestate = MENU;
 	map = NULL;
-	loopSound();
+	//loopSound();
 
 }
 
@@ -112,6 +112,7 @@ void Scene::init()
 	projection = glm::ortho(0.0f, float(CAMERA_WIDTH - 1), float(CAMERA_HEIGHT - 1), 0.f);
 	initShaders();
 	initCursor();
+	loopSound();
 	/*AudioEngine *engine = AudioEngine::getInstance();
 	const char *filePath = "./media/lemmings.mid";
 	Music m = engine->loadMusic(filePath);
@@ -742,7 +743,8 @@ int Scene::getgameState() {
 }
 
 void Scene::loopSound() {
-	FMOD::System_Create(&system);
+	cout << "get fmod system" << endl;
+	system = Game::instance().getFMODSystem();
 	system->init(2, FMOD_INIT_NORMAL, NULL);
 	system->createSound("media/chambea.mp3", FMOD_2D, 0, &menuLoop);
 	menuLoop->setMode(FMOD_LOOP_NORMAL);

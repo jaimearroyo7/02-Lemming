@@ -19,6 +19,12 @@ class Scene
 {
 
 public:
+	static Scene &instance()
+	{
+		static Scene S;
+
+		return S;
+	}
 	Scene();
 	~Scene();
 

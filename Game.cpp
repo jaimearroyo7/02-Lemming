@@ -1,7 +1,13 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Game.h"
+#include <iostream>
+using namespace std;
 
+Game::Game()
+{
+	FMOD::System_Create(&system);
+}
 
 void Game::init()
 {
@@ -9,6 +15,11 @@ void Game::init()
 	bPlay = true;
 	bLeftMouse = bRightMouse = false;
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	FMOD_RESULT result;
+	result = FMOD::System_Create(&system);
+	cout << result << endl;
+	if (result != FMOD_OK)
+		cout << "something has gone wrong when creating fmod sound system" << endl;
 	scene.init();
 }
 
@@ -88,6 +99,12 @@ bool Game::getKey(int key) const
 bool Game::getSpecialKey(int key) const
 {
 	return specialKeys[key];
+}
+
+FMOD::System* Game::getFMODSystem()
+{
+	cout << "getSystem" << endl;
+	return system;
 }
 
 
