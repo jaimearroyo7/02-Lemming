@@ -588,18 +588,21 @@ bool Lemming::win()
 }
 
 
-void Lemming::setState(int stateId) {
+int Lemming::setState(int stateId) {
 	glm::ivec2 pos = sprite->position();
 	pos += glm::vec2(120, 0);
 	switch (stateId) {
 		case BUILDER_STATE:
-			state = BUILDER_STATE;
-			builderCount = 0;
-			if(right) sprite->changeAnimation(BUILDING_RIGHT);
-			else sprite->changeAnimation(BUILDING_LEFT);
+			if (state != FALLING_LEFT_STATE && state != FALLING_RIGHT_STATE && state != BLOCKER_STATE) {
+				state = BUILDER_STATE;
+				builderCount = 0;
+				if (right) sprite->changeAnimation(BUILDING_RIGHT);
+				else sprite->changeAnimation(BUILDING_LEFT);
+				return 1;
+			}
 			break;
 		case BLOCKER_STATE:
-			if (state != FALLING_LEFT_STATE && state != FALLING_RIGHT_STATE){
+			if (state != FALLING_LEFT_STATE && state != FALLING_RIGHT_STATE && state != BLOCKER_STATE){
 				glm::ivec2 pos = sprite->position();
 				pos += glm::vec2(120, 0);
 				for (int y = max(0, pos.y + 6); y <= min(mask->height() - 1, pos.y + 6); y++)
@@ -613,29 +616,40 @@ void Lemming::setState(int stateId) {
 					}
 				state = BLOCKER_STATE;
 				sprite->changeAnimation(BLOCKER_ANIM);
+				return 1;
 			}
 			break;
 		case DIGGER_STATE:
-			state = DIGGER_STATE;
+			if (state != BLOCKER_STATE) {
+				state = DIGGER_STATE;
+				return 1;
+			}
 			break;
 
 		case CLIMBER_STATE:
-			state = CLIMBER_STATE;
+			if (state != BLOCKER_STATE) {
+				state = CLIMBER_STATE;
+				return 1;
+			}
 			break;
 
 		case BASHER:
-			state = BASHER;
+			if (state != BLOCKER_STATE) {
+				state = BASHER;
+				return 1;
+			}
 			break;
 		case EXPLOSION_STATE:
 			if(state != DEAD && state != RESPAWN && state != WIN_STATE) explosionCountdown = 0.0f;
 			break;
 		case DEAD:
 			state = DEAD;
+			return 1;
 		break;
 		default:
 			break;
 	}
-	
+	return 0;
 }
 
 Sprite *Lemming::getSprite() {

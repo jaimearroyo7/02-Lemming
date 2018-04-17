@@ -21,7 +21,7 @@ public:
 	
 	void setMapMask(VariableTexture *mapMask, VariableTexture *mapColor);
 
-	void setState(int stateID);
+	int setState(int stateID);
 	int getState();
 	int getCountdown();
 	void setCountdown(float value);

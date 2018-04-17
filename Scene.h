@@ -45,6 +45,7 @@ private:
 	void initFinishDoor(const Level &l);
 	void initCursor();
 	void initSeleccion();
+	void initFire();
 
 	void freeScene();
 
@@ -122,6 +123,10 @@ private:
 
 	Sprite *cursor;
 	Texture spritesheetCursor;
+
+	Sprite *fire;
+	Sprite *fire2;
+	Texture spritesheetFire;
 
 	glm::vec2 lemmingSelected;
 	Sprite *seleccionLemming;

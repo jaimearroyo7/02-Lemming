@@ -177,6 +177,27 @@ void Scene::initFinishDoor(const Level &l) {
 	finishDoor->setPosition(l.finishDoorPos);
 }
 
+void Scene::initFire() {
+	spritesheetFire.loadFromFile("images/fire.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	spritesheetFire.setMinFilter(GL_NEAREST);
+	spritesheetFire.setMagFilter(GL_NEAREST);
+	fire = Sprite::createSprite(glm::vec2(78, 11), glm::vec2(0.5f, 0.1f), &spritesheetFire, &simpleTexProgram);
+	fire->setNumberAnimations(1);
+	fire->setAnimationSpeed(0, 6);
+	for (int i = 0; i<10; i++)
+		fire->addKeyframe(0, glm::vec2(0.0f, float(i) / 10.0f));
+	fire->changeAnimation(0);
+	fire->setPosition(glm::vec2(271, 101));
+
+	fire2 = Sprite::createSprite(glm::vec2(78, 11), glm::vec2(0.5f, 0.1f), &spritesheetFire, &simpleTexProgram);
+	fire2->setNumberAnimations(1);
+	fire2->setAnimationSpeed(0, 6);
+	for (int i = 0; i<10; i++)
+		fire2->addKeyframe(0, glm::vec2(0.5f, float(i) / 10.0f));
+	fire2->changeAnimation(0);
+	fire2->setPosition(glm::vec2(628, 53));
+}
+
 void Scene::initLevel(const Level &l) {
 	float scale = 0.827586f;
 
@@ -292,6 +313,7 @@ void Scene::init(int level)
 			std::cout << "Could not load font!!!" << endl;
 		initShaders();
 		initCursor();
+		initFire();
 		load = true;
 		texCoords[0] = glm::vec2(0.f, 0.f); texCoords[1] = glm::vec2(1.0f, 1.0f);
 		menu = TexturedQuad::createTexturedQuad(geom, texCoords, imagesProgram);
@@ -371,6 +393,7 @@ void Scene::update(int deltaTime)
 	bool found = false;
 	switch (gamestate) {
 		case PLAYING:
+
 
 			if (posX < 140) 
 				scroll -= 1;
@@ -459,6 +482,10 @@ void Scene::update(int deltaTime)
 			if (openDoor->getKeyframe() != 9) openDoor->update(deltaTime);
 
 			finishDoor->update(deltaTime);
+			if (numLevel == 3) {
+				fire->update(deltaTime);
+				fire2->update(deltaTime);
+			}
 
 			for (int i = 0; i < totalLemmings; ++i) {
 				score += lemmings[i].update(deltaTime, currentTime);
@@ -630,6 +657,10 @@ void Scene::render()
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
 			finishDoor->render(0);
 			openDoor->render(0);
+			if (numLevel == 3) {
+				fire->render(0);
+				fire2->render(0);
+			}
 			if (true) {
 				//se renderiza el mapa encima de esos dos sprites para poder ver la escalera del builder si pasa sobre alguna puerta
 				maskedTexProgram.use();
@@ -866,8 +897,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 			if (bLeftButton && posY < 160) {			
 				if (id != -1 && stateSelected) {
 					if (numLemmings[lemmingsState] > 0) {
-						--numLemmings[lemmingsState];
-						lemmings[id].setState(lemmingsState);
+						numLemmings[lemmingsState] -= lemmings[id].setState(lemmingsState);
 					}
 				}
 				eraseMask(mouseX, mouseY);
