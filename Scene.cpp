@@ -466,6 +466,7 @@ void Scene::update(int deltaTime)
 					//Si has ganado, hacer lo que quieras.
 					gamestate = WIN;
 					scroll = 0.0f;
+					cout << score << endl;
 					if (score >= needToWin) {
 						if (onePlayer) {
 							if (numLevel == 4)
@@ -485,7 +486,7 @@ void Scene::update(int deltaTime)
 			cursor->update(deltaTime);
 
 			//transition
-			if (onePlayer || levelSelectClick) {			
+			if (onePlayer || levelSelectClick || quit) {			
 				if (transitionTime == 0)
 					transitionTime = currentTime;
 
@@ -495,8 +496,10 @@ void Scene::update(int deltaTime)
 						gamestate = LEVEL_INFO;
 						numLevel = 1;
 					}
-					else
+					else if (levelSelectClick)
 						gamestate = SELECT_LEVEL;
+					else
+						exit(0); //el usuario ha apretado al boton exit del menú, después de la transición se cierra el juego
 						
 
 					transitionTime = 0;
@@ -521,14 +524,15 @@ void Scene::update(int deltaTime)
 				alpha = 1 - (currentTime - transitionTime) / 800.0f;
 				if (currentTime - transitionTime > 800) {		
 					onePlayer = false;
-					gamestate = LEVEL_INFO;
-					if (free) {
+					if (numLevel != 0)
+						gamestate = LEVEL_INFO;
+					else gamestate = MENU;
+
+					if (free)
 						freeScene();
-					}
 					init(0);
 					levelSelectClick = false;
 					transitionTime = 0;
-
 				}
 			}
 			break;
@@ -555,7 +559,7 @@ void Scene::update(int deltaTime)
 		case WIN:
 			cursor->setPosition(glm::vec2(posX - 120 - 8, posY - 8));
 			cursor->update(deltaTime);
-			if (levelSelectClick) {
+			if (levelSelectClick || goToMenu) {
 				if (transitionTime == 0)
 					transitionTime = currentTime;
 
@@ -564,20 +568,29 @@ void Scene::update(int deltaTime)
 					if (free) {
 						freeScene();
 					}
-					if (score < needToWin) {
-						gamestate = PLAYING;
-						init(numLevel);
-					}
-					else if (!onePlayer) {
+					if (goToMenu) {
 						gamestate = MENU;
+						goToMenu = false;
+						levelSelectClick = false;
+						onePlayer = false;
 						init(0);
 					}
 					else {
-						gamestate = PLAYING;
-						init(numLevel);
+						if (!onePlayer) {
+							if (score < needToWin)
+								gamestate = LEVEL_INFO;
+							else
+								gamestate = MENU;
+
+							init(0);
+						}
+						else {
+							gamestate = LEVEL_INFO;
+							init(numLevel);
+						}
+						levelSelectClick = false;
+						transitionTime = 0;
 					}
-					levelSelectClick = false;
-					transitionTime = 0;
 				}
 			}
 			break;
@@ -793,7 +806,7 @@ void Scene::render()
 			textProgram.setUniformMatrix4f("modelview", modelview);
 
 			string next;
-			if (needToWin < score) {
+			if (needToWin <= score) {
 				next = "Click to continue...";
 				levelInfo.render("YOU WIN!!!", glm::vec2(320, 80), 64, glm::vec4(0.2*alpha, 0.2*alpha, 0.7*alpha, 1), 0);
 			}
@@ -938,24 +951,31 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 				if (posX >= 194 && posX < 254 && posY > 106 && posY < 167) {
 					levelSelectClick = true;
 				}
+				if (posX >= 381 && posX < 434 && posY > 106 && posY < 167) {
+					quit = true;
+				}
 			}
 			break;
 		case SELECT_LEVEL:
 			if (bLeftButton) {
-				if (posX >= 120 && posX < 180 && posY > 106 && posY < 167) {
+				if (posX >= 128 && posX < 180 && posY > 106 && posY < 167) {
 					numLevel = 1;
 					levelSelectClick = true;
 				}
-				if (posX >= 194 && posX < 254 && posY > 106 && posY < 167) {
+				if (posX >= 194 && posX < 247 && posY > 106 && posY < 167) {
 					numLevel = 2;
 					levelSelectClick = true;
 				}
-				if (posX >= 256 && posX < 316 && posY > 106 && posY < 167) {
+				if (posX >= 256 && posX < 38 && posY > 106 && posY < 167) {
 					numLevel = 3;
 					levelSelectClick = true;
 				}
-				if (posX >= 318 && posX < 378 && posY > 106 && posY < 167) {
+				if (posX >= 318 && posX < 372 && posY > 106 && posY < 167) {
 					numLevel = 4;
+					levelSelectClick = true;
+				}
+				if (posX >= 381 && posX < 432 && posY > 106 && posY < 167) {
+					numLevel = 0;
 					levelSelectClick = true;
 				}
 			}
@@ -966,6 +986,8 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 		case WIN:
 			if (bLeftButton)
 				levelSelectClick = true;
+			if (bRightButton)
+				goToMenu = true;
 	}
 }
 
@@ -1132,6 +1154,20 @@ void Scene::entryfuncCallback(int state)
 		//glutWarpPointer(posX*3 - 120, posY*3);
 		else if (posX > 400){
 			glutWarpPointer(956, posY * 3);
+		}
+	}
+}
+
+void Scene::keyPressed(int key)
+{
+	cout << key << endl;
+	if (key == 27) {
+		if (gamestate == PLAYING) {
+			gamestate = MENU;
+			onePlayer = false;
+			levelSelectClick = false;
+			init(0);
+
 		}
 	}
 }

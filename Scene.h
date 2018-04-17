@@ -3,6 +3,7 @@
 
 
 #include <glm/glm.hpp>
+//#include "Game.h"
 #include "ShaderProgram.h"
 #include "MaskedTexturedQuad.h"
 #include "Lemming.h"
@@ -29,6 +30,7 @@ public:
 	
 	void mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButton);
 	void specialKeyPressed(int key);
+	void keyPressed(int key);
 	void entryfuncCallback(int state);
 
 	int getgameState();
@@ -61,13 +63,14 @@ private:
 	float currentTime;
 	float winTime;
 	glm::mat4 projection;
-	
+	bool quit = false;
 	bool load = false;
 	bool free = false;
 	TexturedQuad *menu;
 	Texture menuTexture;
 
 	Texture selectLevel;
+	bool goToMenu = false;
 	bool levelSelectClick;
 	float alpha;
 	int transitionTime;

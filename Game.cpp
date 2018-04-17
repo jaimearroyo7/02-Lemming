@@ -34,9 +34,7 @@ void Game::entryfuncCallback(int state)
 
 void Game::keyPressed(int key)
 {
-	
-	if(key == 27) // Escape code
-		bPlay = false;
+	scene.keyPressed(key);
 	keys[key] = true;
 }
 
@@ -95,6 +93,8 @@ bool Game::getSpecialKey(int key) const
 	return specialKeys[key];
 }
 
-
+void Game::setbPlay(bool value) {
+	bPlay = value;
+}
 
 
