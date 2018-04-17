@@ -38,6 +38,7 @@ Scene::Scene()
 	L1.numLemmings[5] = 6;
 	L1.bounds = glm::vec4(-100, 360, 160, 2);
 	
+	//test
 
 	//Level 2
 	L2.levelLemmings = 10;
