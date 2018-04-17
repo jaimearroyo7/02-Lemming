@@ -8,6 +8,7 @@
 #include <GL/glut.h>
 #include <string>
 #include <time.h>
+#include <fmod.hpp>
 using namespace std;
 
 
@@ -244,6 +245,8 @@ void Scene::initLevel(const Level &l) {
 
 void Scene::init(int level)
 {
+	AudioEngine::instance().playLoop("sounds/lemmings.mid");
+	
 	// Select which font you want to use
 	//if (!levelInfo.init("fonts/OpenSans-Regular.ttf"))
 

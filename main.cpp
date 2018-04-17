@@ -12,6 +12,7 @@
 
 static int prevTime;
 static Game game; // This object represents our whole game
+static AudioEngine aengine;
 
 
 // If a key is pressed this callback is called

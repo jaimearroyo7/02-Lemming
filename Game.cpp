@@ -9,6 +9,7 @@ void Game::init()
 	bPlay = true;
 	bLeftMouse = bRightMouse = false;
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	aengine.init();
 	scene.init(0);
 }
 

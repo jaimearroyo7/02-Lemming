@@ -3,6 +3,7 @@
 
 
 #include "Scene.h"
+#include "AudioEngine.h"
 
 
 // Game is a singleton (a class with a single instance) that represents our whole application
@@ -41,6 +42,7 @@ public:
 	bool getSpecialKey(int key) const;
 
 private:
+	AudioEngine aengine;			  // Audio Engine
 	bool bPlay;                       // Continue to play game?
 	Scene scene;                      // Scene to render
 	bool keys[256], specialKeys[256]; // Store key states so that 
