@@ -201,7 +201,6 @@ int Lemming::update(int deltaTime, float seconds)
 	switch(state)
 	{
 	case BUILDER_OK:
-		cout << "hola";
 		if (sprite->getKeyframe() == 5) {
 			if (dir == 1) {
 				sprite->changeAnimation(WALKING_RIGHT);
@@ -631,6 +630,9 @@ void Lemming::setState(int stateId) {
 		case EXPLOSION_STATE:
 			if(state != DEAD && state != RESPAWN && state != WIN_STATE) explosionCountdown = 0.0f;
 			break;
+		case DEAD:
+			state = DEAD;
+		break;
 		default:
 			break;
 	}
@@ -646,6 +648,10 @@ int Lemming::getState() {
 }
 
 int Lemming::getCountdown() {
-	return explosionCountdown;
+	return int(explosionCountdown);
+}
+
+void Lemming::setCountdown(float value) {
+	explosionCountdown = value;
 }
 

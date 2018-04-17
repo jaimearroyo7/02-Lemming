@@ -36,6 +36,8 @@ Scene::Scene()
 	L1.numLemmings[3] = 4;
 	L1.numLemmings[4] = 5;
 	L1.numLemmings[5] = 6;
+	L1.bounds = glm::vec4(-1000, 31500, 16000, 2);
+	
 
 	//Level 2
 	L2.levelLemmings = 10;
@@ -56,7 +58,7 @@ Scene::Scene()
 	L2.numLemmings[3] = 40;
 	L2.numLemmings[4] = 50;
 	L2.numLemmings[5] = 60;
-
+	L2.bounds = glm::vec4(-1000, 31500, 16000, 2);
 
 
 	//Level 3
@@ -78,6 +80,7 @@ Scene::Scene()
 	L3.numLemmings[4] = 50;
 	L3.numLemmings[5] = 60;
 	L3.ratio = 1;
+	L3.bounds = glm::vec4(-1000, 31500, 16000, 2);
 
 	//Level 4
 	L4.levelLemmings = 10;
@@ -98,6 +101,7 @@ Scene::Scene()
 	L4.numLemmings[4] = 50;
 	L4.numLemmings[5] = 60;
 	L4.ratio = 1;
+	L4.bounds = glm::vec4(-1000, 31500, 16000, 2);
 }
 
 Scene::~Scene()
@@ -188,6 +192,8 @@ void Scene::initLevel(const Level &l) {
 	lemmings.resize(totalLemmings);
 	levelTime = l.levelTime;
 	needToWin = l.needToWin;
+	bounds = l.bounds;
+	cout << bounds[0] << " " << bounds[1] << " " << bounds[2] << " " << bounds[3] << " " << endl;
 	finish = allOut = false;
 	stateSelected = false;
 	pause = x2speed = exploding = false;
@@ -360,19 +366,28 @@ void Scene::update(int deltaTime)
 	currentTime += deltaTime;
 	bool found = false;
 	switch (gamestate) {
-	case PLAYING:
+		case PLAYING:
 
-		if (posX < 140) 
-			scroll -= 1;
-		if (posX < 130)
-			scroll -= 1;
+			if (posX < 140) 
+				scroll -= 1;
+			if (posX < 130)
+				scroll -= 1;
 		
-		if (posX > 420)
-			scroll += 1;
-		if (posX > 430)
-			scroll += 1;
-			//buscar si estamos seleccionando a algun Lemming
-			
+			if (posX > 420)
+				scroll += 1;
+			if (posX > 430)
+				scroll += 1;
+
+			//buscamos si algun lemmings se ha salido de los bounds del mapa y ponemos su estado a DEAD
+			for (int i = 0; i < lemmings.size(); ++i) {
+				glm::ivec2 pos = lemmings[i].getSprite()->position();
+				if (pos.x < bounds[0] || pos.x > bounds[1] || pos.y > bounds[2] || pos.y < bounds[3]) {
+					lemmings[i].setState(DEAD);
+					lemmings[i].setCountdown(-1);
+				}
+			}
+
+			//buscar si estamos seleccionando a algun Lemming		
 			for (int i = lemmings.size() - 1; i >= 0 && !found; --i) {
 				glm::ivec2 pos = lemmings[i].getSprite()->position();
 				pos += glm::vec2(120, 0);

@@ -1,17 +1,18 @@
 ﻿  Scene.cpp
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(230): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(251): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(236): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(257): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.16299.0\ucrt\time.h(505): note: vea la declaración de 'localtime'
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(452): warning C4018: '<': no coinciden signed/unsigned
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(491): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(522): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(544): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(564): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(650): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(660): warning C4244: 'inicializando': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(744): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(761): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(777): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(799): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(929): warning C4018: '<': no coinciden signed/unsigned
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(382): warning C4018: '<': no coinciden signed/unsigned
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(467): warning C4018: '<': no coinciden signed/unsigned
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(506): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(537): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(559): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(579): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(665): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(675): warning C4244: 'inicializando': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(759): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(776): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(792): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(814): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(944): warning C4018: '<': no coinciden signed/unsigned
   02-Lemming.vcxproj -> C:\Users\jaime\OneDrive\Desktop\LlemmingsSouceTree\Debug\02-Lemming.exe

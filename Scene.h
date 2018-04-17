@@ -89,6 +89,8 @@ private:
 	int score;
 	int needToWin;
 	int levelTime;
+	glm::vec4 bounds;
+
 
 	int posX, posY;
 

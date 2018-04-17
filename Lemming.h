@@ -24,6 +24,7 @@ public:
 	void setState(int stateID);
 	int getState();
 	int getCountdown();
+	void setCountdown(float value);
 
 	Sprite *getSprite();
 	
