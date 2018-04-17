@@ -36,7 +36,7 @@ Scene::Scene()
 	L1.numLemmings[3] = 4;
 	L1.numLemmings[4] = 5;
 	L1.numLemmings[5] = 6;
-	L1.bounds = glm::vec4(-1000, 31500, 16000, 2);
+	L1.bounds = glm::vec4(-100, 360, 160, 2);
 	
 
 	//Level 2
@@ -58,11 +58,11 @@ Scene::Scene()
 	L2.numLemmings[3] = 40;
 	L2.numLemmings[4] = 50;
 	L2.numLemmings[5] = 60;
-	L2.bounds = glm::vec4(-1000, 31500, 16000, 2);
+	L2.bounds = glm::vec4(-100, 848-120-30, 160, 2);
 
 
 	//Level 3
-	L3.levelLemmings = 10;
+	L3.levelLemmings = 2;
 	L3.needToWin = 3;
 	L3.mapLength = 1211.0;
 	L3.colortexture = "images/tricky6.png";
@@ -80,7 +80,7 @@ Scene::Scene()
 	L3.numLemmings[4] = 50;
 	L3.numLemmings[5] = 60;
 	L3.ratio = 1;
-	L3.bounds = glm::vec4(-1000, 31500, 16000, 2);
+	L3.bounds = glm::vec4(-100, 1211 - 120 - 30, 160, 2);
 
 	//Level 4
 	L4.levelLemmings = 10;
@@ -101,7 +101,7 @@ Scene::Scene()
 	L4.numLemmings[4] = 50;
 	L4.numLemmings[5] = 60;
 	L4.ratio = 1;
-	L4.bounds = glm::vec4(-1000, 31500, 16000, 2);
+	L4.bounds = glm::vec4(-100, 1100 - 120 - 30, 160, 2);
 }
 
 Scene::~Scene()
@@ -213,7 +213,10 @@ void Scene::initLevel(const Level &l) {
 	colorTexture.loadFromFile(l.colortexture, TEXTURE_PIXEL_FORMAT_RGBA);
 	colorTexture.setMinFilter(GL_NEAREST);
 	colorTexture.setMagFilter(GL_NEAREST);
-	maskTexture.loadFromFile(l.masktexture, TEXTURE_PIXEL_FORMAT_L);
+	if(numLevel == 3)
+		maskTexture.loadFromFile(l.masktexture, TEXTURE_PIXEL_FORMAT_RGBA);
+	else
+		maskTexture.loadFromFile(l.masktexture, TEXTURE_PIXEL_FORMAT_L);
 	maskTexture.setMinFilter(GL_NEAREST);
 	maskTexture.setMagFilter(GL_NEAREST);
 
@@ -981,7 +984,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 					numLevel = 2;
 					levelSelectClick = true;
 				}
-				if (posX >= 256 && posX < 38 && posY > 106 && posY < 167) {
+				if (posX >= 256 && posX < 308 && posY > 106 && posY < 167) {
 					numLevel = 3;
 					levelSelectClick = true;
 				}

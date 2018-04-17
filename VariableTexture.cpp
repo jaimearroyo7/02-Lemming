@@ -151,6 +151,10 @@ void VariableTexture::setPixel(unsigned int x, unsigned int y, unsigned char val
 	{
 		image[y * widthTex + x] = value;
 	}
+	if (format == TEXTURE_PIXEL_FORMAT_RGBA)
+	{
+		image[4*(y * widthTex + x)] = value;
+	}
 }
 
 void VariableTexture::setPixel(unsigned int x, unsigned int y, const glm::ivec3 & value)

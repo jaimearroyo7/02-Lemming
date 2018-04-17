@@ -197,7 +197,7 @@ int Lemming::update(int deltaTime, float seconds)
 	int radius = 14;
 	glm::ivec2 pos = sprite->position();
 	pos += glm::vec2(120, 0);
-
+	//cout << pos.x << endl;
 	switch(state)
 	{
 	case BUILDER_OK:
@@ -478,7 +478,6 @@ int Lemming::update(int deltaTime, float seconds)
 			fall = collisionFloor(2);
 			cout << fall << endl;
 			if (fall > 0) {
-				cout << "hola" << endl;
 				sprite->position() += glm::vec2(0, fall);
 			}
 			else {
