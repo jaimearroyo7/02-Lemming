@@ -16,8 +16,10 @@ struct Level {
 	glm::vec2 openDoorPos;
 	string openDoortexture;
 	glm::vec2 finishDoorPos;
+	glm::vec2 finishDoorSize;
 	string finishDoortexture;
 	int levelTime;
+	float ratio;
 
 	// 0:BASHER, 1:DIGGER, 2:CLIMBER, 3:EXPLOSION, 4:BLOCKER, 5:BUILDER
 	int numLemmings[6];

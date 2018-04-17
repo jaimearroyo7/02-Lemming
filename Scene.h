@@ -9,7 +9,6 @@
 #include "TexturedQuad.h"
 #include "Text.h"
 #include "Level.h"
-#include <fmod.hpp>
 
 // Scene contains all the entities of our game.
 // It is responsible for updating and render them.
@@ -21,21 +20,12 @@ class Scene
 
 public:
 	Scene();
-
-	static Scene &instance() {
-		static Scene S;
-
-		return S;
-	}
-
 	~Scene();
 
 	void init(int level);
 	void initLevel(const Level &l);
 	void update(int deltaTime);
 	void render();
-
-	FMOD::System* Scene::getSoundSystem();
 	
 	void mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButton);
 	void specialKeyPressed(int key);
@@ -55,9 +45,6 @@ private:
 	void initSeleccion();
 
 	void freeScene();
-
-	void loadSounds();
-	void setBackgroundMusic(int level);
 
 private:
 	enum GameState
@@ -105,14 +92,14 @@ private:
 	enum LemmingState
 	{
 		BASHER, DIGGER_STATE, CLIMBER_STATE, EXPLOSION_STATE, BLOCKER_STATE, BUILDER_STATE, WALKING_LEFT_STATE,
-		WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DEAD, WIN_STATE, RESPAWN, VOLTERETA
+		WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DEAD, WIN_STATE, RESPAWN, VOLTERETA, BUILDER_OK
 	};
 
 	int id;
 	LemmingState lemmingsState;
 	bool stateSelected;
 	float scroll;
-
+	int ratio;
 	bool pause, x2speed;
 
 	bool finish, allOut;
@@ -154,23 +141,6 @@ private:
 	Level L2;
 	Level L3;
 	Level L4;
-
-	//Sound
-	FMOD::System *system;
-	FMOD::Sound *menuLoop;
-	FMOD::Sound *lvl1Loop;
-	FMOD::Sound *lvl2Loop;
-	FMOD::Sound *lvl3Loop;
-	FMOD::Sound *lvl4Loop;
-	FMOD::Sound *doorOpen;
-	FMOD::Channel *channel0 = 0;
-	FMOD::Channel *channel1 = 0;
-	FMOD::Channel *channel2 = 0;
-	FMOD::Channel *channel3 = 0;
-	FMOD::Channel *channel4 = 0;
-	FMOD::Channel *channelDoor = 0;
-	int currentChannel;
-
 
 };
 

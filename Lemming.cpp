@@ -5,6 +5,7 @@
 #include "Lemming.h"
 #include "Game.h"
 
+
 #define JUMP_ANGLE_STEP 4
 #define JUMP_HEIGHT 96
 #define FALL_STEP 4
@@ -13,12 +14,12 @@
 enum LemmingAnims
 {
 	WALKING_LEFT, WALKING_RIGHT, BLOCKER_ANIM, WIN, DIG, BASH_RIGHT, BASH_LEFT, EXPLODE, FALL_RIGHT, FALL_LEFT, BUILDING_RIGHT, BUILDING_LEFT,
-	CLIMBING_LEFT, VOLTERETA_LEFT, CLIMBING_RIGHT, VOLTERETA_RIGHT
+	CLIMBING_LEFT, VOLTERETA_LEFT, CLIMBING_RIGHT, VOLTERETA_RIGHT, BUILDER_OKEY
 };
 
 void Lemming::createSprite(ShaderProgram &shaderProgram, Texture &spritesheet) {
 	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(1.0f / 16.0f, 1.0f / 14.0f), &spritesheet, &shaderProgram);
-	sprite->setNumberAnimations(16);
+	sprite->setNumberAnimations(17);
 	sprite->setAnimationSpeed(WALKING_RIGHT, 12);
 	for (int i = 0; i<8; i++)
 		sprite->addKeyframe(WALKING_RIGHT, glm::vec2(float(i) / 16, 0.0f));
@@ -86,9 +87,13 @@ void Lemming::createSprite(ShaderProgram &shaderProgram, Texture &spritesheet) {
 	sprite->setAnimationSpeed(VOLTERETA_LEFT, 12);
 	for (int i = 0; i<7; i++)
 		sprite->addKeyframe(VOLTERETA_LEFT, glm::vec2(9.0f / 16.0f + (float(i) / 16), 12.0f / 14.0f));
+
+	sprite->setAnimationSpeed(BUILDER_OKEY, 12);
+	for (int i = 0; i<6; i++)
+		sprite->addKeyframe(BUILDER_OKEY, glm::vec2(7.0f / 16.0f + (float(i) / 16), 8.0f / 14.0f));
 }
 
-void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, Texture &spritesheet, int cooldown)
+void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, Texture &spritesheet, float cooldown)
 {
 
 	prevState = WALKING_RIGHT_STATE;
@@ -106,14 +111,6 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 
 	sprite->changeAnimation(FALL_RIGHT);
 	sprite->setPosition(initialPosition);
-
-	loadSounds();
-}
-
-void Lemming::loadSounds() {
-	system = Scene::instance().getSoundSystem();
-	system->createSound("sounds/CHINK.wav", FMOD_2D, 0, &stairSound);
-	system->createSound("sounds/YIPPEE.wav", FMOD_2D, 0, &finishSound);
 }
 
 int Lemming::keepWalking(int dir) {
@@ -160,7 +157,7 @@ int Lemming::keepWalking(int dir) {
 	return 0;
 }
 
-int Lemming::update(int deltaTime, int seconds)
+int Lemming::update(int deltaTime, float seconds)
 {
 	int fall;
 	int dir = -1;
@@ -203,19 +200,44 @@ int Lemming::update(int deltaTime, int seconds)
 
 	switch(state)
 	{
+	case BUILDER_OK:
+		cout << "hola";
+		if (sprite->getKeyframe() == 5) {
+			if (dir == 1) {
+				sprite->changeAnimation(WALKING_RIGHT);
+				state = WALKING_RIGHT_STATE;
+				right = true;
+			}
+			else {
+				sprite->changeAnimation(WALKING_LEFT);
+				state = WALKING_LEFT_STATE;
+				right = false;
+			}
+			builderCount = 0;
+		}
+		break;
 		case BUILDER_STATE:
+			cout << builderCount << endl;
 			if (builderCount == 13 || collisionHead()) {
-				if (dir == 1) {
-					sprite->changeAnimation(WALKING_RIGHT);
-					state = WALKING_RIGHT_STATE;
-					right = true;
+				if (builderCount == 13 && sprite->getKeyframe() == 1) {
+					sprite->changeAnimation(BUILDER_OKEY);
+					state = BUILDER_OK;
+					builderCount = 0;
 				}
-				else {
-					sprite->changeAnimation(WALKING_LEFT);
-					state = WALKING_LEFT_STATE;
-					right = false;
+				else if(collisionHead()){
+					if (dir == 1) {
+						sprite->changeAnimation(WALKING_RIGHT);
+						state = WALKING_RIGHT_STATE;
+						right = true;
+					}
+					else {
+						sprite->changeAnimation(WALKING_LEFT);
+						state = WALKING_LEFT_STATE;
+						right = false;
+					}
+					builderCount = 0;
 				}
-				builderCount = 0;
+				
 			}
 			else if (sprite->getKeyframe() == 0 && !firstStair) {
 
@@ -278,12 +300,9 @@ int Lemming::update(int deltaTime, int seconds)
 			//}
 			break;
 		case WIN_STATE:
+			explosionCountdown = -1;
 			if (sprite->getKeyframe() == 7)
 				state = DEAD;
-			else if (sprite->getKeyframe() == 1) {
-				FMOD_RESULT result = system->playSound(finishSound, 0, false, 0);
-				cout << "yipieee " << result << endl;
-			}
 			break;
 
 		case BLOCKER_STATE:
@@ -577,6 +596,7 @@ void Lemming::setState(int stateId) {
 	switch (stateId) {
 		case BUILDER_STATE:
 			state = BUILDER_STATE;
+			builderCount = 0;
 			if(right) sprite->changeAnimation(BUILDING_RIGHT);
 			else sprite->changeAnimation(BUILDING_LEFT);
 			break;
@@ -609,7 +629,7 @@ void Lemming::setState(int stateId) {
 			state = BASHER;
 			break;
 		case EXPLOSION_STATE:
-			if(state != DEAD && state != RESPAWN) explosionCountdown = 0.0f;
+			if(state != DEAD && state != RESPAWN && state != WIN_STATE) explosionCountdown = 0.0f;
 			break;
 		default:
 			break;

@@ -6,8 +6,6 @@
 #include "VariableTexture.h"
 #include <cmath>
 #include <algorithm>
-#include <fmod.hpp>
-
 
 // Lemming is basically a Sprite that represents one lemming. As such it has
 // all properties it needs to track its movement and collisions.
@@ -17,8 +15,8 @@ class Lemming
 {
 
 public:
-	void init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, Texture &spritesheet, int cooldown);
-	int update(int deltaTime, int seconds);
+	void init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, Texture &spritesheet, float cooldown);
+	int update(int deltaTime, float seconds);
 	void render(float scroll);
 	
 	void setMapMask(VariableTexture *mapMask, VariableTexture *mapColor);
@@ -31,10 +29,9 @@ public:
 	
 private:
 	void createSprite(ShaderProgram &shaderProgram, Texture &spritesheet);
-	void loadSounds();
 
 	int collisionFloor(int maxFall);
-	int cooldown; 
+	float cooldown; 
 	int count;
 
 	bool digged, bashed, climbed, firstStair;
@@ -53,7 +50,7 @@ private:
 	enum LemmingState
 	{
 		BASHER, DIGGER_STATE, CLIMBER_STATE, EXPLOSION_STATE, BLOCKER_STATE, BUILDER_STATE, WALKING_LEFT_STATE,
-		WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DEAD, WIN_STATE, RESPAWN, VOLTERETA
+		WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DEAD, WIN_STATE, RESPAWN, VOLTERETA, BUILDER_OK
 	};
 
 	LemmingState state;
@@ -61,11 +58,6 @@ private:
 	Sprite *sprite;
 	VariableTexture *mask;
 	VariableTexture *color;
-
-	//Sound
-	FMOD::System *system;
-	FMOD::Sound *stairSound;
-	FMOD::Sound *finishSound;
 
 };
 
