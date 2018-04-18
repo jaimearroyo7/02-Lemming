@@ -571,37 +571,47 @@ bool Lemming::collision(int offset)
 	glm::ivec2 posBase = sprite->position() + glm::vec2(120, 0); // Add the map displacement
 	
 	posBase += glm::ivec2(7 + offset, 15);
-
+	bool var = true;
 	//si es inmune a blockers, no hay colision
-	if ((int(mask->pixel(posBase.x, posBase.y)) == 2 || int(mask->pixel(posBase.x + 1, posBase.y)) == 2) && inmuneBlock) {
+	if ((int(mask->pixel(posBase.x, posBase.y)) == 2 && int(mask->pixel(posBase.x + 1, posBase.y)) == 2) && inmuneBlock) {
 		sprite->position() += glm::ivec2(0, 2);
 	}
-	else
-		inmuneBlock = false;
+	else if(state != BLOCKER_STATE)
+		var = false;
+
+	
 
 	//si los lemmings van en dirección opuesta a una escalera, no hay colision
 	
-	if(!right && (int(mask->pixel(posBase.x, posBase.y)) == 0 || int(mask->pixel(posBase.x, posBase.y)) == 119 || (int(mask->pixel(posBase.x, posBase.y)) == 2 && inmuneBlock))
-		&& (int(mask->pixel(posBase.x+1, posBase.y)) == 0 || int(mask->pixel(posBase.x + 1, posBase.y)) == 119) || (int(mask->pixel(posBase.x+1, posBase.y)) == 2 && inmuneBlock))
+	if (!right && (int(mask->pixel(posBase.x, posBase.y)) == 0 || int(mask->pixel(posBase.x, posBase.y)) == 119 || (int(mask->pixel(posBase.x, posBase.y)) == 2 && inmuneBlock))
+		&& (int(mask->pixel(posBase.x + 1, posBase.y)) == 0 || int(mask->pixel(posBase.x + 1, posBase.y)) == 119) || (int(mask->pixel(posBase.x + 1, posBase.y)) == 2 && inmuneBlock))
+	{
+		inmuneBlock = var;
 		return false;
-
+	}
 	if (right && (int(mask->pixel(posBase.x, posBase.y)) == 0 || int(mask->pixel(posBase.x, posBase.y)) == 120 || (int(mask->pixel(posBase.x, posBase.y)) == 2 && inmuneBlock))
 		&& (int(mask->pixel(posBase.x + 1, posBase.y)) == 0 || int(mask->pixel(posBase.x + 1, posBase.y)) == 120) || (int(mask->pixel(posBase.x + 1, posBase.y)) == 2 && inmuneBlock))
+	{
+		inmuneBlock = var;
 		return false;
-
+	}
+	
+	if (inmuneBlock) cout << "hola" << endl;
+	cout << int(mask->pixel(posBase.x, posBase.y)) << " " << int(mask->pixel(posBase.x + 1, posBase.y)) << endl;
+	
 	return true;
 }
 
 bool Lemming::collisionBlocker(int offset)
 {
 
-	if (inmuneBlock) return true;
+	if (inmuneBlock) return false;
 
 	glm::ivec2 posBase = sprite->position() + glm::vec2(120, 0); // Add the map displacement
 	if (right) offset+=2;
 	else offset-=2;
 	posBase += glm::ivec2(7 + offset, 15);
-	cout << int(mask->pixel(posBase.x, posBase.y)) << " " << int(mask->pixel(posBase.x + 1, posBase.y)) << endl;
+
 	//si los lemmings van en dirección opuesta a una escalera, no hay colision
 	if (int(mask->pixel(posBase.x, posBase.y)) == 2 && int(mask->pixel(posBase.x + 1, posBase.y)) == 2)
 		return true;
@@ -661,7 +671,7 @@ int Lemming::setState(int stateId) {
 			if (state != FALLING_LEFT_STATE && state != FALLING_RIGHT_STATE && state != BLOCKER_STATE){
 				glm::ivec2 pos = sprite->position();
 				pos += glm::vec2(120, 0);
-
+				inmuneBlock = true;
 				for (int y = max(0, pos.y + 6); y <= min(mask->height() - 1, pos.y + 15); y++)
 					for (int x = max(0, pos.x + 3); x <= min(mask->width() - 1, pos.x + 13); x++) {
 						mask->setPixel(x, y, 2);

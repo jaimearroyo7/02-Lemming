@@ -907,6 +907,8 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 	posY = mouseY / 3;
 	//cout << posX << " " << posY << endl;
 	int res = 0;
+	glm::vec2 lemmingidpos;
+	glm::vec2 lemmingnormalpos;
 	switch (gamestate) {
 		case PLAYING:
 			if (bLeftButton && posY < 160) {			
@@ -914,14 +916,23 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 					if (numLemmings[lemmingsState] > 0) {
 						res = lemmings[id].setState(lemmingsState);
 						numLemmings[lemmingsState] -= res;
-
+						////////////////////////
+						////calcular lemmings inmunes a los blockers, para evitar que queden atrapados
+						////////////////////////
 						if (res == 1 && lemmingsState == BLOCKER_STATE) {
-							
+							lemmingidpos = lemmings[id].getSprite()->position() + glm::vec2(120, 0);
+							for (int i = 0; i < lemmings.size(); ++i) {
+								lemmingnormalpos = lemmings[i].getSprite()->position() + glm::vec2(127, 14);
+								if (id != i && lemmingnormalpos.y <= lemmingidpos.y + 15 && lemmingnormalpos.y >= lemmingidpos.y + 6)
+									if ((lemmingnormalpos.x <= lemmingidpos.x + 13 && lemmingnormalpos.x >= lemmingidpos.x + 3) ||
+										(lemmingnormalpos.x + 1 <= lemmingidpos.x + 13 && lemmingnormalpos.x + 1 >= lemmingidpos.x + 3))
+										lemmings[i].setInmune();
+							}
 						}
 
 					}
 				}
-				eraseMask(mouseX, mouseY);
+				//eraseMask(mouseX, mouseY);
 			}
 			//interfaz seleccionable
 			else if (bLeftButton && posY >= 160) {

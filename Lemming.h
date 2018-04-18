@@ -36,7 +36,7 @@ private:
 	int collisionFloor(int maxFall);
 	float cooldown; 
 	int count;
-	bool inmuneBlock = true;
+	bool inmuneBlock = false;
 
 	bool digged, bashed, climbed, firstStair;
 	int builderCount;
