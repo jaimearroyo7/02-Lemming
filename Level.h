@@ -20,6 +20,7 @@ struct Level {
 	string finishDoortexture;
 	int levelTime;
 	float ratio;
+	string levelSong;
 
 	glm::vec4 bounds;
 

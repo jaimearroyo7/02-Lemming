@@ -3,6 +3,7 @@
 
 
 #include "Sprite.h"
+#include "AudioEngine.h"
 #include "VariableTexture.h"
 #include <cmath>
 #include <algorithm>
@@ -15,7 +16,7 @@ class Lemming
 {
 
 public:
-	void init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, Texture &spritesheet, float cooldown);
+	void init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, Texture &spritesheet, float cooldown, AudioEngine &audioEngine);
 	int update(int deltaTime, float seconds);
 	void render(float scroll);
 	
@@ -59,6 +60,7 @@ private:
 	Sprite *sprite;
 	VariableTexture *mask;
 	VariableTexture *color;
+	AudioEngine aEngine;
 
 };
 

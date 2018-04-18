@@ -8,6 +8,7 @@
 #include <GL/glut.h>
 #include <string>
 #include <time.h>
+#include <fmod.hpp>
 using namespace std;
 
 
@@ -17,6 +18,7 @@ Scene::Scene()
 	posX = posY = 100;
 	gamestate = MENU;
 	map = NULL;
+
 	//Level 1
 	L1.levelLemmings = 1;
 	L1.needToWin = 1;
@@ -37,8 +39,7 @@ Scene::Scene()
 	L1.numLemmings[4] = 5;
 	L1.numLemmings[5] = 6;
 	L1.bounds = glm::vec4(-100, 360, 160, 2);
-	
-	//test
+	L1.levelSong = "sounds/lemmings.mid";
 
 	//Level 2
 	L2.levelLemmings = 10;
@@ -60,7 +61,7 @@ Scene::Scene()
 	L2.numLemmings[4] = 50;
 	L2.numLemmings[5] = 60;
 	L2.bounds = glm::vec4(-100, 848-120-30, 160, 2);
-
+	L2.levelSong = "sounds/lvl2.mp3";
 
 	//Level 3
 	L3.levelLemmings = 2;
@@ -82,6 +83,7 @@ Scene::Scene()
 	L3.numLemmings[5] = 60;
 	L3.ratio = 1;
 	L3.bounds = glm::vec4(-100, 1211 - 120 - 30, 160, 2);
+	L3.levelSong = "sounds/lvl3.mp3";
 
 	//Level 4
 	L4.levelLemmings = 10;
@@ -103,6 +105,7 @@ Scene::Scene()
 	L4.numLemmings[5] = 60;
 	L4.ratio = 1;
 	L4.bounds = glm::vec4(-100, 1100 - 120 - 30, 160, 2);
+	L4.levelSong = "sounds/lvl4.mp3";
 }
 
 Scene::~Scene()
@@ -258,7 +261,7 @@ void Scene::initLevel(const Level &l) {
 	spritesheetLemmings.setMagFilter(GL_NEAREST);
 	glm::vec2 initpos = l.openDoorPos + glm::vec2(13, 0);
 	for (int i = 0; i < totalLemmings; ++i) {
-		lemmings[i].init(initpos, simpleTexProgram, spritesheetLemmings, 2000.0 + 1000.0*(i * l.ratio));
+		lemmings[i].init(initpos, simpleTexProgram, spritesheetLemmings, 2000.0 + 1000.0*(i * l.ratio), aEngine);
 		lemmings[i].setMapMask(&maskTexture, &colorTexture);
 	}
 
@@ -271,6 +274,9 @@ void Scene::initLevel(const Level &l) {
 
 	//initRejillas de boton seleccionado
 	initSeleccion();
+
+	//initSound
+	aEngine.playLoop(l.levelSong);
 }
 
 void Scene::init(int level)
@@ -325,6 +331,10 @@ void Scene::init(int level)
 		level3Info.loadFromFile("images/infoLevel3.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		level4Info.loadFromFile("images/infoLevel4.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		background.loadFromFile("images/background.png", TEXTURE_PIXEL_FORMAT_RGBA);
+		string fp = "sounds/mainmenu.mp3";
+		aEngine = AudioEngine::AudioEngine();
+		aEngine.init();
+		aEngine.playLoop(fp);
 	}
 	switch (gamestate) {
 		case PLAYING:
@@ -480,6 +490,7 @@ void Scene::update(int deltaTime)
 
 
 			if (openDoor->getKeyframe() != 9) openDoor->update(deltaTime);
+			if (openDoor->getKeyframe() == 2) aEngine.play("sounds/DOOR.wav");
 
 			finishDoor->update(deltaTime);
 			if (numLevel == 3) {
