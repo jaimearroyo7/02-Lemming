@@ -34,6 +34,10 @@ void AudioEngine::init()
 	fmodSystem->playSound(loadSoundEffect(fp).m_sound, 0, false, 0);*/
 }
 
+void AudioEngine::update() {
+	fmodSystem->update();
+}
+
 void AudioEngine::playLoop(const std::string & songPath) {
 	cout << endl << endl << "PLAY LOOP" << endl;
 	cout << iniciat << endl;

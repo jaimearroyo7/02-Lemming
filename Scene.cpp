@@ -330,10 +330,8 @@ void Scene::init(int level)
 		level3Info.loadFromFile("images/infoLevel3.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		level4Info.loadFromFile("images/infoLevel4.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		background.loadFromFile("images/background.png", TEXTURE_PIXEL_FORMAT_RGBA);
-		string fp = "sounds/mainmenu.mp3";
 		aEngine = AudioEngine::AudioEngine();
 		aEngine.init();
-		aEngine.playLoop(fp);
 	}
 	switch (gamestate) {
 		case PLAYING:
@@ -360,6 +358,7 @@ void Scene::init(int level)
 		case MENU:
 			alpha = 1.0f;
 			transitionTime = 0;
+			aEngine.playLoop("sounds/mainmenu.mp3");
 			break;
 		case SELECT_LEVEL:
 			alpha = 1.0f;
@@ -397,7 +396,7 @@ void Scene::update(int deltaTime)
 		
 	if (renderSeleccionPause) 
 		deltaTime *= 0;
-
+	aEngine.update();
 	currentTime += deltaTime;
 	bool found = false;
 	switch (gamestate) {
