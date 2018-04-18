@@ -20,6 +20,7 @@ struct Level {
 	string finishDoortexture;
 	int levelTime;
 	float ratio;
+	string levelSong;
 
 	// 0:BASHER, 1:DIGGER, 2:CLIMBER, 3:EXPLOSION, 4:BLOCKER, 5:BUILDER
 	int numLemmings[6];

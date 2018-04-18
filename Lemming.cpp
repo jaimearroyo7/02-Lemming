@@ -93,7 +93,7 @@ void Lemming::createSprite(ShaderProgram &shaderProgram, Texture &spritesheet) {
 		sprite->addKeyframe(BUILDER_OKEY, glm::vec2(7.0f / 16.0f + (float(i) / 16), 8.0f / 14.0f));
 }
 
-void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, Texture &spritesheet, float cooldown)
+void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, Texture &spritesheet, float cooldown, AudioEngine &audioEngine)
 {
 
 	prevState = WALKING_RIGHT_STATE;
@@ -111,6 +111,8 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 
 	sprite->changeAnimation(FALL_RIGHT);
 	sprite->setPosition(initialPosition);
+
+	aEngine = audioEngine;
 }
 
 int Lemming::keepWalking(int dir) {
@@ -303,6 +305,8 @@ int Lemming::update(int deltaTime, float seconds)
 			explosionCountdown = -1;
 			if (sprite->getKeyframe() == 7)
 				state = DEAD;
+			if (sprite->getKeyframe() == 1)
+				aEngine.play("sounds/YIPPEE.wav");
 			break;
 
 		case BLOCKER_STATE:
