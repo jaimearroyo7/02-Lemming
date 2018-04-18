@@ -543,9 +543,11 @@ void Scene::update(int deltaTime)
 			cursor->update(deltaTime);
 
 			//transition
-			if (onePlayer || levelSelectClick || quit) {			
-				if (transitionTime == 0)
+			if (onePlayer || levelSelectClick || quit) {
+				if (transitionTime == 0) {
 					transitionTime = currentTime;
+					aEngine.play("sounds/BEEPSELECT.wav");
+				}
 
 				alpha = 1 - (currentTime - transitionTime) / 800.0f;
 				if (currentTime - transitionTime > 800) {
@@ -575,8 +577,10 @@ void Scene::update(int deltaTime)
 
 			//transition
 			if (levelSelectClick) {			
-				if (transitionTime == 0)
+				if (transitionTime == 0) {
 					transitionTime = currentTime;
+					aEngine.play("sounds/BEEPSELECT.wav");
+				}
 
 				alpha = 1 - (currentTime - transitionTime) / 800.0f;
 				if (currentTime - transitionTime > 800) {		
@@ -597,8 +601,10 @@ void Scene::update(int deltaTime)
 			cursor->setPosition(glm::vec2(posX - 120 - 8, posY - 8));
 			cursor->update(deltaTime);
 			if (levelSelectClick) {
-				if (transitionTime == 0)
+				if (transitionTime == 0) {
+					aEngine.play("sounds/BEEPSELECT.wav");
 					transitionTime = currentTime;
+				}
 
 				alpha = 1 - (currentTime - transitionTime) / 800.0f;
 				if (currentTime - transitionTime > 800) {

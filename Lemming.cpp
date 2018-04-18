@@ -219,6 +219,8 @@ int Lemming::update(int deltaTime, float seconds)
 		break;
 		case BUILDER_STATE:
 			cout << builderCount << endl;
+			if (sprite->getKeyframe() == 9)
+				aEngine.play("sounds/THUNK.wav");
 			if (builderCount == 13 || collisionHead()) {
 				if (builderCount == 13 && sprite->getKeyframe() == 1) {
 					sprite->changeAnimation(BUILDER_OKEY);
