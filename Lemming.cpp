@@ -199,6 +199,7 @@ int Lemming::update(int deltaTime, float seconds)
 	int radius = 14;
 	glm::ivec2 pos = sprite->position();
 	pos += glm::vec2(120, 0);
+	int c;
 	//cout << pos.x << endl;
 	switch(state)
 	{
@@ -218,16 +219,21 @@ int Lemming::update(int deltaTime, float seconds)
 		}
 		break;
 		case BUILDER_STATE:
-			cout << builderCount << endl;
 			if (sprite->getKeyframe() == 9)
 				aEngine.play("sounds/THUNK.wav");
-			if (builderCount == 13 || collisionHead()) {
+			sprite->position() += glm::vec2(4 * dir, -1);
+			if (right) {
+				sprite->position() += glm::vec2(-5, 0);
+				c = 4;
+			}
+			else c = 3;
+			if (builderCount == 13 || collisionHead() || collision(c)) {
 				if (builderCount == 13 && sprite->getKeyframe() == 1) {
 					sprite->changeAnimation(BUILDER_OKEY);
 					state = BUILDER_OK;
 					builderCount = 0;
 				}
-				else if(collisionHead()){
+				else if(collisionHead() || collision(c)){
 					if (dir == 1) {
 						sprite->changeAnimation(WALKING_RIGHT);
 						state = WALKING_RIGHT_STATE;
@@ -242,7 +248,9 @@ int Lemming::update(int deltaTime, float seconds)
 				}
 				
 			}
-			else if (sprite->getKeyframe() == 0 && !firstStair) {
+			if (right) sprite->position() -= glm::vec2(-5, 0);
+			sprite->position() -= glm::vec2(4 * dir, -1);
+			if (sprite->getKeyframe() == 0 && !firstStair) {
 
 				sprite->position() += glm::vec2(2*dir, -1);
 				if (win()) {
@@ -250,39 +258,34 @@ int Lemming::update(int deltaTime, float seconds)
 					sprite->changeAnimation(WIN);
 					return 1;
 				}
-				if (right) {					
-					if (collision(3)) {
-						state = WALKING_RIGHT_STATE;
-						sprite->changeAnimation(WALKING_RIGHT);
-						builderCount = -1;
-					}
-				}
-				else {
-					if (collision(3)) {
-						state = WALKING_LEFT_STATE;
-						sprite->changeAnimation(WALKING_LEFT);
-						builderCount = -1;
-					}
-				}
 				++builderCount;
 
 			}
 			else if (sprite->getKeyframe() == 10) {
-				firstStair = false;
+				
 				if (right) {
 					pos += glm::vec2(9, 15);
 					for (int i = 0; i < 4; ++i) {
 						mask->setPixel(pos.x + i * dir, pos.y, 255);
 						color->setPixel(pos.x + i * dir, pos.y, glm::ivec4(119, 77, 0, 255));
+						if (firstStair) {
+							mask->setPixel(pos.x + i * dir, pos.y, 255);
+							color->setPixel(pos.x + i * dir, pos.y, glm::ivec4(119, 77, 0, 255));
+						}
 					}
 				}
 				else {
-					pos += glm::vec2(5, 15);
+					pos += glm::vec2(6, 15);
 					for (int i = 0; i < 4; ++i) {
 						mask->setPixel(pos.x + i * dir, pos.y, 255);
 						color->setPixel(pos.x + i * dir, pos.y, glm::ivec4(120, 77, 0, 255));
+						if (firstStair) {
+							mask->setPixel(pos.x + i * dir, pos.y, 255);
+							color->setPixel(pos.x + i * dir, pos.y, glm::ivec4(119, 77, 0, 255));
+						}
 					}
 				}
+				firstStair = false;
 			}
 
 			break;
@@ -342,7 +345,6 @@ int Lemming::update(int deltaTime, float seconds)
 			if (collision(0)) {
 				right = !right;
 				if (collisionHead()) {
-					cout << "collision" << endl;
 					if (!climbed) {
 						if (right) sprite->changeAnimation(CLIMBING_LEFT);
 						else sprite->changeAnimation(CLIMBING_RIGHT);
@@ -369,7 +371,6 @@ int Lemming::update(int deltaTime, float seconds)
 
 			if (collisionHead()) {
 
-				cout << "collisionHEAD" << endl;
 				prevState = CLIMBER_STATE;
 				climbed = false;
 				sprite->position() += glm::vec2(-dir, 0);

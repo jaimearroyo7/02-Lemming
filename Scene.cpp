@@ -86,7 +86,7 @@ Scene::Scene()
 	L3.levelSong = "sounds/lvl3.mp3";
 
 	//Level 4
-	L4.levelLemmings = 10;
+	L4.levelLemmings = 1;
 	L4.needToWin = 3;
 	L4.mapLength = 1100.0;
 	L4.colortexture = "images/mayhem1.png";
@@ -186,7 +186,7 @@ void Scene::initFire() {
 	spritesheetFire.setMagFilter(GL_NEAREST);
 	fire = Sprite::createSprite(glm::vec2(78, 11), glm::vec2(0.5f, 0.1f), &spritesheetFire, &simpleTexProgram);
 	fire->setNumberAnimations(1);
-	fire->setAnimationSpeed(0, 6);
+	fire->setAnimationSpeed(0, 12);
 	for (int i = 0; i<10; i++)
 		fire->addKeyframe(0, glm::vec2(0.0f, float(i) / 10.0f));
 	fire->changeAnimation(0);
@@ -194,7 +194,7 @@ void Scene::initFire() {
 
 	fire2 = Sprite::createSprite(glm::vec2(78, 11), glm::vec2(0.5f, 0.1f), &spritesheetFire, &simpleTexProgram);
 	fire2->setNumberAnimations(1);
-	fire2->setAnimationSpeed(0, 6);
+	fire2->setAnimationSpeed(0, 12);
 	for (int i = 0; i<10; i++)
 		fire2->addKeyframe(0, glm::vec2(0.5f, float(i) / 10.0f));
 	fire2->changeAnimation(0);
@@ -218,7 +218,6 @@ void Scene::initLevel(const Level &l) {
 	levelTime = l.levelTime;
 	needToWin = l.needToWin;
 	bounds = l.bounds;
-	cout << bounds[0] << " " << bounds[1] << " " << bounds[2] << " " << bounds[3] << " " << endl;
 	finish = allOut = false;
 	stateSelected = false;
 	pause = x2speed = exploding = false;
@@ -523,7 +522,6 @@ void Scene::update(int deltaTime)
 					//Si has ganado, hacer lo que quieras.
 					gamestate = WIN;
 					scroll = 0.0f;
-					cout << score << endl;
 					if (score >= needToWin) {
 						if (onePlayer) {
 							if (numLevel == 4)
@@ -908,7 +906,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 	//   The map is enlarged 3 times and displaced 120 pixels
 	posX = mouseX / 3 + 120;
 	posY = mouseY / 3;
-	cout << posX << " " << posY << endl;
+	//cout << posX << " " << posY << endl;
 	switch (gamestate) {
 		case PLAYING:
 			if (bLeftButton && posY < 160) {			
@@ -928,7 +926,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 			}
 			//interfaz seleccionable
 			else if (bLeftButton && posY >= 160) {
-				std::cout << posX << " " << posY << endl;
+				//std::cout << posX << " " << posY << endl;
 				int num = (posX - 4 - 120) / 20;
 				switch (num) {
 					case 0:
@@ -937,7 +935,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						lemmingSelected = glm::vec2(2, 160);
 						seleccionLemming->setPosition(lemmingSelected);
 						
-						std::cout << "climber" << endl;
+						//std::cout << "climber" << endl;
 						stateSelected = true;
 						break;
 					case 1:
