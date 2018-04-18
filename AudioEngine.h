@@ -46,6 +46,7 @@ public:
 	~AudioEngine();
 
 	void init();
+	void update();
 	void playLoop(const std::string& filePath);
 	void play(const std::string& filePath);
 	void destroy();
