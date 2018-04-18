@@ -200,7 +200,6 @@ int Lemming::update(int deltaTime, float seconds)
 	glm::ivec2 pos = sprite->position();
 	pos += glm::vec2(120, 0);
 	int c;
-	//cout << pos.x << endl;
 	switch(state)
 	{
 	case BUILDER_OK:
@@ -266,10 +265,10 @@ int Lemming::update(int deltaTime, float seconds)
 				if (right) {
 					pos += glm::vec2(9, 15);
 					for (int i = 0; i < 4; ++i) {
-						mask->setPixel(pos.x + i * dir, pos.y, 255);
+						mask->setPixel(pos.x + i * dir, pos.y, 119);
 						color->setPixel(pos.x + i * dir, pos.y, glm::ivec4(119, 77, 0, 255));
 						if (firstStair) {
-							mask->setPixel(pos.x + i * dir, pos.y, 255);
+							mask->setPixel(pos.x + i * dir, pos.y, 119);
 							color->setPixel(pos.x + i * dir, pos.y, glm::ivec4(119, 77, 0, 255));
 						}
 					}
@@ -277,11 +276,11 @@ int Lemming::update(int deltaTime, float seconds)
 				else {
 					pos += glm::vec2(6, 15);
 					for (int i = 0; i < 4; ++i) {
-						mask->setPixel(pos.x + i * dir, pos.y, 255);
+						mask->setPixel(pos.x + i * dir, pos.y, 120);
 						color->setPixel(pos.x + i * dir, pos.y, glm::ivec4(120, 77, 0, 255));
 						if (firstStair) {
-							mask->setPixel(pos.x + i * dir, pos.y, 255);
-							color->setPixel(pos.x + i * dir, pos.y, glm::ivec4(119, 77, 0, 255));
+							mask->setPixel(pos.x + i * dir, pos.y, 120);
+							color->setPixel(pos.x + i * dir, pos.y, glm::ivec4(120, 77, 0, 255));
 						}
 					}
 				}
@@ -341,6 +340,17 @@ int Lemming::update(int deltaTime, float seconds)
 				sprite->changeAnimation(WIN);
 				return 1;
 			}
+			if (collisionBlocker(0)) {
+				if (right) {
+					state = WALKING_RIGHT_STATE;
+					sprite->changeAnimation(WALKING_RIGHT);
+				}
+				else {
+					state = WALKING_LEFT_STATE;
+					sprite->changeAnimation(WALKING_LEFT);
+				}
+				return 0;
+			}
 
 			if (collision(0)) {
 				right = !right;
@@ -389,6 +399,17 @@ int Lemming::update(int deltaTime, float seconds)
 			break;
 		case BASHER:
 
+			if (collisionBlocker(0)) {
+				if (right) {
+					state = WALKING_RIGHT_STATE;
+					sprite->changeAnimation(WALKING_RIGHT);
+				}
+				else {
+					state = WALKING_LEFT_STATE;
+					sprite->changeAnimation(WALKING_LEFT);
+				}
+				return 0;
+			}
 			
 			if (win()) {
 				state = WIN_STATE;
@@ -483,7 +504,6 @@ int Lemming::update(int deltaTime, float seconds)
 
 		case FALLING_LEFT_STATE:
 			fall = collisionFloor(2);
-			cout << fall << endl;
 			if (fall > 0) {
 				sprite->position() += glm::vec2(0, fall);
 			}
@@ -535,6 +555,7 @@ int Lemming::collisionFloor(int maxFall)
 	posBase += glm::ivec2(7, 16);
 	while((fall < maxFall) && !bContact)
 	{
+
 		if((mask->pixel(posBase.x, posBase.y+fall) == 0) && (mask->pixel(posBase.x+1, posBase.y+fall) == 0))
 			fall += 1;
 		else
@@ -551,17 +572,41 @@ bool Lemming::collision(int offset)
 	
 	posBase += glm::ivec2(7 + offset, 15);
 
+	//si es inmune a blockers, no hay colision
+	if ((int(mask->pixel(posBase.x, posBase.y)) == 2 || int(mask->pixel(posBase.x + 1, posBase.y)) == 2) && inmuneBlock) {
+		sprite->position() += glm::ivec2(0, 2);
+	}
+	else
+		inmuneBlock = false;
+
 	//si los lemmings van en dirección opuesta a una escalera, no hay colision
 	
-	if(!right && (mask->pixel(posBase.x, posBase.y) == 0 || int(color->pixel(posBase.x, posBase.y)) == 119)
-		&& (mask->pixel(posBase.x+1, posBase.y) == 0 || int(color->pixel(posBase.x + 1, posBase.y)) == 119))
+	if(!right && (int(mask->pixel(posBase.x, posBase.y)) == 0 || int(mask->pixel(posBase.x, posBase.y)) == 119 || (int(mask->pixel(posBase.x, posBase.y)) == 2 && inmuneBlock))
+		&& (int(mask->pixel(posBase.x+1, posBase.y)) == 0 || int(mask->pixel(posBase.x + 1, posBase.y)) == 119) || (int(mask->pixel(posBase.x+1, posBase.y)) == 2 && inmuneBlock))
 		return false;
 
-	if (right && (mask->pixel(posBase.x, posBase.y) == 0 || int(color->pixel(posBase.x, posBase.y)) == 120)
-		&& (mask->pixel(posBase.x + 1, posBase.y) == 0 || int(color->pixel(posBase.x + 1, posBase.y)) == 120))
+	if (right && (int(mask->pixel(posBase.x, posBase.y)) == 0 || int(mask->pixel(posBase.x, posBase.y)) == 120 || (int(mask->pixel(posBase.x, posBase.y)) == 2 && inmuneBlock))
+		&& (int(mask->pixel(posBase.x + 1, posBase.y)) == 0 || int(mask->pixel(posBase.x + 1, posBase.y)) == 120) || (int(mask->pixel(posBase.x + 1, posBase.y)) == 2 && inmuneBlock))
 		return false;
 
 	return true;
+}
+
+bool Lemming::collisionBlocker(int offset)
+{
+
+	if (inmuneBlock) return true;
+
+	glm::ivec2 posBase = sprite->position() + glm::vec2(120, 0); // Add the map displacement
+	if (right) offset+=2;
+	else offset-=2;
+	posBase += glm::ivec2(7 + offset, 15);
+	cout << int(mask->pixel(posBase.x, posBase.y)) << " " << int(mask->pixel(posBase.x + 1, posBase.y)) << endl;
+	//si los lemmings van en dirección opuesta a una escalera, no hay colision
+	if (int(mask->pixel(posBase.x, posBase.y)) == 2 && int(mask->pixel(posBase.x + 1, posBase.y)) == 2)
+		return true;
+
+	return false;
 }
 
 bool Lemming::collisionHead()
@@ -572,6 +617,9 @@ bool Lemming::collisionHead()
 	else offset = 8;
 	posBase += glm::ivec2(offset, 7);
 
+	if (int(mask->pixel(posBase.x, posBase.y)) == 2 && int(mask->pixel(posBase.x + 1, posBase.y)) == 2 && inmuneBlock)
+		return false;
+
 	if (!right && (mask->pixel(posBase.x, posBase.y) == 0 || int(color->pixel(posBase.x, posBase.y)) == 119)
 		&& (mask->pixel(posBase.x + 1, posBase.y) == 0 || int(color->pixel(posBase.x + 1, posBase.y)) == 119))
 		return false;
@@ -579,6 +627,7 @@ bool Lemming::collisionHead()
 	if (right && (mask->pixel(posBase.x, posBase.y) == 0 || int(color->pixel(posBase.x, posBase.y)) == 120)
 		&& (mask->pixel(posBase.x + 1, posBase.y) == 0 || int(color->pixel(posBase.x + 1, posBase.y)) == 120))
 		return false;
+
 
 	return true;
 }
@@ -612,14 +661,10 @@ int Lemming::setState(int stateId) {
 			if (state != FALLING_LEFT_STATE && state != FALLING_RIGHT_STATE && state != BLOCKER_STATE){
 				glm::ivec2 pos = sprite->position();
 				pos += glm::vec2(120, 0);
-				for (int y = max(0, pos.y + 6); y <= min(mask->height() - 1, pos.y + 6); y++)
-					for (int x = max(0, pos.x); x <= min(mask->width() - 1, pos.x + 3); x++)
-						color->setPixel(x, y, glm::ivec4(0, 0, 0, 0));
 
-				for (int y = max(0, pos.y + 6); y <= min(mask->height() - 1, pos.y + 17); y++)
+				for (int y = max(0, pos.y + 6); y <= min(mask->height() - 1, pos.y + 15); y++)
 					for (int x = max(0, pos.x + 3); x <= min(mask->width() - 1, pos.x + 13); x++) {
-						mask->setPixel(x, y, 255);
-						color->setPixel(x, y, glm::ivec4(0, 0, 0, 0));
+						mask->setPixel(x, y, 2);
 					}
 				state = BLOCKER_STATE;
 				sprite->changeAnimation(BLOCKER_ANIM);
@@ -675,3 +720,6 @@ void Lemming::setCountdown(float value) {
 	explosionCountdown = value;
 }
 
+void Lemming::setInmune() {
+	inmuneBlock = true;
+}

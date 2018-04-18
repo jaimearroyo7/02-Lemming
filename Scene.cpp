@@ -42,7 +42,7 @@ Scene::Scene()
 	L1.levelSong = "sounds/lemmings.mid";
 
 	//Level 2
-	L2.levelLemmings = 10;
+	L2.levelLemmings = 1;
 	L2.needToWin = 3;
 	L2.mapLength = 848.0;
 	L2.colortexture = "images/fun5.png";
@@ -86,7 +86,7 @@ Scene::Scene()
 	L3.levelSong = "sounds/lvl3.mp3";
 
 	//Level 4
-	L4.levelLemmings = 1;
+	L4.levelLemmings = 5;
 	L4.needToWin = 3;
 	L4.mapLength = 1100.0;
 	L4.colortexture = "images/mayhem1.png";
@@ -103,7 +103,7 @@ Scene::Scene()
 	L4.numLemmings[3] = 40;
 	L4.numLemmings[4] = 50;
 	L4.numLemmings[5] = 60;
-	L4.ratio = 1;
+	L4.ratio = 2;
 	L4.bounds = glm::vec4(-100, 1100 - 120 - 30, 160, 2);
 	L4.levelSong = "sounds/lvl4.mp3";
 }
@@ -906,22 +906,22 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 	posX = mouseX / 3 + 120;
 	posY = mouseY / 3;
 	//cout << posX << " " << posY << endl;
+	int res = 0;
 	switch (gamestate) {
 		case PLAYING:
 			if (bLeftButton && posY < 160) {			
 				if (id != -1 && stateSelected) {
 					if (numLemmings[lemmingsState] > 0) {
-						numLemmings[lemmingsState] -= lemmings[id].setState(lemmingsState);
+						res = lemmings[id].setState(lemmingsState);
+						numLemmings[lemmingsState] -= res;
+
+						if (res == 1 && lemmingsState == BLOCKER_STATE) {
+							
+						}
+
 					}
 				}
 				eraseMask(mouseX, mouseY);
-			}
-			else if (bRightButton && posY < 160) {
-				if (id != -1) {
-
-					lemmings[id].setState(BLOCKER_STATE);
-				}
-				applyMask(mouseX, mouseY);
 			}
 			//interfaz seleccionable
 			else if (bLeftButton && posY >= 160) {
