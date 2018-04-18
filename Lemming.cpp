@@ -314,10 +314,23 @@ int Lemming::update(int deltaTime, float seconds)
 
 		case BLOCKER_STATE:
 			fall = collisionFloor(2);
-			if (fall > 0)
+			if (fall > 0) {
+				glm::ivec2 pos = sprite->position();
+				pos += glm::vec2(120, 0);
+				for (int y = max(0, pos.y + 6); y <= min(mask->height() - 1, pos.y + 15); y++)
+					for (int x = max(0, pos.x + 3); x <= min(mask->width() - 1, pos.x + 13); x++) {
+						mask->setPixel(x, y, 0);
+					}
+				if (right) {
+					state = WALKING_RIGHT_STATE;
+					sprite->changeAnimation(WALKING_RIGHT);
+				}
+				else {
+					state = WALKING_LEFT_STATE;
+					sprite->changeAnimation(WALKING_LEFT);
+				}
 				sprite->position() += glm::vec2(0, 1);
-			if (fall > 1)
-				sprite->position() += glm::vec2(0, 1);
+			}
 			break;
 
 		case VOLTERETA:
