@@ -56,6 +56,9 @@ void AudioEngine::playLoop(const std::string & songPath) {
 void AudioEngine::stopLoop() {
 	channelBackground->stop();
 }
+void AudioEngine::stopSound() {
+	channelSoundEffect->stop();
+}
 
 void AudioEngine::play(const std::string & songPath) {
 	if (!muteState) {

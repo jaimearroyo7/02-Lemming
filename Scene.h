@@ -78,6 +78,9 @@ private:
 	bool levelSelectClick;
 	float alpha;
 	int transitionTime;
+	bool fireSound = true;
+	bool endGameSound = true;
+	bool inMenu = false;
 
 	Texture level1Info, level2Info, level3Info, level4Info, level5Info;
 

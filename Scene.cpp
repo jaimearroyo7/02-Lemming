@@ -335,6 +335,7 @@ void Scene::init(int level)
 	}
 	switch (gamestate) {
 		case PLAYING:
+			inMenu = false;
 			if (level == 1) {
 				initLevel(L1);
 				numLevel = 1;
@@ -358,12 +359,15 @@ void Scene::init(int level)
 		case MENU:
 			alpha = 1.0f;
 			transitionTime = 0;
-			aEngine.playLoop("sounds/mainmenu.mp3");
+			if (!inMenu)
+				aEngine.playLoop("sounds/mainmenu.mp3");
+			inMenu = true;
 			break;
 		case SELECT_LEVEL:
 			alpha = 1.0f;
 			transitionTime = 0;
 		case LEVEL_INFO:
+			aEngine.playLoop("sounds/lvl2.mp3");
 			alpha = 1.0f;
 			transitionTime = 0;
 		default:
@@ -540,14 +544,17 @@ void Scene::update(int deltaTime)
 						if (onePlayer) {
 							if (numLevel == 4)
 								onePlayer = false;
-							else 
+							else
 								++numLevel;
 						}
-						
+
 					}
+					else
+						aEngine.play("sounds/negative_beeps.mp3");
 					freeScene();
 					init(0);
 				}
+				else cout << "time out" << endl;
 			}
 			break;
 		case MENU:
