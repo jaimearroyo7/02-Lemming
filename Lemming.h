@@ -23,6 +23,7 @@ public:
 	void setMapMask(VariableTexture *mapMask, VariableTexture *mapColor);
 
 	int setState(int stateID);
+	void setInmune();
 	int getState();
 	int getCountdown();
 	void setCountdown(float value);
@@ -35,6 +36,7 @@ private:
 	int collisionFloor(int maxFall);
 	float cooldown; 
 	int count;
+	bool inmuneBlock = false;
 
 	bool digged, bashed, climbed, firstStair;
 	int builderCount;
@@ -43,6 +45,7 @@ private:
 	bool show = false;
 	bool right;
 	bool collision(int offset);
+	bool collisionBlocker(int offset);
 	bool collisionHead();
 	bool win();
 
