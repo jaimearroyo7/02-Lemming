@@ -47,6 +47,8 @@ public:
 
 	void init();
 	void update();
+	bool mute();
+	void stopLoop();
 	void playLoop(const std::string& filePath);
 	void play(const std::string& filePath);
 	void destroy();
@@ -74,6 +76,7 @@ private:
 	FMOD_RESULT result;
 	unsigned int version;
 	string iniciat = "NO INICIAT";
+	bool muteState = false;
 
 	std::map<std::string, FMOD::Sound*> sound_effect_map;
 	std::map<std::string, FMOD::Sound*> sound_music_map;

@@ -16,7 +16,7 @@ class Lemming
 {
 
 public:
-	void init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, Texture &spritesheet, float cooldown, AudioEngine &audioEngine);
+	void init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, Texture &spritesheet, float cooldown, AudioEngine *audioEngine);
 	int update(int deltaTime, float seconds);
 	void render(float scroll);
 	
@@ -60,7 +60,7 @@ private:
 	Sprite *sprite;
 	VariableTexture *mask;
 	VariableTexture *color;
-	AudioEngine aEngine;
+	AudioEngine *aEngine;
 
 };
 

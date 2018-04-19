@@ -38,23 +38,34 @@ void AudioEngine::update() {
 	fmodSystem->update();
 }
 
-void AudioEngine::playLoop(const std::string & songPath) {
-	cout << endl << endl << "PLAY LOOP" << endl;
-	cout << iniciat << endl;
+bool AudioEngine::mute() {
+	muteState = !muteState;
 	channelBackground->stop();
-	FMOD_RESULT result = fmodSystem->playSound(loadMusic(songPath).m_music, 0, false, &channelBackground);
-	if (result != FMOD_OK) cout << "error playing loop" << result << endl;
-	else cout << "playing loop " << result << endl;
-	cout << endl;
+	channelSoundEffect->stop();
+	return muteState;
+}
+
+void AudioEngine::playLoop(const std::string & songPath) {
+	if (!muteState) {
+		stopLoop();
+		FMOD_RESULT result = fmodSystem->playSound(loadMusic(songPath).m_music, 0, false, &channelBackground);
+		cout << endl;
+	}
+}
+
+void AudioEngine::stopLoop() {
+	channelBackground->stop();
 }
 
 void AudioEngine::play(const std::string & songPath) {
-	cout << endl << endl << "PLAY LOOP" << endl;
-	cout << iniciat << endl;
-	FMOD_RESULT result = fmodSystem->playSound(loadSoundEffect(songPath).m_sound, 0, false, &channelSoundEffect);
-	if (result != FMOD_OK) cout << "error playing loop" << result << endl;
-	else cout << "playing loop " << result << endl;
-	cout << endl;
+	if (!muteState) {
+		cout << "mute state: " << muteState << endl;
+		cout << endl << endl << "PLAY SOUND" << endl;
+		FMOD_RESULT result = fmodSystem->playSound(loadSoundEffect(songPath).m_sound, 0, false, &channelSoundEffect);
+		if (result != FMOD_OK) cout << "error playing loop" << result << endl;
+		else cout << "playing sound " << result << endl;
+		cout << endl;
+	}
 }
 
 void AudioEngine::destroy()

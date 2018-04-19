@@ -93,7 +93,7 @@ void Lemming::createSprite(ShaderProgram &shaderProgram, Texture &spritesheet) {
 		sprite->addKeyframe(BUILDER_OKEY, glm::vec2(7.0f / 16.0f + (float(i) / 16), 8.0f / 14.0f));
 }
 
-void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, Texture &spritesheet, float cooldown, AudioEngine &audioEngine)
+void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, Texture &spritesheet, float cooldown, AudioEngine *audioEngine)
 {
 
 	prevState = WALKING_RIGHT_STATE;
@@ -182,7 +182,7 @@ int Lemming::update(int deltaTime, float seconds)
 
 	if (state == DEAD) return 0;
 	if (explosionCountdown != -1) { 
-		if(explosionCountdown < 5100.0f)
+		if (explosionCountdown < 5100.0f) 
 			explosionCountdown += deltaTime;
 		else if(state != EXPLOSION_STATE){
 			state = EXPLOSION_STATE;
@@ -220,7 +220,7 @@ int Lemming::update(int deltaTime, float seconds)
 		break;
 		case BUILDER_STATE:
 			if (sprite->getKeyframe() == 9)
-				aEngine.play("sounds/THUNK.wav");
+				aEngine->play("sounds/THUNK.wav");
 			sprite->position() += glm::vec2(4 * dir, -1);
 			if (right) {
 				sprite->position() += glm::vec2(-5, 0);
@@ -291,17 +291,23 @@ int Lemming::update(int deltaTime, float seconds)
 			break;
 		case EXPLOSION_STATE:
 			//if (explosionCountdown >= 5000.0f) {
-				if (sprite->getKeyframe() == 14) {
-					pos += glm::vec2(8, 8);
-					for (int y = -radius; y <= radius; y++)
-						for (int x = -radius; x <= radius; x++)
-							if (x*x + y * y <= radius * radius) {
-								if(mask->pixel(pos.x + x, pos.y + y) != 100) mask->setPixel(pos.x + x, pos.y + y, 0);
-								color->setPixel(pos.x + x, pos.y + y, glm::ivec4(0, 0, 0, 0));
-							}
-					state = DEAD;
-					explosionCountdown = -1;
-				}
+			if (sprite->getKeyframe() == 6) {
+				aEngine->play("sounds/OHNO.wav");
+			}
+			if (sprite->getKeyframe() == 14) {
+				aEngine->play("sounds/EXPLODE.wav");
+			}
+			if (sprite->getKeyframe() == 14) {
+				pos += glm::vec2(8, 8);
+				for (int y = -radius; y <= radius; y++)
+					for (int x = -radius; x <= radius; x++)
+						if (x*x + y * y <= radius * radius) {
+							if(mask->pixel(pos.x + x, pos.y + y) != 100) mask->setPixel(pos.x + x, pos.y + y, 0);
+							color->setPixel(pos.x + x, pos.y + y, glm::ivec4(0, 0, 0, 0));
+						}
+				state = DEAD;
+				explosionCountdown = -1;
+			}
 				
 			//}
 			break;
@@ -310,7 +316,7 @@ int Lemming::update(int deltaTime, float seconds)
 			if (sprite->getKeyframe() == 7)
 				state = DEAD;
 			if (sprite->getKeyframe() == 1)
-				aEngine.play("sounds/YIPPEE.wav");
+				aEngine->play("sounds/YIPPEE.wav");
 			break;
 
 		case BLOCKER_STATE:
@@ -439,7 +445,9 @@ int Lemming::update(int deltaTime, float seconds)
 				}
 			}
 
-			
+			if (sprite->getKeyframe() == 18 | sprite->getKeyframe() == 2)
+				aEngine->play("sounds/SLICER.wav");
+			cout << sprite->getKeyframe() << endl;
 		
 			break;
 
@@ -479,6 +487,9 @@ int Lemming::update(int deltaTime, float seconds)
 				else
 					sprite->position() += glm::vec2(0, fall);
 			}
+			if (sprite->getKeyframe() == 0 | sprite->getKeyframe() == 5)
+				aEngine->play("sounds/SCRAPE.wav");
+			cout << sprite->getKeyframe() << endl;
 			break;
 
 		case FALLING_LEFT_STATE:
