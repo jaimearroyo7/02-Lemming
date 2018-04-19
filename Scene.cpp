@@ -282,7 +282,7 @@ void Scene::init(int level)
 {
 	// Select which font you want to use
 	//if (!levelInfo.init("fonts/OpenSans-Regular.ttf"))
-
+	endGameSound = true;
 	time_t theTime = time(NULL);
 	struct tm *aTime = localtime(&theTime);
 	int hour = aTime->tm_hour;
@@ -402,6 +402,15 @@ void Scene::update(int deltaTime)
 	switch (gamestate) {
 		case PLAYING:
 
+			if (numLevel == 3) {
+				if (fire->getKeyframe() == 2) {
+					fireSound = true;
+				}
+				if (fire->getKeyframe() == 1 && fireSound) {
+					aEngine.play("sounds/FIRE.wav");
+					fireSound = false;
+				}
+			}
 
 			if (posX < 140) 
 				scroll -= 1;
@@ -513,7 +522,7 @@ void Scene::update(int deltaTime)
 			if (finish || currentTime > levelTime) {
 				//Si has ganado, hacer lo que quieras.
 				aEngine.stopLoop();
-				aEngine.play("sounds/gewonnen.mp3");
+				
 				pause = false;
 				x2speed = false;
 				if (winTime == 0)
@@ -524,6 +533,10 @@ void Scene::update(int deltaTime)
 					gamestate = WIN;
 					scroll = 0.0f;
 					if (score >= needToWin) {
+						if (endGameSound) {
+							aEngine.play("sounds/gewonnen.mp3");
+							endGameSound = false;
+						}
 						if (onePlayer) {
 							if (numLevel == 4)
 								onePlayer = false;
@@ -1281,6 +1294,8 @@ void Scene::keyPressed(int key)
 					break;
 				}
 			}
+			else if (gamestate == MENU || SELECT_LEVEL)
+				aEngine.playLoop("sounds/mainmenu.mp3");
 		}
 		
 	}
