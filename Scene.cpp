@@ -20,7 +20,7 @@ Scene::Scene()
 	map = NULL;
 
 	//Level 1
-	L1.levelLemmings = 1;
+	L1.levelLemmings = 10;
 	L1.needToWin = 1;
 	L1.mapLength = 512.0;
 	L1.colortexture = "images/fun1.png";
@@ -731,12 +731,12 @@ void Scene::render()
 				levelInfo.render(timeleft, glm::vec2(780, 172 * 3), 32, glm::vec4(0, 1, 0, 1), 0);
 
 				string lemmingsout = "Out: " + to_string(out);
-				levelInfo.render(lemmingsout, glm::vec2(600, 185 * 3), 32, glm::vec4(0, 1, 0, 1), 0);
+				levelInfo.render(lemmingsout, glm::vec2(625, 185 * 3), 32, glm::vec4(0, 1, 0, 1), 0);
 
 				string lemmingsin = "In: " + to_string((score * 100) / totalLemmings) + "%";
 				levelInfo.render(lemmingsin, glm::vec2(780, 185 * 3), 32, glm::vec4(0, 1, 0, 1), 0);
 
-				levelInfo.render(lemmingHover, glm::vec2(600, 172 * 3), 32, glm::vec4(0, 1, 0, 1), 0);
+				levelInfo.render(lemmingHover, glm::vec2(625, 172 * 3), 32, glm::vec4(0, 1, 0, 1), 0);
 			}
 
 			if (numLemmings[BUILDER_STATE] != 0) {
@@ -782,17 +782,17 @@ void Scene::render()
 				seleccionLemming->render(0);
 
 			if (renderSeleccionPause) {
-				seleccionLemming->setPosition(glm::vec2(124, 160));
-				seleccionLemming->render(0);
-			}
-
-			if (renderSeleccionExplosion) {
 				seleccionLemming->setPosition(glm::vec2(145, 160));
 				seleccionLemming->render(0);
 			}
 
-			if (x2speed) {
+			if (renderSeleccionExplosion) {
 				seleccionLemming->setPosition(glm::vec2(165, 160));
+				seleccionLemming->render(0);
+			}
+
+			if (x2speed) {
+				seleccionLemming->setPosition(glm::vec2(185, 160));
 				seleccionLemming->render(0);
 			}
 
@@ -908,7 +908,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 	//   The map is enlarged 3 times and displaced 120 pixels
 	posX = mouseX / 3 + 120;
 	posY = mouseY / 3;
-	//cout << posX << " " << posY << endl;
+	cout << posX << " " << posY << endl;
 	int res = 0;
 	glm::vec2 lemmingidpos;
 	glm::vec2 lemmingnormalpos;
@@ -943,8 +943,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 				int num = (posX - 4 - 120) / 20;
 				switch (num) {
 					case 0:
-						if (lemmingsState != CLIMBER_STATE)
-							aEngine.play("sounds/BEEP.wav");
+						aEngine.play("sounds/BEEP.wav");
 						lemmingsState = CLIMBER_STATE;
 						renderSeleccionLemming = true;
 						lemmingSelected = glm::vec2(2, 160);
@@ -954,8 +953,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						stateSelected = true;
 						break;
 					case 1:
-						if (lemmingsState != EXPLOSION_STATE)
-							aEngine.play("sounds/BEEP.wav");
+						aEngine.play("sounds/BEEP.wav");
 						lemmingsState = EXPLOSION_STATE;
 						renderSeleccionLemming = true;
 						lemmingSelected = glm::vec2(22, 160);
@@ -964,8 +962,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						stateSelected = true;
 						break;
 					case 2:
-						if (lemmingsState != BLOCKER_STATE)
-							aEngine.play("sounds/BEEP.wav");
+						aEngine.play("sounds/BEEP.wav");
 						lemmingsState = BLOCKER_STATE;
 						renderSeleccionLemming = true;
 						lemmingSelected = glm::vec2(43, 160);
@@ -974,8 +971,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						stateSelected = true;
 						break;
 					case 3:
-						if (lemmingsState != BUILDER_STATE)
-							aEngine.play("sounds/BEEP.wav");
+						aEngine.play("sounds/BEEP.wav");
 						lemmingsState = BUILDER_STATE;
 						renderSeleccionLemming = true;
 						lemmingSelected = glm::vec2(63, 160);
@@ -984,8 +980,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						stateSelected = true;
 						break;
 					case 4:
-						if (lemmingsState != BASHER)
-							aEngine.play("sounds/BEEP.wav");
+						aEngine.play("sounds/BEEP.wav");
 						lemmingsState = BASHER;
 						renderSeleccionLemming = true;
 						lemmingSelected = glm::vec2(83, 160);
@@ -994,8 +989,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						stateSelected = true;
 						break;
 					case 5:
-						if (lemmingsState != DIGGER_STATE)
-							aEngine.play("sounds/BEEP.wav");
+						aEngine.play("sounds/BEEP.wav");
 						lemmingsState = DIGGER_STATE;
 						renderSeleccionLemming = true;
 						lemmingSelected = glm::vec2(104, 160);
@@ -1004,13 +998,22 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						stateSelected = true;
 						break;
 					case 6:
+						aEngine.play("sounds/BEEP.wav");
+						lemmingsState = SHOOTER;
+						renderSeleccionLemming = true;
+						lemmingSelected = glm::vec2(124, 160);
+						seleccionLemming->setPosition(lemmingSelected);
+						std::cout << "shooter" << endl;
+						stateSelected = true;
+						break;
+					case 7:
 						//PAUSE
 						aEngine.play("sounds/BEEP.wav");
 						renderSeleccionPause = !renderSeleccionPause;
 						if (renderSeleccionPause) x2speed = false;
 						std::cout << "pasue" << endl;
 						break;
-					case 7:
+					case 8:
 						//FULL EXPLOSION
 						aEngine.play("sounds/BEEP.wav");
 						if (!exploding && allOut) {
@@ -1022,14 +1025,13 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						}
 						std::cout << "Full Explosion" << endl;
 						break;
-					case 8:
+					case 9:
 						//x2 Speed
 						aEngine.play("sounds/BEEP.wav");
 						x2speed = !x2speed;
 						if (x2speed) renderSeleccionPause = false;
 						std::cout << "x2Speed" << endl;
 						break;
-
 				}
 			}
 			break;
