@@ -325,7 +325,7 @@ void Scene::init(int level)
 
 	winTime = 0;
 	scroll = 0;
-
+	gocredits = instruct = false;
 	levelSelectClick = false;
 
 	//load files
@@ -350,6 +350,8 @@ void Scene::init(int level)
 		level2Info.loadFromFile("images/infoLevel2.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		level3Info.loadFromFile("images/infoLevel3.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		level4Info.loadFromFile("images/infoLevel4.png", TEXTURE_PIXEL_FORMAT_RGBA);
+		instr.loadFromFile("images/instrucciones.png", TEXTURE_PIXEL_FORMAT_RGBA);
+		credits.loadFromFile("images/credits.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		winTex.loadFromFile("images/win.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		loseTex.loadFromFile("images/lose.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		aEngine = AudioEngine::AudioEngine();
@@ -584,7 +586,7 @@ void Scene::update(int deltaTime)
 			cursor->update(deltaTime);
 
 			//transition
-			if (onePlayer || levelSelectClick || quit) {
+			if (onePlayer || levelSelectClick || quit || instruct || gocredits) {
 				if (transitionTime == 0) {
 					transitionTime = currentTime;
 					aEngine.play("sounds/BEEPSELECT.wav");
@@ -598,6 +600,10 @@ void Scene::update(int deltaTime)
 					}
 					else if (levelSelectClick)
 						gamestate = SELECT_LEVEL;
+					else if (instruct)
+						gamestate = INSTR;
+					else if (gocredits)
+						gamestate = CREDITS;
 					else
 						exit(0); //el usuario ha apretado al boton exit del menú, después de la transición se cierra el juego
 						
@@ -699,6 +705,51 @@ void Scene::update(int deltaTime)
 				}
 			}
 			break;
+		case INSTR:
+			cursor->setPosition(glm::vec2(posX - 120 - 8, posY - 8));
+			cursor->update(deltaTime);
+
+			if (levelSelectClick) {
+				if (transitionTime == 0) {
+					aEngine.play("sounds/BEEPSELECT.wav");
+					transitionTime = currentTime;
+				}
+
+				alpha = 1 - (currentTime - transitionTime) / 800.0f;
+				if (currentTime - transitionTime > 800) {
+					gamestate = MENU;
+					if (free) {
+						freeScene();
+					}
+					init(numLevel);
+					levelSelectClick = false;
+					transitionTime = 0;
+				}
+			}
+			break;
+		case CREDITS:
+			cursor->setPosition(glm::vec2(posX - 120 - 8, posY - 8));
+			cursor->update(deltaTime);
+
+			if (levelSelectClick) {
+				if (transitionTime == 0) {
+					aEngine.play("sounds/BEEPSELECT.wav");
+					transitionTime = currentTime;
+				}
+
+				alpha = 1 - (currentTime - transitionTime) / 800.0f;
+				if (currentTime - transitionTime > 800) {
+					gamestate = MENU;
+					if (free) {
+						freeScene();
+					}
+					init(numLevel);
+					levelSelectClick = false;
+					transitionTime = 0;
+				}
+			}
+			break;
+
 	}
 }
 
@@ -925,32 +976,32 @@ void Scene::render()
 
 			need = (100 * needToWin) / totalLemmings;
 			rescued = (100 * score) / totalLemmings;
-			digits->setPosition(glm::vec2(179+5, 27));
+			digits->setPosition(glm::vec2(179+5, 37));
 			if (need >= 100) {
 				digits->changeAnimation(1);
 				digits->render(0);
 			}
-			digits->setPosition(glm::vec2(188+5, 27));
+			digits->setPosition(glm::vec2(188+5, 37));
 			digits->changeAnimation((need / 10) % 10);
 			cout << (need / 10) / 10 << endl;
 			if ((need / 10) % 10 != 0 || need == 100)
 				digits->render(0);
 
-			digits->setPosition(glm::vec2(197+5, 27));
+			digits->setPosition(glm::vec2(197+5, 37));
 			digits->changeAnimation(need%10);
 			digits->render(0);
 
-			digits->setPosition(glm::vec2(179+5, 37));
+			digits->setPosition(glm::vec2(179+7, 27));
 			if (rescued >= 100) {
 				digits->changeAnimation(1);
 				digits->render(0);
 			}
-			digits->setPosition(glm::vec2(188+5, 37));
+			digits->setPosition(glm::vec2(188+7, 27));
 			digits->changeAnimation((rescued / 10) % 10);
 			if((rescued / 10) % 10 != 0 || rescued == 100)
 				digits->render(0);
 
-			digits->setPosition(glm::vec2(197+5, 37));
+			digits->setPosition(glm::vec2(197+7, 27));
 			digits->changeAnimation(rescued % 10);
 			digits->render(0);
 
@@ -960,6 +1011,40 @@ void Scene::render()
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
 
 			cursor->render(0);
+			break;
+
+		case INSTR:
+			imagesProgram.use();
+			imagesProgram.setUniformMatrix4f("projection", projection);
+			imagesProgram.setUniform4f("color", alpha, alpha, alpha, 1.0f);
+			imagesProgram.setTextureUnit("alpha", 1.0f);
+			imagesProgram.setUniformMatrix4f("modelview", modelview);
+			menu->render(instr);
+
+			simpleTexProgram.use();
+			simpleTexProgram.setUniformMatrix4f("projection", projection);
+			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
+
+			cursor->render(0);
+
+			break;
+		case CREDITS:
+			imagesProgram.use();
+			imagesProgram.setUniformMatrix4f("projection", projection);
+			imagesProgram.setUniform4f("color", alpha, alpha, alpha, 1.0f);
+			imagesProgram.setTextureUnit("alpha", 1.0f);
+			imagesProgram.setUniformMatrix4f("modelview", modelview);
+			menu->render(credits);
+
+			simpleTexProgram.use();
+			simpleTexProgram.setUniformMatrix4f("projection", projection);
+			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
+
+			cursor->render(0);
+
+
 			break;
 	}
 
@@ -1117,6 +1202,12 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 				if (posX >= 381 && posX < 434 && posY > 106 && posY < 167) {
 					quit = true;
 				}
+				if (posX >= 256 && posX < 308 && posY > 106 && posY < 167) {
+					instruct = true;
+				}
+				if (posX >= 318 && posX < 372 && posY > 106 && posY < 167) {
+					gocredits = true;
+				}
 			}
 			break;
 		case SELECT_LEVEL:
@@ -1146,11 +1237,21 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 		case LEVEL_INFO:
 			if (bLeftButton)
 				levelSelectClick = true;
+			break;
 		case WIN:
 			if (bLeftButton)
 				levelSelectClick = true;
 			if (bRightButton)
 				goToMenu = true;
+			break;
+		case INSTR:
+			if (bLeftButton && posX > 400 && posX < 423 && posY > 147 && posY < 170)
+				levelSelectClick = true;
+			break;
+		case CREDITS:
+			if (bLeftButton && posX > 400 && posX < 423 && posY > 147 && posY < 170)
+				levelSelectClick = true;
+			break;
 	}
 }
 

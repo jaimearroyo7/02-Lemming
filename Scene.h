@@ -54,7 +54,7 @@ private:
 private:
 	enum GameState
 	{
-		PLAYING, MENU, PAUSE, SELECT_LEVEL, LEVEL_INFO, WIN, LOSE
+		PLAYING, MENU, PAUSE, SELECT_LEVEL, LEVEL_INFO, WIN, LOSE, INSTR, CREDITS
 	};
 
 	GameState gamestate;
@@ -86,7 +86,8 @@ private:
 	Texture level1Info, level2Info, level3Info, level4Info, level5Info;
 
 	Texture winTex, loseTex;
-
+	Texture credits, instr;
+	bool instruct, gocredits;
 	TexturedQuad *UI;
 	Texture UITexture;
 
