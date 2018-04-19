@@ -58,7 +58,7 @@ void Game::mouseMove(int x, int y)
 {
 	mouseX = x;
 	mouseY = y;
-	scene.mouseMoved(mouseX, mouseY, bLeftMouse, bRightMouse);
+	scene.mouseMoved(mouseX, mouseY, false, false);
 }
 
 void Game::mousePress(int button)
