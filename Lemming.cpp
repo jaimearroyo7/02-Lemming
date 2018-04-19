@@ -553,6 +553,8 @@ int Lemming::update(int deltaTime, float seconds)
 		case WALKING_RIGHT_STATE:
 			return keepWalking(dir);
 			break;
+		case SHOOTER:
+			break;
 		case RESPAWN:
 			break;
 	}
@@ -732,6 +734,12 @@ int Lemming::setState(int stateId) {
 			state = DEAD;
 			return 1;
 		break;
+		case SHOOTER:
+			if (state != FALLING_LEFT_STATE && state != FALLING_RIGHT_STATE && state != BLOCKER_STATE && state != CLIMBER_STATE) {
+				state = SHOOTER;
+				sprite->changeAnimation(BLOCKER_ANIM);
+				return 1;
+			}
 		default:
 			break;
 	}
