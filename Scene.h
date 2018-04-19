@@ -30,6 +30,7 @@ public:
 	void render();
 	
 	void mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButton);
+	void mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButton);
 	void specialKeyPressed(int key);
 	void keyPressed(int key);
 	void entryfuncCallback(int state);
@@ -48,6 +49,7 @@ private:
 	void initSeleccion();
 	void initDigits();
 	void initFire();
+	void initPistolBala();
 
 	void freeScene();
 
@@ -141,8 +143,13 @@ private:
 
 	Sprite *pistol;
 	Texture spritesheetPistol;
+	Sprite *bala;
+	Texture spritesheetBala;
+
 	bool shooting;
 	glm::vec2 shootpos;
+	glm::vec2 objpos;
+
 
 	glm::vec2 lemmingSelected;
 	Sprite *seleccionLemming;

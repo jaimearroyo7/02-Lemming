@@ -122,18 +122,20 @@ void Scene::initCursor() {
 	spritesheetCursor.loadFromFile("images/cursor.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	spritesheetCursor.setMinFilter(GL_NEAREST);
 	spritesheetCursor.setMagFilter(GL_NEAREST);
-	cursor = Sprite::createSprite(glm::ivec2(15, 15), glm::vec2(0.5f, 1.0f), &spritesheetCursor, &simpleTexProgram);
+	cursor = Sprite::createSprite(glm::ivec2(15, 15), glm::vec2(1.0f/3.0f, 1.0f), &spritesheetCursor, &simpleTexProgram);
 
 
 	/*	Animation 0: Cuadrado
 		Animation 1: Flecha		*/
 
-	cursor->setNumberAnimations(2);
+	cursor->setNumberAnimations(3);
 	cursor->setAnimationSpeed(0, 1);
 	cursor->setAnimationSpeed(1, 1);
+	cursor->setAnimationSpeed(2, 1);
 	
 	cursor->addKeyframe(0, glm::vec2(0.0f, 0.0f));
-	cursor->addKeyframe(1, glm::vec2(0.5f, 0.0f));
+	cursor->addKeyframe(1, glm::vec2(1.0f / 3.0f, 0.0f));
+	cursor->addKeyframe(2, glm::vec2(2.0f / 3.0f, 0.0f));
 
 	cursor->changeAnimation(1);
 	cursor->setPosition(glm::vec2(posX, posY));
@@ -218,6 +220,30 @@ void Scene::initFire() {
 		fire2->addKeyframe(0, glm::vec2(0.5f, float(i) / 10.0f));
 	fire2->changeAnimation(0);
 	fire2->setPosition(glm::vec2(628, 53));
+}
+
+void Scene::initPistolBala() {
+	spritesheetPistol.loadFromFile("images/pistol.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	spritesheetPistol.setMinFilter(GL_NEAREST);
+	spritesheetPistol.setMagFilter(GL_NEAREST);
+	pistol = Sprite::createSprite(glm::vec2(15,7), glm::vec2(0.5f, 1), &spritesheetPistol, &simpleTexProgram);
+	pistol->setNumberAnimations(2);
+	pistol->setAnimationSpeed(0, 1);
+	pistol->setAnimationSpeed(1, 1);
+	pistol->addKeyframe(0, glm::vec2(0.0f, 0.0f));
+	pistol->addKeyframe(1, glm::vec2(0.5f, 0.0f));
+	pistol->changeAnimation(0);
+	pistol->setPosition(glm::vec2(100,100));
+
+	spritesheetBala.loadFromFile("images/pistol.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	spritesheetBala.setMinFilter(GL_NEAREST);
+	spritesheetBala.setMagFilter(GL_NEAREST);
+	bala = Sprite::createSprite(glm::vec2(15, 7), glm::vec2(0.5f, 1), &spritesheetBala, &simpleTexProgram);
+	bala->setNumberAnimations(2);
+	bala->setAnimationSpeed(0, 1);
+	bala->setAnimationSpeed(1, 1);
+
+	bala->setPosition(glm::vec2(100, 100));
 }
 
 void Scene::initLevel(const Level &l) {
@@ -328,6 +354,7 @@ void Scene::init(int level)
 	gocredits = instruct = false;
 	levelSelectClick = false;
 
+
 	//load files
 	if (!load) {
 		if (!levelInfo.init("fonts/OpenSans-Bold.ttf"))
@@ -340,6 +367,7 @@ void Scene::init(int level)
 		initCursor();
 		initFire();
 		initDigits();
+		initPistolBala();
 		load = true;
 		texCoords[0] = glm::vec2(0.f, 0.f); texCoords[1] = glm::vec2(1.0f, 1.0f);
 		menu = TexturedQuad::createTexturedQuad(geom, texCoords, imagesProgram);
@@ -357,6 +385,7 @@ void Scene::init(int level)
 		aEngine = AudioEngine::AudioEngine();
 		aEngine.init();
 	}
+	cursor->changeAnimation(1);
 	switch (gamestate) {
 		case PLAYING:
 			inMenu = false;
@@ -413,6 +442,9 @@ void Scene::freeScene(){
 	map->free();
 	UI->free();
 	openDoor->free();
+	fire->free();
+	pistol->free();
+	bala->free();
 	finishDoor->free();
 }
 
@@ -515,7 +547,10 @@ void Scene::update(int deltaTime)
 			//actualizar el cursor
 			cursor->setPosition(glm::vec2(posX - 120 - 8, posY - 8));
 
-			if (id == -1) {
+			if (shooting) {
+				cursor->changeAnimation(2);
+			}
+			else if (id == -1) {
 				cursor->changeAnimation(1);
 			}
 			else {
@@ -772,6 +807,9 @@ void Scene::render()
 				fire->render(0);
 				fire2->render(0);
 			}
+
+
+
 			if (true) {
 				//se renderiza el mapa encima de esos dos sprites para poder ver la escalera del builder si pasa sobre alguna puerta
 				maskedTexProgram.use();
@@ -790,6 +828,19 @@ void Scene::render()
 				lemmings[i].render(0);
 			}
 			cursor->render(scroll);
+			if (shooting) {
+				cout << 120 + shootpos.x  << " " << posX << endl;
+				if (posX >= shootpos.x - scroll) {
+					pistol->changeAnimation(0);
+					pistol->setPosition(glm::vec2(shootpos.x - 120 + 4, shootpos.y));
+				}
+				else {
+					pistol->changeAnimation(1);
+					pistol->setPosition(glm::vec2(shootpos.x - 120 - 20, shootpos.y));
+				}
+				pistol->render(0);
+			}
+
 
 			textProgram.use();
 			textProgram.setUniformMatrix4f("projection", projection2);
@@ -1050,7 +1101,210 @@ void Scene::render()
 
 }
 
+void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButton) {
+	int res = 0;
+	glm::vec2 lemmingidpos;
+	glm::vec2 lemmingnormalpos;
+	switch (gamestate) {
+	case PLAYING:
+		if (!shooting) {
+			if (bLeftButton && posY < 160) {
+				if (id != -1 && stateSelected) {
+					if (numLemmings[lemmingsState] > 0) {
+						res = lemmings[id].setState(lemmingsState);
+						numLemmings[lemmingsState] -= res;
+						////////////////////////
+						////calcular lemmings inmunes a los blockers, para evitar que queden atrapados
+						////////////////////////
+						if (res == 1 && lemmingsState == BLOCKER_STATE) {
+							lemmingidpos = lemmings[id].getSprite()->position() + glm::vec2(120, 0);
+							for (int i = 0; i < lemmings.size(); ++i) {
+								lemmingnormalpos = lemmings[i].getSprite()->position() + glm::vec2(127, 14);
+								if (id != i && lemmingnormalpos.y <= lemmingidpos.y + 15 && lemmingnormalpos.y >= lemmingidpos.y + 6)
+									if ((lemmingnormalpos.x <= lemmingidpos.x + 13 && lemmingnormalpos.x >= lemmingidpos.x + 3) ||
+										(lemmingnormalpos.x + 1 <= lemmingidpos.x + 13 && lemmingnormalpos.x + 1 >= lemmingidpos.x + 3))
+										lemmings[i].setInmune();
+							}
+						}
+						if (res == 1 && lemmingsState == SHOOTER) {
+							shootpos = lemmings[id].getSprite()->position() + glm::vec2(127, 7);
+							cursor->changeAnimation(2);
+							shooting = true;
+						}
+					}
+				}
+				//eraseMask(mouseX, mouseY);
+			}
+			//interfaz seleccionable
+			else if (bLeftButton && posY >= 160) {
+				//std::cout << posX << " " << posY << endl;
+				int num = (posX - 4 - 120) / 20;
+				switch (num) {
+				case 0:
+					aEngine.play("sounds/BEEP.wav");
+					lemmingsState = CLIMBER_STATE;
+					renderSeleccionLemming = true;
+					lemmingSelected = glm::vec2(2, 160);
+					seleccionLemming->setPosition(lemmingSelected);
 
+					//std::cout << "climber" << endl;
+					stateSelected = true;
+					break;
+				case 1:
+					aEngine.play("sounds/BEEP.wav");
+					lemmingsState = EXPLOSION_STATE;
+					renderSeleccionLemming = true;
+					lemmingSelected = glm::vec2(22, 160);
+					seleccionLemming->setPosition(lemmingSelected);
+					std::cout << "Explosion " << endl;
+					stateSelected = true;
+					break;
+				case 2:
+					aEngine.play("sounds/BEEP.wav");
+					lemmingsState = BLOCKER_STATE;
+					renderSeleccionLemming = true;
+					lemmingSelected = glm::vec2(43, 160);
+					seleccionLemming->setPosition(lemmingSelected);
+					std::cout << "blocker" << endl;
+					stateSelected = true;
+					break;
+				case 3:
+					aEngine.play("sounds/BEEP.wav");
+					lemmingsState = BUILDER_STATE;
+					renderSeleccionLemming = true;
+					lemmingSelected = glm::vec2(63, 160);
+					seleccionLemming->setPosition(lemmingSelected);
+					std::cout << "Builder" << endl;
+					stateSelected = true;
+					break;
+				case 4:
+					aEngine.play("sounds/BEEP.wav");
+					lemmingsState = BASHER;
+					renderSeleccionLemming = true;
+					lemmingSelected = glm::vec2(83, 160);
+					seleccionLemming->setPosition(lemmingSelected);
+					std::cout << "basher" << endl;
+					stateSelected = true;
+					break;
+				case 5:
+					aEngine.play("sounds/BEEP.wav");
+					lemmingsState = DIGGER_STATE;
+					renderSeleccionLemming = true;
+					lemmingSelected = glm::vec2(104, 160);
+					seleccionLemming->setPosition(lemmingSelected);
+					std::cout << "digger" << endl;
+					stateSelected = true;
+					break;
+				case 6:
+					aEngine.play("sounds/BEEP.wav");
+					lemmingsState = SHOOTER;
+					renderSeleccionLemming = true;
+					lemmingSelected = glm::vec2(124, 160);
+					seleccionLemming->setPosition(lemmingSelected);
+					std::cout << "shooter" << endl;
+					stateSelected = true;
+					break;
+				case 7:
+					//PAUSE
+					aEngine.play("sounds/BEEP.wav");
+					renderSeleccionPause = !renderSeleccionPause;
+					if (renderSeleccionPause) x2speed = false;
+					std::cout << "pasue" << endl;
+					break;
+				case 8:
+					//FULL EXPLOSION
+					aEngine.play("sounds/BEEP.wav");
+					if (!exploding && allOut) {
+						renderSeleccionExplosion = true;
+						exploding = true;
+						for (int i = 0; i < lemmings.size(); ++i) {
+							lemmings[i].setState(EXPLOSION_STATE);
+						}
+					}
+					std::cout << "Full Explosion" << endl;
+					break;
+				case 9:
+					//x2 Speed
+					aEngine.play("sounds/BEEP.wav");
+					x2speed = !x2speed;
+					if (x2speed) renderSeleccionPause = false;
+					std::cout << "x2Speed" << endl;
+					break;
+				}
+			}
+		}
+		else {
+			//Codigo de obtener posicion de disparo y calculos varios
+			objpos = glm::vec2(float(posX), float(posY));
+			shooting = false;
+			cursor->changeAnimation(2);
+
+		}
+		break;
+
+	case MENU:
+		if (bLeftButton) {
+			if (posX >= 120 && posX < 180 && posY > 106 && posY < 167) {
+				onePlayer = true;
+			}
+			if (posX >= 194 && posX < 254 && posY > 106 && posY < 167) {
+				levelSelectClick = true;
+			}
+			if (posX >= 381 && posX < 434 && posY > 106 && posY < 167) {
+				quit = true;
+			}
+			if (posX >= 256 && posX < 308 && posY > 106 && posY < 167) {
+				instruct = true;
+			}
+			if (posX >= 318 && posX < 372 && posY > 106 && posY < 167) {
+				gocredits = true;
+			}
+		}
+		break;
+	case SELECT_LEVEL:
+		if (bLeftButton) {
+			if (posX >= 128 && posX < 180 && posY > 106 && posY < 167) {
+				numLevel = 1;
+				levelSelectClick = true;
+			}
+			if (posX >= 194 && posX < 247 && posY > 106 && posY < 167) {
+				numLevel = 2;
+				levelSelectClick = true;
+			}
+			if (posX >= 256 && posX < 308 && posY > 106 && posY < 167) {
+				numLevel = 3;
+				levelSelectClick = true;
+			}
+			if (posX >= 318 && posX < 372 && posY > 106 && posY < 167) {
+				numLevel = 4;
+				levelSelectClick = true;
+			}
+			if (posX >= 381 && posX < 432 && posY > 106 && posY < 167) {
+				numLevel = 0;
+				levelSelectClick = true;
+			}
+		}
+		break;
+	case LEVEL_INFO:
+		if (bLeftButton)
+			levelSelectClick = true;
+		break;
+	case WIN:
+		if (bLeftButton)
+			levelSelectClick = true;
+		if (bRightButton)
+			goToMenu = true;
+		break;
+	case INSTR:
+		if (bLeftButton && posX > 400 && posX < 423 && posY > 147 && posY < 170)
+			levelSelectClick = true;
+		break;
+	case CREDITS:
+		if (bLeftButton && posX > 400 && posX < 423 && posY > 147 && posY < 170)
+			levelSelectClick = true;
+		break;
+	}
+}
 void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButton)
 {
 
@@ -1058,201 +1312,8 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 	//   The map is enlarged 3 times and displaced 120 pixels
 	posX = mouseX / 3 + 120;
 	posY = mouseY / 3;
-	cout << posX << " " << posY << endl;
-	int res = 0;
-	glm::vec2 lemmingidpos;
-	glm::vec2 lemmingnormalpos;
-	switch (gamestate) {
-		case PLAYING:
-			if (!shooting) {
-				if (bLeftButton && posY < 160) {
-					if (id != -1 && stateSelected) {
-						if (numLemmings[lemmingsState] > 0) {
-							res = lemmings[id].setState(lemmingsState);
-							numLemmings[lemmingsState] -= res;
-							////////////////////////
-							////calcular lemmings inmunes a los blockers, para evitar que queden atrapados
-							////////////////////////
-							if (res == 1 && lemmingsState == BLOCKER_STATE) {
-								lemmingidpos = lemmings[id].getSprite()->position() + glm::vec2(120, 0);
-								for (int i = 0; i < lemmings.size(); ++i) {
-									lemmingnormalpos = lemmings[i].getSprite()->position() + glm::vec2(127, 14);
-									if (id != i && lemmingnormalpos.y <= lemmingidpos.y + 15 && lemmingnormalpos.y >= lemmingidpos.y + 6)
-										if ((lemmingnormalpos.x <= lemmingidpos.x + 13 && lemmingnormalpos.x >= lemmingidpos.x + 3) ||
-											(lemmingnormalpos.x + 1 <= lemmingidpos.x + 13 && lemmingnormalpos.x + 1 >= lemmingidpos.x + 3))
-											lemmings[i].setInmune();
-								}
-							}
-
-						}
-					}
-					//eraseMask(mouseX, mouseY);
-				}
-				//interfaz seleccionable
-				else if (bLeftButton && posY >= 160) {
-					//std::cout << posX << " " << posY << endl;
-					int num = (posX - 4 - 120) / 20;
-					switch (num) {
-					case 0:
-						aEngine.play("sounds/BEEP.wav");
-						lemmingsState = CLIMBER_STATE;
-						renderSeleccionLemming = true;
-						lemmingSelected = glm::vec2(2, 160);
-						seleccionLemming->setPosition(lemmingSelected);
-
-						//std::cout << "climber" << endl;
-						stateSelected = true;
-						break;
-					case 1:
-						aEngine.play("sounds/BEEP.wav");
-						lemmingsState = EXPLOSION_STATE;
-						renderSeleccionLemming = true;
-						lemmingSelected = glm::vec2(22, 160);
-						seleccionLemming->setPosition(lemmingSelected);
-						std::cout << "Explosion " << endl;
-						stateSelected = true;
-						break;
-					case 2:
-						aEngine.play("sounds/BEEP.wav");
-						lemmingsState = BLOCKER_STATE;
-						renderSeleccionLemming = true;
-						lemmingSelected = glm::vec2(43, 160);
-						seleccionLemming->setPosition(lemmingSelected);
-						std::cout << "blocker" << endl;
-						stateSelected = true;
-						break;
-					case 3:
-						aEngine.play("sounds/BEEP.wav");
-						lemmingsState = BUILDER_STATE;
-						renderSeleccionLemming = true;
-						lemmingSelected = glm::vec2(63, 160);
-						seleccionLemming->setPosition(lemmingSelected);
-						std::cout << "Builder" << endl;
-						stateSelected = true;
-						break;
-					case 4:
-						aEngine.play("sounds/BEEP.wav");
-						lemmingsState = BASHER;
-						renderSeleccionLemming = true;
-						lemmingSelected = glm::vec2(83, 160);
-						seleccionLemming->setPosition(lemmingSelected);
-						std::cout << "basher" << endl;
-						stateSelected = true;
-						break;
-					case 5:
-						aEngine.play("sounds/BEEP.wav");
-						lemmingsState = DIGGER_STATE;
-						renderSeleccionLemming = true;
-						lemmingSelected = glm::vec2(104, 160);
-						seleccionLemming->setPosition(lemmingSelected);
-						std::cout << "digger" << endl;
-						stateSelected = true;
-						break;
-					case 6:
-						aEngine.play("sounds/BEEP.wav");
-						lemmingsState = SHOOTER;
-						renderSeleccionLemming = true;
-						lemmingSelected = glm::vec2(124, 160);
-						seleccionLemming->setPosition(lemmingSelected);
-						std::cout << "shooter" << endl;
-						stateSelected = true;
-						break;
-					case 7:
-						//PAUSE
-						aEngine.play("sounds/BEEP.wav");
-						renderSeleccionPause = !renderSeleccionPause;
-						if (renderSeleccionPause) x2speed = false;
-						std::cout << "pasue" << endl;
-						break;
-					case 8:
-						//FULL EXPLOSION
-						aEngine.play("sounds/BEEP.wav");
-						if (!exploding && allOut) {
-							renderSeleccionExplosion = true;
-							exploding = true;
-							for (int i = 0; i < lemmings.size(); ++i) {
-								lemmings[i].setState(EXPLOSION_STATE);
-							}
-						}
-						std::cout << "Full Explosion" << endl;
-						break;
-					case 9:
-						//x2 Speed
-						aEngine.play("sounds/BEEP.wav");
-						x2speed = !x2speed;
-						if (x2speed) renderSeleccionPause = false;
-						std::cout << "x2Speed" << endl;
-						break;
-					}
-				}
-			}
-			else {
-				//Codigo de obtener posicion de disparo y calculos varios
-			}
-			break;
-
-		case MENU:
-			if (bLeftButton) {
-				if (posX >= 120 && posX < 180 && posY > 106 && posY < 167) {
-					onePlayer = true;
-				}
-				if (posX >= 194 && posX < 254 && posY > 106 && posY < 167) {
-					levelSelectClick = true;
-				}
-				if (posX >= 381 && posX < 434 && posY > 106 && posY < 167) {
-					quit = true;
-				}
-				if (posX >= 256 && posX < 308 && posY > 106 && posY < 167) {
-					instruct = true;
-				}
-				if (posX >= 318 && posX < 372 && posY > 106 && posY < 167) {
-					gocredits = true;
-				}
-			}
-			break;
-		case SELECT_LEVEL:
-			if (bLeftButton) {
-				if (posX >= 128 && posX < 180 && posY > 106 && posY < 167) {
-					numLevel = 1;
-					levelSelectClick = true;
-				}
-				if (posX >= 194 && posX < 247 && posY > 106 && posY < 167) {
-					numLevel = 2;
-					levelSelectClick = true;
-				}
-				if (posX >= 256 && posX < 308 && posY > 106 && posY < 167) {
-					numLevel = 3;
-					levelSelectClick = true;
-				}
-				if (posX >= 318 && posX < 372 && posY > 106 && posY < 167) {
-					numLevel = 4;
-					levelSelectClick = true;
-				}
-				if (posX >= 381 && posX < 432 && posY > 106 && posY < 167) {
-					numLevel = 0;
-					levelSelectClick = true;
-				}
-			}
-			break;
-		case LEVEL_INFO:
-			if (bLeftButton)
-				levelSelectClick = true;
-			break;
-		case WIN:
-			if (bLeftButton)
-				levelSelectClick = true;
-			if (bRightButton)
-				goToMenu = true;
-			break;
-		case INSTR:
-			if (bLeftButton && posX > 400 && posX < 423 && posY > 147 && posY < 170)
-				levelSelectClick = true;
-			break;
-		case CREDITS:
-			if (bLeftButton && posX > 400 && posX < 423 && posY > 147 && posY < 170)
-				levelSelectClick = true;
-			break;
-	}
+	//cout << posX << " " << posY << endl;
+	
 }
 
 void Scene::specialKeyPressed(int key) {
@@ -1430,6 +1491,8 @@ void Scene::keyPressed(int key)
 			gamestate = MENU;
 			onePlayer = false;
 			levelSelectClick = false;
+			x2speed = false;
+			pause = false;
 			init(0);
 
 		}
