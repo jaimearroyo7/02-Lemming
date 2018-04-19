@@ -46,6 +46,7 @@ private:
 	void initFinishDoor(const Level &l);
 	void initCursor();
 	void initSeleccion();
+	void initDigits();
 	void initFire();
 
 	void freeScene();
@@ -81,7 +82,7 @@ private:
 
 	Texture level1Info, level2Info, level3Info, level4Info, level5Info;
 
-	Texture background;
+	Texture winTex, loseTex;
 
 	TexturedQuad *UI;
 	Texture UITexture;
@@ -100,8 +101,8 @@ private:
 
 	enum LemmingState
 	{
-		BASHER, DIGGER_STATE, CLIMBER_STATE, EXPLOSION_STATE, BLOCKER_STATE, BUILDER_STATE, WALKING_LEFT_STATE,
-		WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DEAD, WIN_STATE, RESPAWN, VOLTERETA, BUILDER_OK, SHOOTER
+		BASHER, DIGGER_STATE, CLIMBER_STATE, EXPLOSION_STATE, BLOCKER_STATE, BUILDER_STATE, SHOOTER, WALKING_LEFT_STATE,
+		WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DEAD, WIN_STATE, RESPAWN, VOLTERETA, BUILDER_OK
 	};
 
 	int id;
@@ -131,6 +132,14 @@ private:
 	Sprite *fire2;
 	Texture spritesheetFire;
 
+	Sprite *digits;
+	Texture spritesheetDigits;
+
+	Sprite *pistol;
+	Texture spritesheetPistol;
+	bool shooting;
+	glm::vec2 shootpos;
+
 	glm::vec2 lemmingSelected;
 	Sprite *seleccionLemming;
 	Texture spritesheetSeleccionLemming;
@@ -144,7 +153,7 @@ private:
 	string lemmingHover;
 	int totalLemmings;
 	int out, in;
-	int numLemmings[6];
+	int numLemmings[7];
 	
 	Text levelInfo;
 	Text countdownText;

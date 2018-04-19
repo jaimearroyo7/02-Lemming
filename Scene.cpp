@@ -20,7 +20,7 @@ Scene::Scene()
 	map = NULL;
 
 	//Level 1
-	L1.levelLemmings = 10;
+	L1.levelLemmings = 14;
 	L1.needToWin = 1;
 	L1.mapLength = 512.0;
 	L1.colortexture = "images/fun1.png";
@@ -38,6 +38,7 @@ Scene::Scene()
 	L1.numLemmings[3] = 4;
 	L1.numLemmings[4] = 5;
 	L1.numLemmings[5] = 6;
+	L1.numLemmings[6] = 60;
 	L1.bounds = glm::vec4(-100, 360, 160, 2);
 	L1.levelSong = "sounds/lemmings.mid";
 
@@ -60,6 +61,7 @@ Scene::Scene()
 	L2.numLemmings[3] = 40;
 	L2.numLemmings[4] = 50;
 	L2.numLemmings[5] = 60;
+	L2.numLemmings[6] = 60;
 	L2.bounds = glm::vec4(-100, 848-120-30, 160, 2);
 	L2.levelSong = "sounds/lvl2.mp3";
 
@@ -81,6 +83,7 @@ Scene::Scene()
 	L3.numLemmings[3] = 40;
 	L3.numLemmings[4] = 50;
 	L3.numLemmings[5] = 60;
+	L3.numLemmings[6] = 60;
 	L3.ratio = 1;
 	L3.bounds = glm::vec4(-100, 1211 - 120 - 30, 160, 2);
 	L3.levelSong = "sounds/lvl3.mp3";
@@ -103,6 +106,7 @@ Scene::Scene()
 	L4.numLemmings[3] = 40;
 	L4.numLemmings[4] = 50;
 	L4.numLemmings[5] = 60;
+	L4.numLemmings[6] = 60;
 	L4.ratio = 2;
 	L4.bounds = glm::vec4(-100, 1100 - 120 - 30, 160, 2);
 	L4.levelSong = "sounds/lvl4.mp3";
@@ -166,6 +170,21 @@ void Scene::initOpenDoor(const Level &l) {
 	openDoor->setPosition(l.openDoorPos);
 }
 
+void Scene::initDigits() {
+	spritesheetDigits.loadFromFile("images/digits.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	spritesheetDigits.setMinFilter(GL_NEAREST);
+	spritesheetDigits.setMagFilter(GL_NEAREST);
+	digits = Sprite::createSprite(glm::ivec2(8, 8), glm::vec2(1.0f / 10.0f, 1), &spritesheetDigits, &simpleTexProgram);
+	digits->setNumberAnimations(10);
+	for (int i = 0; i < 10; i++) {
+		digits->setAnimationSpeed(0, 1);
+		digits->addKeyframe(i, glm::vec2(float(i) / 10.0f, 0.0f));
+	}
+	digits->changeAnimation(0);
+
+	//openDoor->setPosition(l.openDoorPos);
+}
+
 void Scene::initFinishDoor(const Level &l) {
 	spritesheetfinishDoor.loadFromFile(l.finishDoortexture, TEXTURE_PIXEL_FORMAT_RGBA);
 	spritesheetfinishDoor.setMinFilter(GL_NEAREST);
@@ -218,13 +237,14 @@ void Scene::initLevel(const Level &l) {
 	levelTime = l.levelTime;
 	needToWin = l.needToWin;
 	bounds = l.bounds;
+	shooting = false;
 	finish = allOut = false;
 	stateSelected = false;
 	pause = x2speed = exploding = false;
 	renderSeleccionPause = renderSeleccionExplosion = renderSeleccionLemming = false;
 	scroll = 0.0f;
 
-	for (int i = 0; i < 6; ++i) {
+	for (int i = 0; i < 7; ++i) {
 		numLemmings[i] = l.numLemmings[i];
 	}
 	texCoords[0] = glm::vec2(0.0f, 0.0f);
@@ -319,6 +339,7 @@ void Scene::init(int level)
 		initShaders();
 		initCursor();
 		initFire();
+		initDigits();
 		load = true;
 		texCoords[0] = glm::vec2(0.f, 0.f); texCoords[1] = glm::vec2(1.0f, 1.0f);
 		menu = TexturedQuad::createTexturedQuad(geom, texCoords, imagesProgram);
@@ -329,7 +350,8 @@ void Scene::init(int level)
 		level2Info.loadFromFile("images/infoLevel2.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		level3Info.loadFromFile("images/infoLevel3.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		level4Info.loadFromFile("images/infoLevel4.png", TEXTURE_PIXEL_FORMAT_RGBA);
-		background.loadFromFile("images/background.png", TEXTURE_PIXEL_FORMAT_RGBA);
+		winTex.loadFromFile("images/win.png", TEXTURE_PIXEL_FORMAT_RGBA);
+		loseTex.loadFromFile("images/lose.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		aEngine = AudioEngine::AudioEngine();
 		aEngine.init();
 	}
@@ -664,7 +686,8 @@ void Scene::render()
 {
 	glm::mat4 modelview = glm::mat4(1.0f);
 	glm::mat4 projection2 = glm::ortho(scroll, scroll + float(CAMERA_WIDTH - 1), float(CAMERA_HEIGHT - 1), 0.f);
-
+	int need;
+	int rescued;
 	switch (gamestate) {
 		case PLAYING:
 			
@@ -865,29 +888,51 @@ void Scene::render()
 			imagesProgram.setUniform4f("color", alpha, alpha, alpha, 1.0f);
 			imagesProgram.setTextureUnit("alpha", 1.0f);
 			imagesProgram.setUniformMatrix4f("modelview", modelview);
-			menu->render(background);
+			if (needToWin <= score)
+				menu->render(winTex);
+			else
+				menu->render(loseTex);
 
-			textProgram.use();
-			textProgram.setUniformMatrix4f("projection", projection);
-			textProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-			textProgram.setUniformMatrix4f("modelview", modelview);
+			/////////////
+			//printing results
+			/////////////
 
-			string next;
-			if (needToWin <= score) {
-				next = "Click to continue...";
-				levelInfo.render("YOU WIN!!!", glm::vec2(320, 80), 64, glm::vec4(0.2*alpha, 0.2*alpha, 0.7*alpha, 1), 0);
+			simpleTexProgram.use();
+			simpleTexProgram.setUniformMatrix4f("projection", projection);
+			simpleTexProgram.setUniform4f("color", alpha, alpha, alpha, 1.0f);
+			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
+
+
+			need = (100 * needToWin) / totalLemmings;
+			rescued = (100 * score) / totalLemmings;
+			digits->setPosition(glm::vec2(179+5, 27));
+			if (need >= 100) {
+				digits->changeAnimation(1);
+				digits->render(0);
 			}
-			else {
-				next = "Click to retry level...";
-				levelInfo.render("YOU LOSE :(", glm::vec2(320, 80), 64, glm::vec4(0.2*alpha, 0.2*alpha, 0.7*alpha, 1), 0);
+			digits->setPosition(glm::vec2(188+5, 27));
+			digits->changeAnimation((need / 10) % 10);
+			cout << (need / 10) / 10 << endl;
+			if ((need / 10) % 10 != 0 || need == 100)
+				digits->render(0);
+
+			digits->setPosition(glm::vec2(197+5, 27));
+			digits->changeAnimation(need%10);
+			digits->render(0);
+
+			digits->setPosition(glm::vec2(179+5, 37));
+			if (rescued >= 100) {
+				digits->changeAnimation(1);
+				digits->render(0);
 			}
-			string texto = "You needed: " + to_string((100*needToWin)/totalLemmings) + "%";
-			levelInfo.render(texto, glm::vec2(295, 180), 50, glm::vec4(0.2*alpha, 0.2*alpha, 0.6*alpha, 1), 0);
+			digits->setPosition(glm::vec2(188+5, 37));
+			digits->changeAnimation((rescued / 10) % 10);
+			if((rescued / 10) % 10 != 0 || rescued == 100)
+				digits->render(0);
 
-			texto = "You rescued: " + to_string((100 * score) / totalLemmings) + "%";
-			levelInfo.render(texto, glm::vec2(295, 245), 50, glm::vec4(0.2*alpha, 0.2*alpha, 0.7*alpha, 1), 0);
-
-			levelInfo.render(next, glm::vec2(330, 450), 32, glm::vec4(0.2*alpha, 0.2*alpha, 0.7*alpha, 1), 0);
+			digits->setPosition(glm::vec2(197+5, 37));
+			digits->changeAnimation(rescued % 10);
+			digits->render(0);
 
 			simpleTexProgram.use();
 			simpleTexProgram.setUniformMatrix4f("projection", projection);
@@ -914,41 +959,42 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 	glm::vec2 lemmingnormalpos;
 	switch (gamestate) {
 		case PLAYING:
-			if (bLeftButton && posY < 160) {			
-				if (id != -1 && stateSelected) {
-					if (numLemmings[lemmingsState] > 0) {
-						res = lemmings[id].setState(lemmingsState);
-						numLemmings[lemmingsState] -= res;
-						////////////////////////
-						////calcular lemmings inmunes a los blockers, para evitar que queden atrapados
-						////////////////////////
-						if (res == 1 && lemmingsState == BLOCKER_STATE) {
-							lemmingidpos = lemmings[id].getSprite()->position() + glm::vec2(120, 0);
-							for (int i = 0; i < lemmings.size(); ++i) {
-								lemmingnormalpos = lemmings[i].getSprite()->position() + glm::vec2(127, 14);
-								if (id != i && lemmingnormalpos.y <= lemmingidpos.y + 15 && lemmingnormalpos.y >= lemmingidpos.y + 6)
-									if ((lemmingnormalpos.x <= lemmingidpos.x + 13 && lemmingnormalpos.x >= lemmingidpos.x + 3) ||
-										(lemmingnormalpos.x + 1 <= lemmingidpos.x + 13 && lemmingnormalpos.x + 1 >= lemmingidpos.x + 3))
-										lemmings[i].setInmune();
+			if (!shooting) {
+				if (bLeftButton && posY < 160) {
+					if (id != -1 && stateSelected) {
+						if (numLemmings[lemmingsState] > 0) {
+							res = lemmings[id].setState(lemmingsState);
+							numLemmings[lemmingsState] -= res;
+							////////////////////////
+							////calcular lemmings inmunes a los blockers, para evitar que queden atrapados
+							////////////////////////
+							if (res == 1 && lemmingsState == BLOCKER_STATE) {
+								lemmingidpos = lemmings[id].getSprite()->position() + glm::vec2(120, 0);
+								for (int i = 0; i < lemmings.size(); ++i) {
+									lemmingnormalpos = lemmings[i].getSprite()->position() + glm::vec2(127, 14);
+									if (id != i && lemmingnormalpos.y <= lemmingidpos.y + 15 && lemmingnormalpos.y >= lemmingidpos.y + 6)
+										if ((lemmingnormalpos.x <= lemmingidpos.x + 13 && lemmingnormalpos.x >= lemmingidpos.x + 3) ||
+											(lemmingnormalpos.x + 1 <= lemmingidpos.x + 13 && lemmingnormalpos.x + 1 >= lemmingidpos.x + 3))
+											lemmings[i].setInmune();
+								}
 							}
-						}
 
+						}
 					}
+					//eraseMask(mouseX, mouseY);
 				}
-				//eraseMask(mouseX, mouseY);
-			}
-			//interfaz seleccionable
-			else if (bLeftButton && posY >= 160) {
-				//std::cout << posX << " " << posY << endl;
-				int num = (posX - 4 - 120) / 20;
-				switch (num) {
+				//interfaz seleccionable
+				else if (bLeftButton && posY >= 160) {
+					//std::cout << posX << " " << posY << endl;
+					int num = (posX - 4 - 120) / 20;
+					switch (num) {
 					case 0:
 						aEngine.play("sounds/BEEP.wav");
 						lemmingsState = CLIMBER_STATE;
 						renderSeleccionLemming = true;
 						lemmingSelected = glm::vec2(2, 160);
 						seleccionLemming->setPosition(lemmingSelected);
-						
+
 						//std::cout << "climber" << endl;
 						stateSelected = true;
 						break;
@@ -1032,7 +1078,11 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						if (x2speed) renderSeleccionPause = false;
 						std::cout << "x2Speed" << endl;
 						break;
+					}
 				}
+			}
+			else {
+				//Codigo de obtener posicion de disparo y calculos varios
 			}
 			break;
 

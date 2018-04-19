@@ -25,7 +25,7 @@ struct Level {
 	glm::vec4 bounds;
 
 	// 0:BASHER, 1:DIGGER, 2:CLIMBER, 3:EXPLOSION, 4:BLOCKER, 5:BUILDER
-	int numLemmings[6];
+	int numLemmings[7];
 };
 
 
