@@ -49,6 +49,7 @@ public:
 	void update();
 	bool mute();
 	void stopLoop();
+	void stopSound();
 	void playLoop(const std::string& filePath);
 	void play(const std::string& filePath);
 	void destroy();
