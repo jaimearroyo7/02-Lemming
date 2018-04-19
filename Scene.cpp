@@ -935,7 +935,7 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 
 					}
 				}
-				eraseMask(mouseX, mouseY);
+				//eraseMask(mouseX, mouseY);
 			}
 			//interfaz seleccionable
 			else if (bLeftButton && posY >= 160) {
