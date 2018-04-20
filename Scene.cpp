@@ -126,7 +126,8 @@ void Scene::initCursor() {
 
 
 	/*	Animation 0: Cuadrado
-		Animation 1: Flecha		*/
+		Animation 1: Flecha
+		Animation 2: Shooter apuntando  */
 
 	cursor->setNumberAnimations(3);
 	cursor->setAnimationSpeed(0, 1);
@@ -140,6 +141,8 @@ void Scene::initCursor() {
 	cursor->changeAnimation(1);
 	cursor->setPosition(glm::vec2(posX, posY));
 }
+
+//init sprite de seleccionar casilla de interfaz
 
 void Scene::initSeleccion() {
 	renderSeleccionLemming = false;
@@ -172,6 +175,7 @@ void Scene::initOpenDoor(const Level &l) {
 	openDoor->setPosition(l.openDoorPos);
 }
 
+//sprite que contiene todos los digitos, se utiliza para sacar el resultado en la pantalla de WIN/LOSE
 void Scene::initDigits() {
 	spritesheetDigits.loadFromFile("images/digits.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	spritesheetDigits.setMinFilter(GL_NEAREST);
@@ -222,6 +226,7 @@ void Scene::initFire() {
 	fire2->setPosition(glm::vec2(628, 53));
 }
 
+//init de los sprites de la pistola y de la bala del lemming shooter
 void Scene::initPistolBala() {
 	spritesheetPistol.loadFromFile("images/pistol.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	spritesheetPistol.setMinFilter(GL_NEAREST);
@@ -333,6 +338,7 @@ void Scene::init(int level)
 	// Select which font you want to use
 	//if (!levelInfo.init("fonts/OpenSans-Regular.ttf"))
 	endGameSound = true;
+	//Variacion del background en función de la hora
 	time_t theTime = time(NULL);
 	struct tm *aTime = localtime(&theTime);
 	int hour = aTime->tm_hour;
@@ -612,7 +618,7 @@ void Scene::update(int deltaTime)
 				fire->update(deltaTime);
 				fire2->update(deltaTime);
 			}
-
+			//update lemmings
 			for (int i = 0; i < totalLemmings; ++i) {
 				score += lemmings[i].update(deltaTime, currentTime);
 			}
@@ -620,6 +626,7 @@ void Scene::update(int deltaTime)
 			finish = true;
 			allOut = true;
 
+			//recuento de como vamos...
 			out = 0;
 			for (int i = 0; i < lemmings.size(); ++i) {
 				if (lemmings[i].getState() != DEAD) finish = false;
@@ -628,16 +635,14 @@ void Scene::update(int deltaTime)
 			}
 
 			if (finish || currentTime > levelTime) {
-				//Si has ganado, hacer lo que quieras.
 				aEngine.stopLoop();
 				
 				pause = false;
 				x2speed = false;
 				if (winTime == 0)
 					winTime = currentTime;
-
+				//final de la partida
 				if (currentTime - winTime > 1000.0f) {
-					//Si has ganado, hacer lo que quieras.
 					gamestate = WIN;
 					scroll = 0.0f;
 					if (score >= needToWin) {
@@ -921,7 +926,7 @@ void Scene::render()
 			textProgram.setUniformMatrix4f("projection", projection);
 			textProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			textProgram.setUniformMatrix4f("modelview", modelview);
-
+			//datos del juego
 			if (true) {
 				int timeLeft = (levelTime - currentTime) / 1000;
 				string aux = to_string(timeLeft % 60);
@@ -1190,6 +1195,7 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 										lemmings[i].setInmune();
 							}
 						}
+						//set SHOOTER
 						if (res == 1 && lemmingsState == SHOOTER && !balamoving) {
 							shootpos = lemmings[id].getSprite()->position() + glm::vec2(127, 7);
 							bala->setPosition(shootpos - glm::vec2(120, 0));

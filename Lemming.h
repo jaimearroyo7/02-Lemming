@@ -23,6 +23,8 @@ public:
 	void setMapMask(VariableTexture *mapMask, VariableTexture *mapColor);
 
 	int setState(int stateID);
+
+	//hacer un lemming inmune a BLOCKERS
 	void setInmune();
 	int getState();
 	int getCountdown();
