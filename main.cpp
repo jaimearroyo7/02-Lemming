@@ -70,6 +70,11 @@ static void entryfuncCallback(int state) {
 		Game::instance().entryfuncCallback(1);
 }
 
+void resize(int width, int height) {
+	//960x480 para el game y 100 más para UI
+	glutReshapeWindow(960, 580);
+}
+
 
 static void idleCallback()
 {
@@ -106,6 +111,7 @@ int main(int argc, char **argv)
 	glutMouseFunc(mouseCallback);
 	glutMotionFunc(motionCallback);
 	glutPassiveMotionFunc(motionCallback);
+	glutReshapeFunc(resize);
 
 	glutEntryFunc(entryfuncCallback);
 
