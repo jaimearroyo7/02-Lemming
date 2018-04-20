@@ -582,7 +582,7 @@ int Lemming::collisionFloor(int maxFall)
 	while((fall < maxFall) && !bContact)
 	{
 
-		if((mask->pixel(posBase.x, posBase.y+fall) == 0) && (mask->pixel(posBase.x+1, posBase.y+fall) == 0))
+		if(((mask->pixel(posBase.x, posBase.y+fall) == 0) || (mask->pixel(posBase.x, posBase.y + fall) == 100)) && ((mask->pixel(posBase.x+1, posBase.y + fall) == 0) || (mask->pixel(posBase.x+1, posBase.y + fall) == 100)))
 			fall += 1;
 		else
 			bContact = true;
@@ -621,10 +621,6 @@ bool Lemming::collision(int offset)
 		inmuneBlock = var;
 		return false;
 	}
-	
-	if (inmuneBlock) cout << "hola" << endl;
-	cout << int(mask->pixel(posBase.x, posBase.y)) << " " << int(mask->pixel(posBase.x + 1, posBase.y)) << endl;
-	
 	return true;
 }
 
@@ -687,7 +683,7 @@ int Lemming::setState(int stateId) {
 		case WALKING_RIGHT_STATE:
 			right = true;
 			state = WALKING_RIGHT_STATE;
-			sprite->changeAnimation(WALKING_RIGHT_STATE);
+			sprite->changeAnimation(WALKING_RIGHT);
 			break;
 		case BUILDER_STATE:
 			if (state != FALLING_LEFT_STATE && state != FALLING_RIGHT_STATE && state != BLOCKER_STATE) {
@@ -740,7 +736,7 @@ int Lemming::setState(int stateId) {
 			return 1;
 		break;
 		case SHOOTER:
-			if (state != FALLING_LEFT_STATE && state != FALLING_RIGHT_STATE && state != BLOCKER_STATE && state != CLIMBER_STATE) {
+			if (state != FALLING_LEFT_STATE && state != FALLING_RIGHT_STATE && state != BLOCKER_STATE) {
 				state = SHOOTER;
 				sprite->changeAnimation(BLOCKER_ANIM);
 				return 1;

@@ -20,7 +20,7 @@ Scene::Scene()
 	map = NULL;
 
 	//Level 1
-	L1.levelLemmings = 14;
+	L1.levelLemmings = 10;
 	L1.needToWin = 1;
 	L1.mapLength = 512.0;
 	L1.colortexture = "images/fun1.png";
@@ -32,19 +32,19 @@ Scene::Scene()
 	L1.finishDoorSize = glm::ivec2(33, 26);
 	L1.levelTime = 300000;
 	L1.ratio = 1;
-	L1.numLemmings[0] = 1;
-	L1.numLemmings[1] = 2;
-	L1.numLemmings[2] = 3;
-	L1.numLemmings[3] = 4;
-	L1.numLemmings[4] = 5;
-	L1.numLemmings[5] = 6;
-	L1.numLemmings[6] = 60;
+	L1.numLemmings[0] = 10;
+	L1.numLemmings[1] = 10;
+	L1.numLemmings[2] = 0;
+	L1.numLemmings[3] = 5;
+	L1.numLemmings[4] = 0;
+	L1.numLemmings[5] = 0;
+	L1.numLemmings[6] = 3;
 	L1.bounds = glm::vec4(-100, 360, 160, 2);
 	L1.levelSong = "sounds/lemmings.mid";
 
 	//Level 2
-	L2.levelLemmings = 1;
-	L2.needToWin = 3;
+	L2.levelLemmings = 50;
+	L2.needToWin = 5;
 	L2.mapLength = 848.0;
 	L2.colortexture = "images/fun5.png";
 	L2.masktexture = "images/fun5_mask.png";
@@ -53,21 +53,21 @@ Scene::Scene()
 	L2.finishDoortexture = "images/finishDoorBlue.png";
 	L2.finishDoorSize = glm::ivec2(38, 22);
 	L2.finishDoorPos = glm::vec2(485, 109);
-	L2.levelTime = 480000;
+	L2.levelTime = 300000;
 	L2.ratio = 1;
 	L2.numLemmings[0] = 10;
-	L2.numLemmings[1] = 20;
-	L2.numLemmings[2] = 30;
-	L2.numLemmings[3] = 40;
-	L2.numLemmings[4] = 50;
-	L2.numLemmings[5] = 60;
-	L2.numLemmings[6] = 60;
+	L2.numLemmings[1] = 2;
+	L2.numLemmings[2] = 10;
+	L2.numLemmings[3] = 20;
+	L2.numLemmings[4] = 10;
+	L2.numLemmings[5] = 0;
+	L2.numLemmings[6] = 15;
 	L2.bounds = glm::vec4(-100, 848-120-30, 160, 2);
 	L2.levelSong = "sounds/lvl2.mp3";
 
 	//Level 3
-	L3.levelLemmings = 2;
-	L3.needToWin = 3;
+	L3.levelLemmings = 5;
+	L3.needToWin = 4;
 	L3.mapLength = 1211.0;
 	L3.colortexture = "images/tricky6.png";
 	L3.masktexture = "images/tricky6_mask.png";
@@ -76,21 +76,21 @@ Scene::Scene()
 	L3.finishDoortexture = "images/finishDoorFire.png";
 	L3.finishDoorPos = glm::vec2(630, 85);
 	L3.finishDoorSize = glm::ivec2(52, 52);
-	L3.levelTime = 480000;
-	L3.numLemmings[0] = 10;
-	L3.numLemmings[1] = 20;
-	L3.numLemmings[2] = 30;
-	L3.numLemmings[3] = 40;
-	L3.numLemmings[4] = 50;
-	L3.numLemmings[5] = 60;
-	L3.numLemmings[6] = 60;
-	L3.ratio = 1;
+	L3.levelTime = 300000;
+	L3.numLemmings[0] = 20;
+	L3.numLemmings[1] = 0;
+	L3.numLemmings[2] = 20;
+	L3.numLemmings[3] = 20;
+	L3.numLemmings[4] = 20;
+	L3.numLemmings[5] = 20;
+	L3.numLemmings[6] = 20;
+	L3.ratio = 2;
 	L3.bounds = glm::vec4(-100, 1211 - 120 - 30, 160, 2);
 	L3.levelSong = "sounds/lvl3.mp3";
 
 	//Level 4
-	L4.levelLemmings = 5;
-	L4.needToWin = 3;
+	L4.levelLemmings = 80;
+	L4.needToWin = 65;
 	L4.mapLength = 1100.0;
 	L4.colortexture = "images/mayhem1.png";
 	L4.masktexture = "images/mayhem1_mask.png";
@@ -99,15 +99,15 @@ Scene::Scene()
 	L4.finishDoortexture = "images/finishDoor.png";
 	L4.finishDoorPos = glm::vec2(710, 0);
 	L4.finishDoorSize = glm::ivec2(33, 26);
-	L4.levelTime = 480000;
-	L4.numLemmings[0] = 10;
-	L4.numLemmings[1] = 20;
-	L4.numLemmings[2] = 30;
-	L4.numLemmings[3] = 40;
-	L4.numLemmings[4] = 50;
-	L4.numLemmings[5] = 60;
-	L4.numLemmings[6] = 60;
-	L4.ratio = 2;
+	L4.levelTime = 540000;
+	L4.numLemmings[0] = 0;
+	L4.numLemmings[1] = 5;
+	L4.numLemmings[2] = 2;
+	L4.numLemmings[3] = 20;
+	L4.numLemmings[4] = 10;
+	L4.numLemmings[5] = 40;
+	L4.numLemmings[6] = 7;
+	L4.ratio = 0.8;
 	L4.bounds = glm::vec4(-100, 1100 - 120 - 30, 160, 2);
 	L4.levelSong = "sounds/lvl4.mp3";
 }
@@ -970,6 +970,12 @@ void Scene::render()
 				if (numLemmings[DIGGER_STATE] < 10) num = "0" + num;
 				levelInfo.render(num, glm::vec2(322, 172 * 3), 32, glm::vec4(1),0);
 			}
+
+			if (numLemmings[SHOOTER] != 0) {
+				string num = to_string(numLemmings[SHOOTER]);
+				if (numLemmings[SHOOTER] < 10) num = "0" + num;
+				levelInfo.render(num, glm::vec2(384, 172 * 3), 32, glm::vec4(1), 0);
+			}
 			
 
 			simpleTexProgram.use();
@@ -1125,8 +1131,12 @@ void Scene::render()
 			imagesProgram.setUniform4f("color", alpha, alpha, alpha, 1.0f);
 			imagesProgram.setTextureUnit("alpha", 1.0f);
 			imagesProgram.setUniformMatrix4f("modelview", modelview);
-			menu->render(instr);
-
+			if(instrnum == 0)
+				menu->render(instr);
+			else if(instrnum == 1)
+				menu->render(instr2);
+			else
+				menu->render(instr3);
 			simpleTexProgram.use();
 			simpleTexProgram.setUniformMatrix4f("projection", projection);
 			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
@@ -1320,6 +1330,7 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 			}
 			if (posX >= 256 && posX < 308 && posY > 106 && posY < 167) {
 				instruct = true;
+				instrnum = 0;
 			}
 			if (posX >= 318 && posX < 372 && posY > 106 && posY < 167) {
 				gocredits = true;
@@ -1361,8 +1372,16 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 			goToMenu = true;
 		break;
 	case INSTR:
-		if (bLeftButton && posX > 400 && posX < 423 && posY > 147 && posY < 170)
-			levelSelectClick = true;
+		if (bLeftButton) {
+			if (instrnum != 2)
+				++instrnum;
+			else
+				levelSelectClick = true;
+		}
+		if (bRightButton) {
+			if (instrnum != 0)
+				--instrnum;
+		}
 		break;
 	case CREDITS:
 		if (bLeftButton && posX > 400 && posX < 423 && posY > 147 && posY < 170)

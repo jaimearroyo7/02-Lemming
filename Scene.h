@@ -170,7 +170,7 @@ private:
 	
 	Text levelInfo;
 	Text countdownText;
-
+	int instrnum;
 
 	Level L1;
 	Level L2;
