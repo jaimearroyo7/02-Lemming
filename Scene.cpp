@@ -658,7 +658,6 @@ void Scene::update(int deltaTime)
 					freeScene();
 					init(0);
 				}
-				else cout << "time out" << endl;
 			}
 			break;
 		case MENU:
@@ -1095,7 +1094,6 @@ void Scene::render()
 			}
 			digits->setPosition(glm::vec2(188+5, 37));
 			digits->changeAnimation((need / 10) % 10);
-			cout << (need / 10) / 10 << endl;
 			if ((need / 10) % 10 != 0 || need == 100)
 				digits->render(0,0);
 
@@ -1202,11 +1200,9 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						}
 					}
 				}
-				//eraseMask(mouseX, mouseY);
 			}
 			//interfaz seleccionable
 			else if (bLeftButton && posY >= 160) {
-				//std::cout << posX << " " << posY << endl;
 				int num = (posX - 4 - 120) / 20;
 				switch (num) {
 				case 0:
@@ -1216,7 +1212,6 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 					lemmingSelected = glm::vec2(2, 160);
 					seleccionLemming->setPosition(lemmingSelected);
 
-					//std::cout << "climber" << endl;
 					stateSelected = true;
 					break;
 				case 1:
@@ -1225,7 +1220,6 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 					renderSeleccionLemming = true;
 					lemmingSelected = glm::vec2(22, 160);
 					seleccionLemming->setPosition(lemmingSelected);
-					std::cout << "Explosion " << endl;
 					stateSelected = true;
 					break;
 				case 2:
@@ -1234,7 +1228,6 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 					renderSeleccionLemming = true;
 					lemmingSelected = glm::vec2(43, 160);
 					seleccionLemming->setPosition(lemmingSelected);
-					std::cout << "blocker" << endl;
 					stateSelected = true;
 					break;
 				case 3:
@@ -1243,7 +1236,6 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 					renderSeleccionLemming = true;
 					lemmingSelected = glm::vec2(63, 160);
 					seleccionLemming->setPosition(lemmingSelected);
-					std::cout << "Builder" << endl;
 					stateSelected = true;
 					break;
 				case 4:
@@ -1252,7 +1244,6 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 					renderSeleccionLemming = true;
 					lemmingSelected = glm::vec2(83, 160);
 					seleccionLemming->setPosition(lemmingSelected);
-					std::cout << "basher" << endl;
 					stateSelected = true;
 					break;
 				case 5:
@@ -1261,7 +1252,6 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 					renderSeleccionLemming = true;
 					lemmingSelected = glm::vec2(104, 160);
 					seleccionLemming->setPosition(lemmingSelected);
-					std::cout << "digger" << endl;
 					stateSelected = true;
 					break;
 				case 6:
@@ -1270,7 +1260,6 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 					renderSeleccionLemming = true;
 					lemmingSelected = glm::vec2(124, 160);
 					seleccionLemming->setPosition(lemmingSelected);
-					std::cout << "shooter" << endl;
 					stateSelected = true;
 					break;
 				case 7:
@@ -1278,7 +1267,6 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 					aEngine.play("sounds/BEEP.wav");
 					renderSeleccionPause = !renderSeleccionPause;
 					if (renderSeleccionPause) x2speed = false;
-					std::cout << "pasue" << endl;
 					break;
 				case 8:
 					//FULL EXPLOSION
@@ -1290,14 +1278,12 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 							lemmings[i].setState(EXPLOSION_STATE);
 						}
 					}
-					std::cout << "Full Explosion" << endl;
 					break;
 				case 9:
 					//x2 Speed
 					aEngine.play("sounds/BEEP.wav");
 					x2speed = !x2speed;
 					if (x2speed) renderSeleccionPause = false;
-					std::cout << "x2Speed" << endl;
 					break;
 				}
 			}
@@ -1402,7 +1388,6 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 }
 
 void Scene::specialKeyPressed(int key) {
-	cout << key << endl;
 	switch (key) {
 		case 100:
 			
@@ -1558,7 +1543,6 @@ int Scene::getgameState() {
 void Scene::entryfuncCallback(int state)
 {
 	if (state) {
-		cout << posX << " " << posY << endl;
 		if(posX < 150)
 			glutWarpPointer(5, posY * 3);
 		//glutWarpPointer(posX*3 - 120, posY*3);
@@ -1570,7 +1554,6 @@ void Scene::entryfuncCallback(int state)
 
 void Scene::keyPressed(int key)
 {
-	cout << key << endl;
 	if (key == 27) {
 		if (gamestate == PLAYING || LEVEL_INFO || WIN || LOSE) {
 			gamestate = MENU;

@@ -49,7 +49,6 @@ void AudioEngine::playLoop(const std::string & songPath) {
 	if (!muteState) {
 		stopLoop();
 		FMOD_RESULT result = fmodSystem->playSound(loadMusic(songPath).m_music, 0, false, &channelBackground);
-		cout << endl;
 	}
 }
 
@@ -62,12 +61,8 @@ void AudioEngine::stopSound() {
 
 void AudioEngine::play(const std::string & songPath) {
 	if (!muteState) {
-		cout << "mute state: " << muteState << endl;
-		cout << endl << endl << "PLAY SOUND" << endl;
 		FMOD_RESULT result = fmodSystem->playSound(loadSoundEffect(songPath).m_sound, 0, false, &channelSoundEffect);
 		if (result != FMOD_OK) cout << "error playing loop" << result << endl;
-		else cout << "playing sound " << result << endl;
-		cout << endl;
 	}
 }
 

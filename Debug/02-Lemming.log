@@ -2,7 +2,7 @@
   Game.cpp
   Lemming.cpp
 c:\users\jaime\onedrive\desktop\llemmingssoucetree\lemming.cpp(482): warning C4554: '|': compruebe la prioridad de operador para posibles errores; utilice paréntesis para indicar la prioridad
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\lemming.cpp(524): warning C4554: '|': compruebe la prioridad de operador para posibles errores; utilice paréntesis para indicar la prioridad
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\lemming.cpp(523): warning C4554: '|': compruebe la prioridad de operador para posibles errores; utilice paréntesis para indicar la prioridad
   main.cpp
   MaskedTexturedQuad.cpp
   Scene.cpp
@@ -12,23 +12,23 @@ c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(337): warning C4996
   c:\program files (x86)\windows kits\10\include\10.0.16299.0\ucrt\time.h(505): note: vea la declaración de 'localtime'
 c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(496): warning C4018: '<': no coinciden signed/unsigned
 c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(624): warning C4018: '<': no coinciden signed/unsigned
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(671): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(708): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(733): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(754): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(795): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(817): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(917): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(927): warning C4244: 'inicializando': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1017): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1034): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1050): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1072): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1132): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1152): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1187): warning C4018: '<': no coinciden signed/unsigned
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1289): warning C4018: '<': no coinciden signed/unsigned
-c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1585): warning C4554: '|': compruebe la prioridad de operador para posibles errores; utilice paréntesis para indicar la prioridad
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(670): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(707): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(732): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(753): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(794): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(816): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(916): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(926): warning C4244: 'inicializando': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1016): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1033): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1049): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1071): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1130): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1150): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1185): warning C4018: '<': no coinciden signed/unsigned
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1277): warning C4018: '<': no coinciden signed/unsigned
+c:\users\jaime\onedrive\desktop\llemmingssoucetree\scene.cpp(1568): warning C4554: '|': compruebe la prioridad de operador para posibles errores; utilice paréntesis para indicar la prioridad
   Shader.cpp
   ShaderProgram.cpp
   Sprite.cpp

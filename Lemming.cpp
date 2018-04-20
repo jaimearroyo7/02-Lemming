@@ -481,7 +481,6 @@ int Lemming::update(int deltaTime, float seconds)
 
 			if (sprite->getKeyframe() == 18 | sprite->getKeyframe() == 2)
 				aEngine->play("sounds/SLICER.wav");
-			cout << sprite->getKeyframe() << endl;
 		
 			break;
 
@@ -523,7 +522,6 @@ int Lemming::update(int deltaTime, float seconds)
 			}
 			if (sprite->getKeyframe() == 0 | sprite->getKeyframe() == 5)
 				aEngine->play("sounds/SCRAPE.wav");
-			cout << sprite->getKeyframe() << endl;
 			break;
 
 		case FALLING_LEFT_STATE:
