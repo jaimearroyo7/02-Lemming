@@ -382,7 +382,9 @@ void Scene::init(int level)
 		level2Info.loadFromFile("images/infoLevel2.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		level3Info.loadFromFile("images/infoLevel3.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		level4Info.loadFromFile("images/infoLevel4.png", TEXTURE_PIXEL_FORMAT_RGBA);
-		instr.loadFromFile("images/instrucciones.png", TEXTURE_PIXEL_FORMAT_RGBA);
+		instr.loadFromFile("images/howtoplay1.png", TEXTURE_PIXEL_FORMAT_RGBA);
+		instr2.loadFromFile("images/howtoplay2.png", TEXTURE_PIXEL_FORMAT_RGBA);
+		instr3.loadFromFile("images/howtoplay3.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		credits.loadFromFile("images/credits.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		winTex.loadFromFile("images/win.png", TEXTURE_PIXEL_FORMAT_RGBA);
 		loseTex.loadFromFile("images/lose.png", TEXTURE_PIXEL_FORMAT_RGBA);
@@ -391,6 +393,11 @@ void Scene::init(int level)
 	}
 	cursor->changeAnimation(1);
 	switch (gamestate) {
+		case CREDITS:
+			alpha = 1.0f;
+			transitionTime = 0;
+			inMenu = false;
+			aEngine.playLoop("sounds/crowd.mp3");
 		case PLAYING:
 			inMenu = false;
 			if (level == 1) {
@@ -424,7 +431,6 @@ void Scene::init(int level)
 			alpha = 1.0f;
 			transitionTime = 0;
 		case LEVEL_INFO:
-			aEngine.playLoop("sounds/lvl2.mp3");
 			alpha = 1.0f;
 			transitionTime = 0;
 		default:
@@ -578,6 +584,9 @@ void Scene::update(int deltaTime)
 				if (int(maskTexture.pixel(intpos.x, intpos.y)) != 0 && int(maskTexture.pixel(intpos.x, intpos.y)) != 100 && !balaexploding) {
 					balaexploding = true;
 					bala->changeAnimation(1);
+				}
+				if (balaexploding && bala->getKeyframe() == 6) {
+					aEngine.play("sounds/balaexplode.wav");
 				}
 				if (balaexploding && bala->getKeyframe() == 8) {
 					int radius = 14;
@@ -1156,6 +1165,7 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 		if (!shooting) {
 			if (bLeftButton && posY < 160) {
 				if (id != -1 && stateSelected) {
+					aEngine.play("sounds/ingameClick.wav");
 					if (numLemmings[lemmingsState] > 0) {
 						res = lemmings[id].setState(lemmingsState);
 						numLemmings[lemmingsState] -= res;
@@ -1174,10 +1184,11 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 						}
 						if (res == 1 && lemmingsState == SHOOTER && !balamoving) {
 							shootpos = lemmings[id].getSprite()->position() + glm::vec2(127, 7);
-							bala->setPosition(shootpos-glm::vec2(120,0));
+							bala->setPosition(shootpos - glm::vec2(120, 0));
 							idshooter = id;
 							cursor->changeAnimation(2);
 							shooting = true;
+							
 						}
 					}
 				}
@@ -1282,6 +1293,7 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 			}
 		}
 		else {
+			aEngine.play("sounds/shot.wav");
 			//Codigo de obtener posicion de disparo y calculos varios
 			objpos = glm::vec2(float(posX)+scroll, float(posY)-3);
 			lemmings[idshooter].setState(WALKING_RIGHT_STATE);
@@ -1541,7 +1553,7 @@ void Scene::keyPressed(int key)
 {
 	cout << key << endl;
 	if (key == 27) {
-		if (gamestate == PLAYING) {
+		if (gamestate == PLAYING || LEVEL_INFO || WIN || LOSE) {
 			gamestate = MENU;
 			onePlayer = false;
 			levelSelectClick = false;
@@ -1551,7 +1563,7 @@ void Scene::keyPressed(int key)
 
 		}
 	}
-	if (key == 109) { // key: m
+	if (key == 109 | key == 77) { // key: m
 		if (!aEngine.mute()) {
 			if (gamestate == PLAYING) {
 				switch (numLevel) {

@@ -88,7 +88,7 @@ private:
 	Texture level1Info, level2Info, level3Info, level4Info, level5Info;
 
 	Texture winTex, loseTex;
-	Texture credits, instr;
+	Texture credits, instr, instr2, instr3;
 	bool instruct, gocredits;
 	TexturedQuad *UI;
 	Texture UITexture;
