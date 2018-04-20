@@ -563,7 +563,7 @@ int Lemming::update(int deltaTime, float seconds)
 
 void Lemming::render(float scroll)
 {
-	if(state != DEAD && state != RESPAWN) sprite->render(scroll);
+	if(state != DEAD && state != RESPAWN) sprite->render(scroll,0);
 }
 
 void Lemming::setMapMask(VariableTexture *mapMask, VariableTexture *mapColor)
@@ -684,6 +684,11 @@ int Lemming::setState(int stateId) {
 	glm::ivec2 pos = sprite->position();
 	pos += glm::vec2(120, 0);
 	switch (stateId) {
+		case WALKING_RIGHT_STATE:
+			right = true;
+			state = WALKING_RIGHT_STATE;
+			sprite->changeAnimation(WALKING_RIGHT_STATE);
+			break;
 		case BUILDER_STATE:
 			if (state != FALLING_LEFT_STATE && state != FALLING_RIGHT_STATE && state != BLOCKER_STATE) {
 				state = BUILDER_STATE;

@@ -54,10 +54,12 @@ int Sprite::update(int deltaTime)
 	return frames;
 }
 
-void Sprite::render(float scroll) const
+void Sprite::render(float scroll, float degree) const
 {
-	glm::mat4 modelview = glm::translate(glm::mat4(1.0f), glm::vec3(pos.x, pos.y, 0.f));
+	glm::mat4 modelview = glm::mat4(1.0f);
+	modelview = glm::translate(modelview, glm::vec3(pos.x, pos.y, 0.f));
 	modelview = glm::translate(modelview, glm::vec3(scroll, 0.0f, 0.f));
+	modelview = glm::rotate(modelview, degree, glm::vec3(0.0f, 0.0f, 1.0f));
 	shaderProgram->setUniformMatrix4f("modelview", modelview);
 	shaderProgram->setUniform2f("texCoordDispl", texCoordDispl.x, texCoordDispl.y);
 	glEnable(GL_TEXTURE_2D);

@@ -147,9 +147,11 @@ private:
 	Texture spritesheetBala;
 
 	bool shooting;
-	glm::vec2 shootpos;
-	glm::vec2 objpos;
-
+	glm::vec2 shootpos = glm::vec2(1,1);
+	glm::vec2 objpos = glm::vec2(1, 1);
+	bool balamoving, balaexploding;
+	int idshooter;
+	float degree, baladegree;
 
 	glm::vec2 lemmingSelected;
 	Sprite *seleccionLemming;

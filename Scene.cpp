@@ -235,14 +235,18 @@ void Scene::initPistolBala() {
 	pistol->changeAnimation(0);
 	pistol->setPosition(glm::vec2(100,100));
 
-	spritesheetBala.loadFromFile("images/pistol.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	spritesheetBala.loadFromFile("images/ball.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	spritesheetBala.setMinFilter(GL_NEAREST);
 	spritesheetBala.setMagFilter(GL_NEAREST);
-	bala = Sprite::createSprite(glm::vec2(15, 7), glm::vec2(0.5f, 1), &spritesheetBala, &simpleTexProgram);
+	bala = Sprite::createSprite(glm::vec2(16,16), glm::vec2(1.0f/10.0f, 1), &spritesheetBala, &simpleTexProgram);
 	bala->setNumberAnimations(2);
 	bala->setAnimationSpeed(0, 1);
-	bala->setAnimationSpeed(1, 1);
+	bala->addKeyframe(0, glm::vec2(0.0f, 0.0f));
+	bala->setAnimationSpeed(1, 15);
+	for(int i = 1; i < 10; ++i)
+		bala->addKeyframe(1, glm::vec2(float(i) / 10.0f, 0.0f));
 
+	bala->changeAnimation(0);
 	bala->setPosition(glm::vec2(100, 100));
 }
 
@@ -558,6 +562,38 @@ void Scene::update(int deltaTime)
 			}
 			cursor->update(deltaTime);
 
+			///////Bala update
+			if (balamoving) {
+				bala->update(deltaTime);
+				if(!balaexploding)
+					bala->setPosition(glm::vec2(3 * cos(baladegree), 3 * sin(baladegree)) + bala->position());
+
+				glm::ivec2 intpos = bala->position()+glm::vec2(120+8,8);
+				if (intpos.x < bounds[0] || intpos.x > bounds[1] || intpos.y > bounds[2] || intpos.y < bounds[3]) {
+					balaexploding = false;
+					balamoving = false;
+					bala->changeAnimation(0);
+				}
+
+				if (int(maskTexture.pixel(intpos.x, intpos.y)) != 0 && int(maskTexture.pixel(intpos.x, intpos.y)) != 100 && !balaexploding) {
+					balaexploding = true;
+					bala->changeAnimation(1);
+				}
+				if (balaexploding && bala->getKeyframe() == 8) {
+					int radius = 14;
+					for (int y = -radius; y <= radius; y++)
+						for (int x = -radius; x <= radius; x++)
+							if (x*x + y * y <= radius * radius) {
+								if (maskTexture.pixel(intpos.x + x, intpos.y + y) != 100) 
+									maskTexture.setPixel(intpos.x + x, intpos.y + y, 0);
+							}
+					balaexploding = false;
+					balamoving = false;
+					bala->changeAnimation(0);
+				}
+			}
+
+
 
 			if (openDoor->getKeyframe() != 9) openDoor->update(deltaTime);
 			if (openDoor->getKeyframe() == 2) aEngine.play("sounds/DOOR.wav");
@@ -801,11 +837,11 @@ void Scene::render()
 			simpleTexProgram.setUniformMatrix4f("projection", projection2);
 			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
-			finishDoor->render(0);
-			openDoor->render(0);
+			finishDoor->render(0,0);
+			openDoor->render(0,0);
 			if (numLevel == 3) {
-				fire->render(0);
-				fire2->render(0);
+				fire->render(0,0);
+				fire2->render(0,0);
 			}
 
 
@@ -827,19 +863,29 @@ void Scene::render()
 			for (int i = 0; i < totalLemmings; ++i) {
 				lemmings[i].render(0);
 			}
-			cursor->render(scroll);
+			cursor->render(scroll,0);
+
+			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
+			
 			if (shooting) {
-				cout << 120 + shootpos.x  << " " << posX << endl;
 				if (posX >= shootpos.x - scroll) {
 					pistol->changeAnimation(0);
-					pistol->setPosition(glm::vec2(shootpos.x - 120 + 4, shootpos.y));
+					pistol->setPosition(glm::vec2(shootpos.x - 120, shootpos.y));
+					pistol->render(0, degree);
 				}
 				else {
 					pistol->changeAnimation(1);
-					pistol->setPosition(glm::vec2(shootpos.x - 120 - 20, shootpos.y));
+					pistol->setPosition(glm::vec2(shootpos.x - 120, shootpos.y+7));
+					pistol->render(0, degree);
 				}
-				pistol->render(0);
+				
 			}
+			//bala->setPosition(glm::vec2(100, 100));
+			
+			if (balamoving) {
+				bala->render(0, 0);
+			}
+
 
 
 			textProgram.use();
@@ -924,28 +970,28 @@ void Scene::render()
 			
 			seleccionLemming->setPosition(lemmingSelected);
 			if (renderSeleccionLemming)
-				seleccionLemming->render(0);
+				seleccionLemming->render(0,0);
 
 			if (renderSeleccionPause) {
 				seleccionLemming->setPosition(glm::vec2(145, 160));
-				seleccionLemming->render(0);
+				seleccionLemming->render(0,0);
 			}
 
 			if (renderSeleccionExplosion) {
 				seleccionLemming->setPosition(glm::vec2(165, 160));
-				seleccionLemming->render(0);
+				seleccionLemming->render(0,0);
 			}
 
 			if (x2speed) {
 				seleccionLemming->setPosition(glm::vec2(185, 160));
-				seleccionLemming->render(0);
+				seleccionLemming->render(0,0);
 			}
 
 			simpleTexProgram.use();
 			simpleTexProgram.setUniformMatrix4f("projection", projection2);
 			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
-			cursor->render(scroll);
+			cursor->render(scroll,0);
 
 			break;
 
@@ -962,7 +1008,7 @@ void Scene::render()
 			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
 
-			cursor->render(0);
+			cursor->render(0,0);
 			
 			break;
 
@@ -979,7 +1025,7 @@ void Scene::render()
 			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
 
-			cursor->render(0);
+			cursor->render(0,0);
 			break;
 
 		case LEVEL_INFO:
@@ -1002,7 +1048,7 @@ void Scene::render()
 			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
 
-			cursor->render(0);
+			cursor->render(0,0);
 			break;
 		case WIN:
 			imagesProgram.use();
@@ -1030,38 +1076,38 @@ void Scene::render()
 			digits->setPosition(glm::vec2(179+5, 37));
 			if (need >= 100) {
 				digits->changeAnimation(1);
-				digits->render(0);
+				digits->render(0,0);
 			}
 			digits->setPosition(glm::vec2(188+5, 37));
 			digits->changeAnimation((need / 10) % 10);
 			cout << (need / 10) / 10 << endl;
 			if ((need / 10) % 10 != 0 || need == 100)
-				digits->render(0);
+				digits->render(0,0);
 
 			digits->setPosition(glm::vec2(197+5, 37));
 			digits->changeAnimation(need%10);
-			digits->render(0);
+			digits->render(0,0);
 
 			digits->setPosition(glm::vec2(179+7, 27));
 			if (rescued >= 100) {
 				digits->changeAnimation(1);
-				digits->render(0);
+				digits->render(0,0);
 			}
 			digits->setPosition(glm::vec2(188+7, 27));
 			digits->changeAnimation((rescued / 10) % 10);
 			if((rescued / 10) % 10 != 0 || rescued == 100)
-				digits->render(0);
+				digits->render(0,0);
 
 			digits->setPosition(glm::vec2(197+7, 27));
 			digits->changeAnimation(rescued % 10);
-			digits->render(0);
+			digits->render(0,0);
 
 			simpleTexProgram.use();
 			simpleTexProgram.setUniformMatrix4f("projection", projection);
 			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
 
-			cursor->render(0);
+			cursor->render(0,0);
 			break;
 
 		case INSTR:
@@ -1077,7 +1123,7 @@ void Scene::render()
 			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
 
-			cursor->render(0);
+			cursor->render(0,0);
 
 			break;
 		case CREDITS:
@@ -1093,7 +1139,7 @@ void Scene::render()
 			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
 
-			cursor->render(0);
+			cursor->render(0,0);
 
 
 			break;
@@ -1126,8 +1172,10 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 										lemmings[i].setInmune();
 							}
 						}
-						if (res == 1 && lemmingsState == SHOOTER) {
+						if (res == 1 && lemmingsState == SHOOTER && !balamoving) {
 							shootpos = lemmings[id].getSprite()->position() + glm::vec2(127, 7);
+							bala->setPosition(shootpos-glm::vec2(120,0));
+							idshooter = id;
 							cursor->changeAnimation(2);
 							shooting = true;
 						}
@@ -1235,7 +1283,12 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 		}
 		else {
 			//Codigo de obtener posicion de disparo y calculos varios
-			objpos = glm::vec2(float(posX), float(posY));
+			objpos = glm::vec2(float(posX)+scroll, float(posY)-3);
+			lemmings[idshooter].setState(WALKING_RIGHT_STATE);
+			degree = atan2(float(objpos.y - shootpos.y), float(objpos.x - (shootpos.x)));
+			baladegree = degree;
+			balamoving = true;
+			balaexploding = false;
 			shooting = false;
 			cursor->changeAnimation(2);
 
@@ -1313,7 +1366,8 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 	posX = mouseX / 3 + 120;
 	posY = mouseY / 3;
 	//cout << posX << " " << posY << endl;
-	
+	objpos = glm::vec2(float(posX) + scroll, float(posY) - 3);
+	degree = atan2(float(objpos.y - shootpos.y), float(objpos.x - (shootpos.x)));
 }
 
 void Scene::specialKeyPressed(int key) {
