@@ -1365,14 +1365,20 @@ void Scene::mousePress(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 		break;
 	case INSTR:
 		if (bLeftButton) {
-			if (instrnum != 2)
+			if (instrnum != 2) {
 				++instrnum;
+				aEngine.play("sounds/BEEPSELECT.wav");
+			}
 			else
 				levelSelectClick = true;
 		}
 		if (bRightButton) {
-			if (instrnum != 0)
+			if (instrnum != 0) {
 				--instrnum;
+				aEngine.play("sounds/BEEPSELECT.wav");
+			} 
+			else
+				levelSelectClick = true;
 		}
 		break;
 	case CREDITS:
